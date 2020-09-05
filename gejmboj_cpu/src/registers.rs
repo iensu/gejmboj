@@ -36,6 +36,8 @@
 //! Where bit 0-3 are grounded to `0` and can't be overwritten and `C` is for carry, `H` for half-carry, `N`
 //! for negative and `Z` for zero.
 
+use std::fmt::Display;
+
 pub struct Registers {
     a: u8,
     b: u8,
@@ -205,6 +207,23 @@ impl Registers {
                 self.l = lo;
             }
         }
+    }
+}
+
+impl Display for Registers {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "
+PC:{:04x?} SP:{:04x?}
+
+ A:{:02x?} {:02x?}:F
+ B:{:02x?} {:02x?}:C
+ D:{:02x?} {:02x?}:E
+ H:{:02x?} {:02x?}:L
+",
+            self.pc, self.sp, self.a, self.f, self.b, self.c, self.d, self.e, self.h, self.l
+        )
     }
 }
 
