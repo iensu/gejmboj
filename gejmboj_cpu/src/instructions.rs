@@ -1,3 +1,5 @@
+//! Sharp SM83 instruction set
+
 use crate::{errors::CpuError, memory::Memory, registers::Registers};
 
 mod control_flow;
@@ -17,6 +19,38 @@ pub trait Instruction {
     fn length(&self) -> u16;
 }
 
+#[derive(Debug)]
+pub enum Condition {
+    Carry,
+    NoCarry,
+    Zero,
+    NotZero,
+}
+
+impl Condition {
+    pub fn parse(c1: u8, c2: u8) -> Result<Self, CpuError> {
+        match (c1, c2) {
+            (0, 0) => Ok(Condition::Carry),
+            (0, 1) => Ok(Condition::NoCarry),
+            (1, 0) => Ok(Condition::Zero),
+            (1, 1) => Ok(Condition::NotZero),
+            _ => Err(CpuError::Error(format!(
+                "Unknown instruction condition ({}, {})",
+                c1, c2
+            ))),
+        }
+    }
+
+    pub fn is_fulfilled(&self, registers: &Registers) -> bool {
+        match self {
+            Condition::Carry => registers.is_carry(),
+            Condition::NoCarry => !registers.is_carry(),
+            Condition::Zero => registers.is_zero(),
+            Condition::NotZero => !registers.is_zero(),
+        }
+    }
+}
+
 /// Decode an operation code into an `Instruction`.
 pub fn decode(opcode: u8, pc: u16, memory: &Memory) -> Result<Box<dyn Instruction>, CpuError> {
     match into_bits(opcode) {
@@ -31,6 +65,18 @@ pub fn decode(opcode: u8, pc: u16, memory: &Memory) -> Result<Box<dyn Instructio
         (1, 1, 1, 0, 1, 0, 0, 1) => Ok(Box::new(control_flow::JpToHL {})),
         (0, 0, 0, 1, 1, 0, 0, 0) => Ok(Box::new(control_flow::JpToOffset {
             operand: get_8bit_operand(pc, memory),
+        })),
+        (1, 1, 0, c, d, 0, 1, 0) => Ok(Box::new(control_flow::JpIf {
+            operand: get_16bit_operand(pc, memory),
+            condition: Condition::parse(c, d).unwrap(),
+        })),
+        (0, 0, 1, c, d, 0, 0, 0) => Ok(Box::new(control_flow::JpToOffsetIf {
+            operand: get_8bit_operand(pc, memory),
+            condition: Condition::parse(c, d).unwrap(),
+        })),
+        (1, 1, 0, c, d, 1, 0, 0) => Ok(Box::new(control_flow::CallIf {
+            operand: get_16bit_operand(pc, memory),
+            condition: Condition::parse(c, d).unwrap(),
         })),
         _ => Err(CpuError::UnknownInstruction(opcode)),
     }

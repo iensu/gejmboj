@@ -212,6 +212,78 @@ impl Registers {
             }
         }
     }
+
+    /// Returns `true` if the carry flag is set.
+    ///
+    /// ## Examples
+    ///
+    /// ```
+    /// # use gejmboj_cpu::registers::*;
+    /// let mut registers = Registers::new();
+    ///
+    /// registers.set_single(SingleRegister::F, 0b0000_0000);
+    /// assert_eq!(false, registers.is_carry());
+    ///
+    /// registers.set_single(SingleRegister::F, 0b0001_0000);
+    /// assert_eq!(true, registers.is_carry());
+    /// ```
+    pub fn is_carry(&self) -> bool {
+        self.f & 0b0001_0000 > 0
+    }
+
+    /// Returns `true` if the half carry flag is set.
+    ///
+    /// ## Examples
+    ///
+    /// ```
+    /// # use gejmboj_cpu::registers::*;
+    /// let mut registers = Registers::new();
+    ///
+    /// registers.set_single(SingleRegister::F, 0b0000_0000);
+    /// assert_eq!(false, registers.is_half_carry());
+    ///
+    /// registers.set_single(SingleRegister::F, 0b0010_0000);
+    /// assert_eq!(true, registers.is_half_carry());
+    /// ```
+    pub fn is_half_carry(&self) -> bool {
+        self.f & 0b0010_0000 > 0
+    }
+
+    /// Returns `true` if the negative flag is set.
+    ///
+    /// ## Examples
+    ///
+    /// ```
+    /// # use gejmboj_cpu::registers::*;
+    /// let mut registers = Registers::new();
+    ///
+    /// registers.set_single(SingleRegister::F, 0b0000_0000);
+    /// assert_eq!(false, registers.is_negative());
+    ///
+    /// registers.set_single(SingleRegister::F, 0b0100_0000);
+    /// assert_eq!(true, registers.is_negative());
+    /// ```
+    pub fn is_negative(&self) -> bool {
+        self.f & 0b0100_0000 > 0
+    }
+
+    /// Returns `true` if the zero flag is set.
+    ///
+    /// ## Examples
+    ///
+    /// ```
+    /// # use gejmboj_cpu::registers::*;
+    /// let mut registers = Registers::new();
+    ///
+    /// registers.set_single(SingleRegister::F, 0b0000_0000);
+    /// assert_eq!(false, registers.is_zero());
+    ///
+    /// registers.set_single(SingleRegister::F, 0b1000_0000);
+    /// assert_eq!(true, registers.is_zero());
+    /// ```
+    pub fn is_zero(&self) -> bool {
+        self.f & 0b1000_0000 > 0
+    }
 }
 
 impl Display for Registers {
