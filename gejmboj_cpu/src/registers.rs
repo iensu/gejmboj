@@ -35,6 +35,10 @@
 //!
 //! Where bit 0-3 are grounded to `0` and can't be overwritten and `C` is for carry, `H` for half-carry, `N`
 //! for negative and `Z` for zero.
+//!
+//! ## Stack pointer register (SP)
+//!
+//! The stack pointer register is initialized to `0xFFFE` and grows top-down, which means it is decremented.
 
 use std::fmt::Display;
 
@@ -64,7 +68,7 @@ impl Registers {
             h: 0,
             l: 0,
             pc: 0,
-            sp: 0,
+            sp: 0xFFFE,
         }
     }
 

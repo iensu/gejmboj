@@ -24,9 +24,20 @@ pub fn decode(opcode: u8, pc: u16, memory: &Memory) -> Result<Box<dyn Instructio
         (1, 1, 0, 0, 0, 0, 1, 1) => Ok(Box::new(control_flow::Jp {
             operand: get_16bit_operand(pc, memory),
         })),
-
+        (1, 1, 0, 0, 1, 0, 0, 1) => Ok(Box::new(control_flow::Ret {})),
+        (1, 1, 0, 0, 1, 1, 0, 1) => Ok(Box::new(control_flow::Call {
+            operand: get_16bit_operand(pc, memory),
+        })),
+        (1, 1, 1, 0, 1, 0, 0, 1) => Ok(Box::new(control_flow::JpToHL {})),
+        (0, 0, 0, 1, 1, 0, 0, 0) => Ok(Box::new(control_flow::JpToOffset {
+            operand: get_8bit_operand(pc, memory),
+        })),
         _ => Err(CpuError::UnknownInstruction(opcode)),
     }
+}
+
+fn get_8bit_operand(pc: u16, memory: &Memory) -> u8 {
+    memory.get((pc as usize) + 1)
 }
 
 fn get_16bit_operand(pc: u16, memory: &Memory) -> u16 {
