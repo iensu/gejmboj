@@ -6,12 +6,12 @@ mod misc;
 pub use control_flow::*;
 pub use misc::*;
 
+/// Return either the number of consumed machine cycles, or a `CpuError`.
+pub type InstructionResult = Result<u16, CpuError>;
+
 /// Trait for implementing a Sharp SM83 instruction.
 pub trait Instruction {
-    fn execute(&self, registers: &mut Registers, memory: &mut Memory) -> Result<(), CpuError>;
-
-    /// Returns the number of machine cycles required to execute the instruction
-    fn duration(&self) -> u16;
+    fn execute(&self, registers: &mut Registers, memory: &mut Memory) -> InstructionResult;
 
     /// Returns the byte length of the operation
     fn length(&self) -> u16;

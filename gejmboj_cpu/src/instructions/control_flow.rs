@@ -1,4 +1,4 @@
-use super::Instruction;
+use super::{Instruction, InstructionResult};
 use crate::registers::DoubleRegister;
 use std::fmt::Display;
 
@@ -25,13 +25,11 @@ impl Instruction for Jp {
         &self,
         registers: &mut crate::registers::Registers,
         _memory: &mut crate::memory::Memory,
-    ) -> Result<(), crate::errors::CpuError> {
+    ) -> InstructionResult {
         registers.pc = self.operand;
-        Ok(())
+        Ok(4)
     }
-    fn duration(&self) -> u16 {
-        4
-    }
+
     fn length(&self) -> u16 {
         3
     }
@@ -64,13 +62,11 @@ impl Instruction for JpToHL {
         &self,
         registers: &mut crate::registers::Registers,
         _memory: &mut crate::memory::Memory,
-    ) -> Result<(), crate::errors::CpuError> {
+    ) -> InstructionResult {
         registers.pc = registers.get_double(DoubleRegister::HL);
-        Ok(())
+        Ok(1)
     }
-    fn duration(&self) -> u16 {
-        1
-    }
+
     fn length(&self) -> u16 {
         1
     }
@@ -105,13 +101,11 @@ impl Instruction for JpToOffset {
         &self,
         registers: &mut crate::registers::Registers,
         _memory: &mut crate::memory::Memory,
-    ) -> Result<(), crate::errors::CpuError> {
+    ) -> InstructionResult {
         registers.pc += self.operand as u16;
-        Ok(())
+        Ok(3)
     }
-    fn duration(&self) -> u16 {
-        3
-    }
+
     fn length(&self) -> u16 {
         2
     }
@@ -148,17 +142,15 @@ impl Instruction for Call {
         &self,
         registers: &mut crate::registers::Registers,
         memory: &mut crate::memory::Memory,
-    ) -> Result<(), crate::errors::CpuError> {
+    ) -> InstructionResult {
         let [lo, hi] = registers.pc.to_le_bytes();
         memory.set((registers.sp - 1).into(), hi);
         memory.set((registers.sp - 2).into(), lo);
         registers.sp -= 2;
         registers.pc = self.operand;
-        Ok(())
+        Ok(6)
     }
-    fn duration(&self) -> u16 {
-        6
-    }
+
     fn length(&self) -> u16 {
         3
     }
@@ -195,16 +187,14 @@ impl Instruction for Ret {
         &self,
         registers: &mut crate::registers::Registers,
         memory: &mut crate::memory::Memory,
-    ) -> Result<(), crate::errors::CpuError> {
+    ) -> InstructionResult {
         registers.pc = memory.get_u16(registers.sp.into());
         registers.sp += 2;
-        Ok(())
+        Ok(4)
     }
-    fn duration(&self) -> u16 {
-        6
-    }
+
     fn length(&self) -> u16 {
-        3
+        1
     }
 }
 
