@@ -1,0 +1,27 @@
+name: Rust Docs
+
+on:
+  push:
+    branches: [ master ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build documentation
+      run: cargo doc --no-deps --all
+
+    - name: Deploy GH Pages
+      uses: JamesIves/github-pages-deploy-action@3.5.9
+      with:
+        GITHUB_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+        BRANCH: gh-pages
+        FOLDER: ./target/doc
+        SSH: true
