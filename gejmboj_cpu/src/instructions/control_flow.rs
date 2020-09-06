@@ -9,7 +9,7 @@ use std::fmt::Display;
 /// # use gejmboj_cpu::instructions::*;
 /// let mut registers = Registers::new();
 /// let mut memory = Memory::new();
-/// let instruction = Jp { operand: 0xBADA};
+/// let instruction = Jp { operand: 0xBADA };
 ///
 /// assert_eq!(0, registers.pc);
 /// instruction.execute(&mut registers, &mut memory).unwrap();

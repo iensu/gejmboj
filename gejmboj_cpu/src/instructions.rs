@@ -6,6 +6,7 @@ mod misc;
 pub use control_flow::*;
 pub use misc::*;
 
+/// Trait for implementing a Sharp SM83 instruction.
 pub trait Instruction {
     fn execute(&self, registers: &mut Registers, memory: &mut Memory) -> Result<(), CpuError>;
 
@@ -16,6 +17,7 @@ pub trait Instruction {
     fn length(&self) -> u16;
 }
 
+/// Decode an operation code into an `Instruction`.
 pub fn decode(opcode: u8, pc: u16, memory: &Memory) -> Result<Box<dyn Instruction>, CpuError> {
     match into_bits(opcode) {
         (0, 0, 0, 0, 0, 0, 0, 0) => Ok(Box::new(misc::Noop {})),

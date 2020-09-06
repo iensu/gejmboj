@@ -1,3 +1,5 @@
+//! Gejmboj CPU related errors
+
 use std::{error::Error, fmt::Display};
 
 #[derive(Debug)]

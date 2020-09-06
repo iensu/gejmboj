@@ -1,3 +1,23 @@
+//! # Memory implementation
+//!
+//! Memory data is stored in Little-Endian fashion, which means that the least significant
+//! byte is stored at a lower memory location than the most significant byte.
+//!
+//! ## Memory map
+//!
+//! ```asciidoc
+//! 0000-7FFF: External bus (ROM)
+//! 8000-9FFF: VRAM
+//! A000-BFFF: External bus (RAM)
+//! C000-DFFF: WRAM
+//! E000-FDFF: Echo (WRAM)
+//! FE00-FE9F: Object Attribute Memory (OAM)
+//! FEA0-FEFF: Invalid OAM
+//! FF00-FF7F: Memory mapped I/O
+//! FF80-FFFE: High RAM (HRAM)
+//! FFFF:      IE register
+//! ```
+
 use std::fmt::Display;
 
 pub struct Memory {

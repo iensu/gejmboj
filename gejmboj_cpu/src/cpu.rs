@@ -1,3 +1,5 @@
+//! Sharp SM83 CPU implementation
+
 use crate::{
     errors::CpuError, instructions, instructions::Instruction, memory::Memory, registers::Registers,
 };
