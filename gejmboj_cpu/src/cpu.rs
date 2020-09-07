@@ -4,21 +4,41 @@ use crate::{
     errors::CpuError, instructions, instructions::Instruction, memory::Memory, registers::Registers,
 };
 
-pub struct CPU {}
+#[allow(non_snake_case)]
+pub struct CpuFlags {
+    pub IME: u8,
+}
+
+impl CpuFlags {
+    pub fn new() -> Self {
+        Self { IME: 0 }
+    }
+}
+
+pub struct CPU {
+    flags: CpuFlags,
+}
 
 impl CPU {
+    pub fn new() -> Self {
+        Self {
+            flags: CpuFlags::new(),
+        }
+    }
+
     pub fn tick(
-        &self,
+        &mut self,
         registers: &mut Registers,
         memory: &mut Memory,
     ) -> Result<(u16, Box<dyn Instruction>), CpuError> {
-        let opcode = memory.get(registers.pc.into());
-        let instruction = instructions::decode(opcode, registers.pc.into(), memory)?;
-        let instruction_location = registers.pc.clone();
+        let opcode = memory.get(registers.PC.into());
+        let instruction_location = registers.PC.clone();
 
-        registers.pc += instruction.length();
+        let instruction = instructions::decode(opcode, registers.PC.into(), memory)?;
 
-        instruction.execute(registers, memory)?;
+        registers.PC += instruction.length();
+
+        instruction.execute(registers, memory, &mut self.flags)?;
 
         Ok((instruction_location, instruction))
     }

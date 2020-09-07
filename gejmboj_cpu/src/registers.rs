@@ -42,33 +42,35 @@
 
 use std::fmt::Display;
 
+#[allow(non_snake_case)]
 pub struct Registers {
-    a: u8,
-    b: u8,
-    c: u8,
-    d: u8,
-    e: u8,
-    f: u8,
-    h: u8,
-    l: u8,
+    A: u8,
+    B: u8,
+    C: u8,
+    D: u8,
+    E: u8,
+    F: u8,
+    H: u8,
+    L: u8,
 
-    pub pc: u16,
-    pub sp: u16,
+    pub PC: u16,
+    pub SP: u16,
 }
 
 impl Registers {
     pub fn new() -> Self {
         Self {
-            a: 0,
-            b: 0,
-            c: 0,
-            d: 0,
-            e: 0,
-            f: 0,
-            h: 0,
-            l: 0,
-            pc: 0,
-            sp: 0xFFFE,
+            A: 0,
+            B: 0,
+            C: 0,
+            D: 0,
+            E: 0,
+            F: 0,
+            H: 0,
+            L: 0,
+
+            PC: 0,
+            SP: 0xFFFE,
         }
     }
 
@@ -98,28 +100,28 @@ impl Registers {
     pub fn set_single(&mut self, r: SingleRegister, value: u8) {
         match r {
             SingleRegister::A => {
-                self.a = value;
+                self.A = value;
             }
             SingleRegister::B => {
-                self.b = value;
+                self.B = value;
             }
             SingleRegister::C => {
-                self.c = value;
+                self.C = value;
             }
             SingleRegister::D => {
-                self.d = value;
+                self.D = value;
             }
             SingleRegister::E => {
-                self.e = value;
+                self.E = value;
             }
             SingleRegister::F => {
-                self.f = value & 0xF0;
+                self.F = value & 0xF0;
             }
             SingleRegister::H => {
-                self.h = value;
+                self.H = value;
             }
             SingleRegister::L => {
-                self.l = value;
+                self.L = value;
             }
         }
     }
@@ -136,14 +138,14 @@ impl Registers {
     /// ```
     pub fn get_single(&self, r: SingleRegister) -> u8 {
         match r {
-            SingleRegister::A => self.a,
-            SingleRegister::B => self.b,
-            SingleRegister::C => self.c,
-            SingleRegister::D => self.d,
-            SingleRegister::E => self.e,
-            SingleRegister::F => self.f,
-            SingleRegister::H => self.h,
-            SingleRegister::L => self.l,
+            SingleRegister::A => self.A,
+            SingleRegister::B => self.B,
+            SingleRegister::C => self.C,
+            SingleRegister::D => self.D,
+            SingleRegister::E => self.E,
+            SingleRegister::F => self.F,
+            SingleRegister::H => self.H,
+            SingleRegister::L => self.L,
         }
     }
 
@@ -161,10 +163,10 @@ impl Registers {
     /// ````
     pub fn get_double(&self, r: DoubleRegister) -> u16 {
         match r {
-            DoubleRegister::AF => u16::from_be_bytes([self.a, self.f]),
-            DoubleRegister::BC => u16::from_be_bytes([self.b, self.c]),
-            DoubleRegister::DE => u16::from_be_bytes([self.d, self.e]),
-            DoubleRegister::HL => u16::from_be_bytes([self.h, self.l]),
+            DoubleRegister::AF => u16::from_be_bytes([self.A, self.F]),
+            DoubleRegister::BC => u16::from_be_bytes([self.B, self.C]),
+            DoubleRegister::DE => u16::from_be_bytes([self.D, self.E]),
+            DoubleRegister::HL => u16::from_be_bytes([self.H, self.L]),
         }
     }
 
@@ -195,20 +197,20 @@ impl Registers {
         let [hi, lo] = value.to_be_bytes();
         match r {
             DoubleRegister::AF => {
-                self.a = hi;
-                self.f = lo & 0xF0;
+                self.A = hi;
+                self.F = lo & 0xF0;
             }
             DoubleRegister::BC => {
-                self.b = hi;
-                self.c = lo;
+                self.B = hi;
+                self.C = lo;
             }
             DoubleRegister::DE => {
-                self.d = hi;
-                self.e = lo;
+                self.D = hi;
+                self.E = lo;
             }
             DoubleRegister::HL => {
-                self.h = hi;
-                self.l = lo;
+                self.H = hi;
+                self.L = lo;
             }
         }
     }
@@ -228,7 +230,7 @@ impl Registers {
     /// assert_eq!(true, registers.is_carry());
     /// ```
     pub fn is_carry(&self) -> bool {
-        self.f & 0b0001_0000 > 0
+        self.F & 0b0001_0000 > 0
     }
 
     /// Returns `true` if the half carry flag is set.
@@ -246,7 +248,7 @@ impl Registers {
     /// assert_eq!(true, registers.is_half_carry());
     /// ```
     pub fn is_half_carry(&self) -> bool {
-        self.f & 0b0010_0000 > 0
+        self.F & 0b0010_0000 > 0
     }
 
     /// Returns `true` if the negative flag is set.
@@ -264,7 +266,7 @@ impl Registers {
     /// assert_eq!(true, registers.is_negative());
     /// ```
     pub fn is_negative(&self) -> bool {
-        self.f & 0b0100_0000 > 0
+        self.F & 0b0100_0000 > 0
     }
 
     /// Returns `true` if the zero flag is set.
@@ -282,7 +284,7 @@ impl Registers {
     /// assert_eq!(true, registers.is_zero());
     /// ```
     pub fn is_zero(&self) -> bool {
-        self.f & 0b1000_0000 > 0
+        self.F & 0b1000_0000 > 0
     }
 }
 
@@ -298,7 +300,7 @@ PC:{:04x?} SP:{:04x?}
  D:{:02x?} {:02x?}:E
  H:{:02x?} {:02x?}:L
 ",
-            self.pc, self.sp, self.a, self.f, self.b, self.c, self.d, self.e, self.h, self.l
+            self.PC, self.SP, self.A, self.F, self.B, self.C, self.D, self.E, self.H, self.L
         )
     }
 }

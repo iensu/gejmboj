@@ -1,12 +1,17 @@
 use super::{Instruction, InstructionResult};
-use crate::{memory::Memory, registers::Registers};
+use crate::{cpu::CpuFlags, memory::Memory, registers::Registers};
 use std::fmt::Display;
 
 /// No operation
 pub struct Noop {}
 
 impl Instruction for Noop {
-    fn execute(&self, _registers: &mut Registers, _memory: &mut Memory) -> InstructionResult {
+    fn execute(
+        &self,
+        _registers: &mut Registers,
+        _memory: &mut Memory,
+        _cpu_flags: &mut CpuFlags,
+    ) -> InstructionResult {
         Ok(1)
     }
 

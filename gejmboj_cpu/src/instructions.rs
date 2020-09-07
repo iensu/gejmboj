@@ -1,6 +1,6 @@
 //! Sharp SM83 instruction set
 
-use crate::{errors::CpuError, memory::Memory, registers::Registers};
+use crate::{cpu::CpuFlags, errors::CpuError, memory::Memory, registers::Registers};
 
 mod control_flow;
 mod misc;
@@ -13,7 +13,12 @@ pub type InstructionResult = Result<u16, CpuError>;
 
 /// Trait for implementing a Sharp SM83 instruction.
 pub trait Instruction {
-    fn execute(&self, registers: &mut Registers, memory: &mut Memory) -> InstructionResult;
+    fn execute(
+        &self,
+        registers: &mut Registers,
+        memory: &mut Memory,
+        cpu_flags: &mut CpuFlags,
+    ) -> InstructionResult;
 
     /// Returns the byte length of the operation
     fn length(&self) -> u16;
@@ -59,6 +64,7 @@ pub fn decode(opcode: u8, pc: u16, memory: &Memory) -> Result<Box<dyn Instructio
             operand: get_16bit_operand(pc, memory),
         })),
         (1, 1, 0, 0, 1, 0, 0, 1) => Ok(Box::new(control_flow::Ret {})),
+        (1, 1, 0, 1, 1, 0, 0, 1) => Ok(Box::new(control_flow::RetI {})),
         (1, 1, 0, 0, 1, 1, 0, 1) => Ok(Box::new(control_flow::Call {
             operand: get_16bit_operand(pc, memory),
         })),
@@ -81,6 +87,7 @@ pub fn decode(opcode: u8, pc: u16, memory: &Memory) -> Result<Box<dyn Instructio
         (1, 1, 0, c, d, 0, 0, 0) => Ok(Box::new(control_flow::RetIf {
             condition: Condition::parse(c, d).unwrap(),
         })),
+        (1, 1, _, _, _, 1, 1, 1) => Ok(Box::new(control_flow::Rst { opcode })),
         _ => Err(CpuError::UnknownInstruction(opcode)),
     }
 }
