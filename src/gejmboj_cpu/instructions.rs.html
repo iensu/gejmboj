@@ -102,6 +102,9 @@
 <span id="102">102</span>
 <span id="103">103</span>
 <span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Sharp SM83 instruction set</span>
 
@@ -181,6 +184,9 @@
         })),
         (<span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="ident">c</span>, <span class="ident">d</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">control_flow</span>::<span class="ident">CallIf</span> {
             <span class="ident">operand</span>: <span class="ident">get_16bit_operand</span>(<span class="ident">pc</span>, <span class="ident">memory</span>),
+            <span class="ident">condition</span>: <span class="ident">Condition</span>::<span class="ident">parse</span>(<span class="ident">c</span>, <span class="ident">d</span>).<span class="ident">unwrap</span>(),
+        })),
+        (<span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="ident">c</span>, <span class="ident">d</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">control_flow</span>::<span class="ident">RetIf</span> {
             <span class="ident">condition</span>: <span class="ident">Condition</span>::<span class="ident">parse</span>(<span class="ident">c</span>, <span class="ident">d</span>).<span class="ident">unwrap</span>(),
         })),
         <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">CpuError</span>::<span class="ident">UnknownInstruction</span>(<span class="ident">opcode</span>)),
