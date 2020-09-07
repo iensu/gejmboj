@@ -4,6 +4,8 @@
 
 A Game Boy emulator. This project is in progress and will most likely stay that way for the foreseeable future.
 
+[Project documentation](https://iensu.github.io/gejmboj/gejmboj/)
+
 ## References
 
 * https://gekkio.fi/files/gb-docs/gbctr.pdf
