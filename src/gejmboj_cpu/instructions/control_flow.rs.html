@@ -454,9 +454,158 @@
 <span id="454">454</span>
 <span id="455">455</span>
 <span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">Condition</span>, <span class="ident">Instruction</span>, <span class="ident">InstructionResult</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">registers</span>::<span class="ident">DoubleRegister</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">cpu</span>::<span class="ident">CpuFlags</span>,
+    <span class="ident">memory</span>,
+    <span class="ident">registers</span>::{<span class="self">self</span>, <span class="ident">DoubleRegister</span>},
+};
+<span class="kw">use</span> <span class="ident">memory</span>::<span class="ident">Memory</span>;
+<span class="kw">use</span> <span class="ident">registers</span>::<span class="ident">Registers</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Display</span>;
 
 <span class="doccomment">/// Unconditional jump to location specified by 16-bit operand.</span>
@@ -467,13 +616,15 @@
 <span class="doccomment">/// # use gejmboj_cpu::registers::*;</span>
 <span class="doccomment">/// # use gejmboj_cpu::memory::*;</span>
 <span class="doccomment">/// # use gejmboj_cpu::instructions::*;</span>
+<span class="doccomment">/// # use gejmboj_cpu::cpu::*;</span>
 <span class="doccomment">/// let mut registers = Registers::new();</span>
 <span class="doccomment">/// let mut memory = Memory::new();</span>
+<span class="doccomment">/// let mut cpu_flags = CpuFlags::new();</span>
 <span class="doccomment">/// let instruction = Jp { operand: 0xBADA };</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// assert_eq!(0, registers.pc);</span>
-<span class="doccomment">/// instruction.execute(&amp;mut registers, &amp;mut memory).unwrap();</span>
-<span class="doccomment">/// assert_eq!(0xBADA, registers.pc);</span>
+<span class="doccomment">/// assert_eq!(0, registers.PC);</span>
+<span class="doccomment">/// instruction.execute(&amp;mut registers, &amp;mut memory, &amp;mut cpu_flags).unwrap();</span>
+<span class="doccomment">/// assert_eq!(0xBADA, registers.PC);</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Jp</span> {
     <span class="kw">pub</span> <span class="ident">operand</span>: <span class="ident">u16</span>,
@@ -482,10 +633,11 @@
 <span class="kw">impl</span> <span class="ident">Instruction</span> <span class="kw">for</span> <span class="ident">Jp</span> {
     <span class="kw">fn</span> <span class="ident">execute</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">registers</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">crate</span>::<span class="ident">registers</span>::<span class="ident">Registers</span>,
-        <span class="ident">_memory</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">crate</span>::<span class="ident">memory</span>::<span class="ident">Memory</span>,
+        <span class="ident">registers</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registers</span>,
+        <span class="ident">_memory</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Memory</span>,
+        <span class="ident">_cpu_flags</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CpuFlags</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">InstructionResult</span> {
-        <span class="ident">registers</span>.<span class="ident">pc</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">operand</span>;
+        <span class="ident">registers</span>.<span class="ident">PC</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">operand</span>;
         <span class="prelude-val">Ok</span>(<span class="number">4</span>)
     }
 
@@ -508,17 +660,19 @@
 <span class="doccomment">/// # use gejmboj_cpu::registers::*;</span>
 <span class="doccomment">/// # use gejmboj_cpu::memory::*;</span>
 <span class="doccomment">/// # use gejmboj_cpu::instructions::*;</span>
+<span class="doccomment">/// # use gejmboj_cpu::cpu::*;</span>
 <span class="doccomment">/// let mut registers = Registers::new();</span>
 <span class="doccomment">/// let mut memory = Memory::new();</span>
+<span class="doccomment">/// let mut cpu_flags = CpuFlags::new();</span>
 <span class="doccomment">/// let instruction = JpIf { operand: 0xBADA, condition: Condition::Carry };</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// let mut cycles = instruction.execute(&amp;mut registers, &amp;mut memory).unwrap();</span>
-<span class="doccomment">/// assert_eq!(0, registers.pc);</span>
+<span class="doccomment">/// let mut cycles = instruction.execute(&amp;mut registers, &amp;mut memory, &amp;mut cpu_flags).unwrap();</span>
+<span class="doccomment">/// assert_eq!(0, registers.PC);</span>
 <span class="doccomment">/// assert_eq!(3, cycles);</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// registers.set_single(SingleRegister::F, 0b0001_0000);</span>
-<span class="doccomment">/// cycles = instruction.execute(&amp;mut registers, &amp;mut memory).unwrap();</span>
-<span class="doccomment">/// assert_eq!(0xBADA, registers.pc);</span>
+<span class="doccomment">/// cycles = instruction.execute(&amp;mut registers, &amp;mut memory, &amp;mut cpu_flags).unwrap();</span>
+<span class="doccomment">/// assert_eq!(0xBADA, registers.PC);</span>
 <span class="doccomment">/// assert_eq!(4, cycles);</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">JpIf</span> {
@@ -529,11 +683,12 @@
 <span class="kw">impl</span> <span class="ident">Instruction</span> <span class="kw">for</span> <span class="ident">JpIf</span> {
     <span class="kw">fn</span> <span class="ident">execute</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">registers</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">crate</span>::<span class="ident">registers</span>::<span class="ident">Registers</span>,
-        <span class="ident">_memory</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">crate</span>::<span class="ident">memory</span>::<span class="ident">Memory</span>,
+        <span class="ident">registers</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registers</span>,
+        <span class="ident">_memory</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Memory</span>,
+        <span class="ident">_cpu_flags</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CpuFlags</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">InstructionResult</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">condition</span>.<span class="ident">is_fulfilled</span>(<span class="ident">registers</span>) {
-            <span class="ident">registers</span>.<span class="ident">pc</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">operand</span>;
+            <span class="ident">registers</span>.<span class="ident">PC</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">operand</span>;
             <span class="prelude-val">Ok</span>(<span class="number">4</span>)
         } <span class="kw">else</span> {
             <span class="prelude-val">Ok</span>(<span class="number">3</span>)
@@ -559,23 +714,26 @@
 <span class="doccomment">/// # use gejmboj_cpu::registers::*;</span>
 <span class="doccomment">/// # use gejmboj_cpu::memory::*;</span>
 <span class="doccomment">/// # use gejmboj_cpu::instructions::*;</span>
+<span class="doccomment">/// # use gejmboj_cpu::cpu::*;</span>
 <span class="doccomment">/// let mut registers = Registers::new();</span>
 <span class="doccomment">/// let mut memory = Memory::new();</span>
+<span class="doccomment">/// let mut cpu_flags = CpuFlags::new();</span>
 <span class="doccomment">/// let instruction = JpToHL { };</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// registers.set_double(DoubleRegister::HL, 0xBADA);</span>
-<span class="doccomment">/// instruction.execute(&amp;mut registers, &amp;mut memory).unwrap();</span>
-<span class="doccomment">/// assert_eq!(0xBADA, registers.pc);</span>
+<span class="doccomment">/// instruction.execute(&amp;mut registers, &amp;mut memory, &amp;mut cpu_flags).unwrap();</span>
+<span class="doccomment">/// assert_eq!(0xBADA, registers.PC);</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">JpToHL</span> {}
 
 <span class="kw">impl</span> <span class="ident">Instruction</span> <span class="kw">for</span> <span class="ident">JpToHL</span> {
     <span class="kw">fn</span> <span class="ident">execute</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">registers</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">crate</span>::<span class="ident">registers</span>::<span class="ident">Registers</span>,
-        <span class="ident">_memory</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">crate</span>::<span class="ident">memory</span>::<span class="ident">Memory</span>,
+        <span class="ident">registers</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registers</span>,
+        <span class="ident">_memory</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Memory</span>,
+        <span class="ident">_cpu_flags</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CpuFlags</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">InstructionResult</span> {
-        <span class="ident">registers</span>.<span class="ident">pc</span> <span class="op">=</span> <span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="ident">DoubleRegister</span>::<span class="ident">HL</span>);
+        <span class="ident">registers</span>.<span class="ident">PC</span> <span class="op">=</span> <span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="ident">DoubleRegister</span>::<span class="ident">HL</span>);
         <span class="prelude-val">Ok</span>(<span class="number">1</span>)
     }
 
@@ -598,13 +756,15 @@
 <span class="doccomment">/// # use gejmboj_cpu::registers::*;</span>
 <span class="doccomment">/// # use gejmboj_cpu::memory::*;</span>
 <span class="doccomment">/// # use gejmboj_cpu::instructions::*;</span>
+<span class="doccomment">/// # use gejmboj_cpu::cpu::*;</span>
 <span class="doccomment">/// let mut registers = Registers::new();</span>
 <span class="doccomment">/// let mut memory = Memory::new();</span>
-<span class="doccomment">/// registers.pc = 0x0200;</span>
+<span class="doccomment">/// let mut cpu_flags = CpuFlags::new();</span>
+<span class="doccomment">/// registers.PC = 0x0200;</span>
 <span class="doccomment">/// let instruction = JpToOffset { operand: 0x42 };</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// instruction.execute(&amp;mut registers, &amp;mut memory).unwrap();</span>
-<span class="doccomment">/// assert_eq!(0x0242, registers.pc);</span>
+<span class="doccomment">/// instruction.execute(&amp;mut registers, &amp;mut memory, &amp;mut cpu_flags).unwrap();</span>
+<span class="doccomment">/// assert_eq!(0x0242, registers.PC);</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">JpToOffset</span> {
     <span class="kw">pub</span> <span class="ident">operand</span>: <span class="ident">u8</span>,
@@ -613,10 +773,11 @@
 <span class="kw">impl</span> <span class="ident">Instruction</span> <span class="kw">for</span> <span class="ident">JpToOffset</span> {
     <span class="kw">fn</span> <span class="ident">execute</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">registers</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">crate</span>::<span class="ident">registers</span>::<span class="ident">Registers</span>,
-        <span class="ident">_memory</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">crate</span>::<span class="ident">memory</span>::<span class="ident">Memory</span>,
+        <span class="ident">registers</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registers</span>,
+        <span class="ident">_memory</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Memory</span>,
+        <span class="ident">_cpu_flags</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CpuFlags</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">InstructionResult</span> {
-        <span class="ident">registers</span>.<span class="ident">pc</span> <span class="op">+</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">operand</span> <span class="kw">as</span> <span class="ident">u16</span>;
+        <span class="ident">registers</span>.<span class="ident">PC</span> <span class="op">+</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">operand</span> <span class="kw">as</span> <span class="ident">u16</span>;
         <span class="prelude-val">Ok</span>(<span class="number">3</span>)
     }
 
@@ -639,20 +800,22 @@
 <span class="doccomment">/// # use gejmboj_cpu::registers::*;</span>
 <span class="doccomment">/// # use gejmboj_cpu::memory::*;</span>
 <span class="doccomment">/// # use gejmboj_cpu::instructions::*;</span>
+<span class="doccomment">/// # use gejmboj_cpu::cpu::*;</span>
 <span class="doccomment">/// let mut registers = Registers::new();</span>
 <span class="doccomment">/// let mut memory = Memory::new();</span>
+<span class="doccomment">/// let mut cpu_flags = CpuFlags::new();</span>
 <span class="doccomment">/// let instruction = JpToOffsetIf { operand: 0x42, condition: Condition::Zero };</span>
 <span class="doccomment">/// let mut cycles = 0;</span>
-<span class="doccomment">/// registers.pc = 0x0200;</span>
+<span class="doccomment">/// registers.PC = 0x0200;</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// cycles = instruction.execute(&amp;mut registers, &amp;mut memory).unwrap();</span>
-<span class="doccomment">/// assert_eq!(0x0200, registers.pc);</span>
+<span class="doccomment">/// cycles = instruction.execute(&amp;mut registers, &amp;mut memory, &amp;mut cpu_flags).unwrap();</span>
+<span class="doccomment">/// assert_eq!(0x0200, registers.PC);</span>
 <span class="doccomment">/// assert_eq!(2, cycles);</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// registers.set_single(SingleRegister::F, 0b1000_0000);</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// cycles = instruction.execute(&amp;mut registers, &amp;mut memory).unwrap();</span>
-<span class="doccomment">/// assert_eq!(0x0242, registers.pc);</span>
+<span class="doccomment">/// cycles = instruction.execute(&amp;mut registers, &amp;mut memory, &amp;mut cpu_flags).unwrap();</span>
+<span class="doccomment">/// assert_eq!(0x0242, registers.PC);</span>
 <span class="doccomment">/// assert_eq!(3, cycles);</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">JpToOffsetIf</span> {
@@ -663,11 +826,12 @@
 <span class="kw">impl</span> <span class="ident">Instruction</span> <span class="kw">for</span> <span class="ident">JpToOffsetIf</span> {
     <span class="kw">fn</span> <span class="ident">execute</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">registers</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">crate</span>::<span class="ident">registers</span>::<span class="ident">Registers</span>,
-        <span class="ident">_memory</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">crate</span>::<span class="ident">memory</span>::<span class="ident">Memory</span>,
+        <span class="ident">registers</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registers</span>,
+        <span class="ident">_memory</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Memory</span>,
+        <span class="ident">_cpu_flags</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CpuFlags</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">InstructionResult</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">condition</span>.<span class="ident">is_fulfilled</span>(<span class="ident">registers</span>) {
-            <span class="ident">registers</span>.<span class="ident">pc</span> <span class="op">+</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">operand</span> <span class="kw">as</span> <span class="ident">u16</span>;
+            <span class="ident">registers</span>.<span class="ident">PC</span> <span class="op">+</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">operand</span> <span class="kw">as</span> <span class="ident">u16</span>;
             <span class="prelude-val">Ok</span>(<span class="number">3</span>)
         } <span class="kw">else</span> {
             <span class="prelude-val">Ok</span>(<span class="number">2</span>)
@@ -693,15 +857,17 @@
 <span class="doccomment">/// # use gejmboj_cpu::registers::*;</span>
 <span class="doccomment">/// # use gejmboj_cpu::memory::*;</span>
 <span class="doccomment">/// # use gejmboj_cpu::instructions::*;</span>
+<span class="doccomment">/// # use gejmboj_cpu::cpu::*;</span>
 <span class="doccomment">/// let mut registers = Registers::new();</span>
 <span class="doccomment">/// let mut memory = Memory::new();</span>
+<span class="doccomment">/// let mut cpu_flags = CpuFlags::new();</span>
 <span class="doccomment">/// let instruction = Call { operand: 0xABCD };</span>
-<span class="doccomment">/// registers.pc = 0xAAAA;</span>
-<span class="doccomment">/// instruction.execute(&amp;mut registers, &amp;mut memory).unwrap();</span>
+<span class="doccomment">/// registers.PC = 0xAAAA;</span>
+<span class="doccomment">/// instruction.execute(&amp;mut registers, &amp;mut memory, &amp;mut cpu_flags).unwrap();</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// assert_eq!(0xABCD, registers.pc);</span>
-<span class="doccomment">/// assert_eq!(0xFFFC, registers.sp);</span>
-<span class="doccomment">/// assert_eq!(0xAAAA, memory.get_u16(registers.sp.into()));</span>
+<span class="doccomment">/// assert_eq!(0xABCD, registers.PC);</span>
+<span class="doccomment">/// assert_eq!(0xFFFC, registers.SP);</span>
+<span class="doccomment">/// assert_eq!(0xAAAA, memory.get_u16(registers.SP.into()));</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Call</span> {
     <span class="kw">pub</span> <span class="ident">operand</span>: <span class="ident">u16</span>,
@@ -710,14 +876,15 @@
 <span class="kw">impl</span> <span class="ident">Instruction</span> <span class="kw">for</span> <span class="ident">Call</span> {
     <span class="kw">fn</span> <span class="ident">execute</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">registers</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">crate</span>::<span class="ident">registers</span>::<span class="ident">Registers</span>,
-        <span class="ident">memory</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">crate</span>::<span class="ident">memory</span>::<span class="ident">Memory</span>,
+        <span class="ident">registers</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registers</span>,
+        <span class="ident">memory</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Memory</span>,
+        <span class="ident">_cpu_flags</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CpuFlags</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">InstructionResult</span> {
-        <span class="kw">let</span> [<span class="ident">lo</span>, <span class="ident">hi</span>] <span class="op">=</span> <span class="ident">registers</span>.<span class="ident">pc</span>.<span class="ident">to_le_bytes</span>();
-        <span class="ident">memory</span>.<span class="ident">set</span>((<span class="ident">registers</span>.<span class="ident">sp</span> <span class="op">-</span> <span class="number">1</span>).<span class="ident">into</span>(), <span class="ident">hi</span>);
-        <span class="ident">memory</span>.<span class="ident">set</span>((<span class="ident">registers</span>.<span class="ident">sp</span> <span class="op">-</span> <span class="number">2</span>).<span class="ident">into</span>(), <span class="ident">lo</span>);
-        <span class="ident">registers</span>.<span class="ident">sp</span> <span class="op">-</span><span class="op">=</span> <span class="number">2</span>;
-        <span class="ident">registers</span>.<span class="ident">pc</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">operand</span>;
+        <span class="kw">let</span> [<span class="ident">lo</span>, <span class="ident">hi</span>] <span class="op">=</span> <span class="ident">registers</span>.<span class="ident">PC</span>.<span class="ident">to_le_bytes</span>();
+        <span class="ident">memory</span>.<span class="ident">set</span>((<span class="ident">registers</span>.<span class="ident">SP</span> <span class="op">-</span> <span class="number">1</span>).<span class="ident">into</span>(), <span class="ident">hi</span>);
+        <span class="ident">memory</span>.<span class="ident">set</span>((<span class="ident">registers</span>.<span class="ident">SP</span> <span class="op">-</span> <span class="number">2</span>).<span class="ident">into</span>(), <span class="ident">lo</span>);
+        <span class="ident">registers</span>.<span class="ident">SP</span> <span class="op">-</span><span class="op">=</span> <span class="number">2</span>;
+        <span class="ident">registers</span>.<span class="ident">PC</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">operand</span>;
         <span class="prelude-val">Ok</span>(<span class="number">6</span>)
     }
 
@@ -742,15 +909,17 @@
 <span class="doccomment">/// # use gejmboj_cpu::registers::*;</span>
 <span class="doccomment">/// # use gejmboj_cpu::memory::*;</span>
 <span class="doccomment">/// # use gejmboj_cpu::instructions::*;</span>
+<span class="doccomment">/// # use gejmboj_cpu::cpu::*;</span>
 <span class="doccomment">/// let mut registers = Registers::new();</span>
 <span class="doccomment">/// let mut memory = Memory::new();</span>
+<span class="doccomment">/// let mut cpu_flags = CpuFlags::new();</span>
 <span class="doccomment">/// let instruction = CallIf { operand: 0xABCD, condition: Condition::Carry };</span>
-<span class="doccomment">/// registers.pc = 0xAAAA;</span>
+<span class="doccomment">/// registers.PC = 0xAAAA;</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// let cycles = instruction.execute(&amp;mut registers, &amp;mut memory).unwrap();</span>
+<span class="doccomment">/// let cycles = instruction.execute(&amp;mut registers, &amp;mut memory, &amp;mut cpu_flags).unwrap();</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// assert_eq!(registers.pc, 0xAAAA);</span>
-<span class="doccomment">/// assert_eq!(registers.sp, 0xFFFE);</span>
+<span class="doccomment">/// assert_eq!(registers.PC, 0xAAAA);</span>
+<span class="doccomment">/// assert_eq!(registers.SP, 0xFFFE);</span>
 <span class="doccomment">/// assert_eq!(3, cycles);</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">///</span>
@@ -760,16 +929,18 @@
 <span class="doccomment">/// # use gejmboj_cpu::registers::*;</span>
 <span class="doccomment">/// # use gejmboj_cpu::memory::*;</span>
 <span class="doccomment">/// # use gejmboj_cpu::instructions::*;</span>
+<span class="doccomment">/// # use gejmboj_cpu::cpu::*;</span>
 <span class="doccomment">/// let mut registers = Registers::new();</span>
 <span class="doccomment">/// let mut memory = Memory::new();</span>
+<span class="doccomment">/// let mut cpu_flags = CpuFlags::new();</span>
 <span class="doccomment">/// let instruction = CallIf { operand: 0xABCD, condition: Condition::Carry };</span>
-<span class="doccomment">/// registers.pc = 0xAAAA;</span>
+<span class="doccomment">/// registers.PC = 0xAAAA;</span>
 <span class="doccomment">/// registers.set_single(SingleRegister::F, 0b0001_0000);</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// let cycles = instruction.execute(&amp;mut registers, &amp;mut memory).unwrap();</span>
+<span class="doccomment">/// let cycles = instruction.execute(&amp;mut registers, &amp;mut memory, &amp;mut cpu_flags).unwrap();</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// assert_eq!(registers.pc, 0xABCD);</span>
-<span class="doccomment">/// assert_eq!(registers.sp, 0xFFFC);</span>
+<span class="doccomment">/// assert_eq!(registers.PC, 0xABCD);</span>
+<span class="doccomment">/// assert_eq!(registers.SP, 0xFFFC);</span>
 <span class="doccomment">/// assert_eq!(6, cycles);</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CallIf</span> {
@@ -780,15 +951,16 @@
 <span class="kw">impl</span> <span class="ident">Instruction</span> <span class="kw">for</span> <span class="ident">CallIf</span> {
     <span class="kw">fn</span> <span class="ident">execute</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">registers</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">crate</span>::<span class="ident">registers</span>::<span class="ident">Registers</span>,
-        <span class="ident">memory</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">crate</span>::<span class="ident">memory</span>::<span class="ident">Memory</span>,
+        <span class="ident">registers</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registers</span>,
+        <span class="ident">memory</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Memory</span>,
+        <span class="ident">_cpu_flags</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CpuFlags</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">InstructionResult</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">condition</span>.<span class="ident">is_fulfilled</span>(<span class="ident">registers</span>) {
-            <span class="kw">let</span> [<span class="ident">lo</span>, <span class="ident">hi</span>] <span class="op">=</span> <span class="ident">registers</span>.<span class="ident">pc</span>.<span class="ident">to_le_bytes</span>();
-            <span class="ident">memory</span>.<span class="ident">set</span>((<span class="ident">registers</span>.<span class="ident">sp</span> <span class="op">-</span> <span class="number">1</span>).<span class="ident">into</span>(), <span class="ident">hi</span>);
-            <span class="ident">memory</span>.<span class="ident">set</span>((<span class="ident">registers</span>.<span class="ident">sp</span> <span class="op">-</span> <span class="number">2</span>).<span class="ident">into</span>(), <span class="ident">lo</span>);
-            <span class="ident">registers</span>.<span class="ident">sp</span> <span class="op">-</span><span class="op">=</span> <span class="number">2</span>;
-            <span class="ident">registers</span>.<span class="ident">pc</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">operand</span>;
+            <span class="kw">let</span> [<span class="ident">lo</span>, <span class="ident">hi</span>] <span class="op">=</span> <span class="ident">registers</span>.<span class="ident">PC</span>.<span class="ident">to_le_bytes</span>();
+            <span class="ident">memory</span>.<span class="ident">set</span>((<span class="ident">registers</span>.<span class="ident">SP</span> <span class="op">-</span> <span class="number">1</span>).<span class="ident">into</span>(), <span class="ident">hi</span>);
+            <span class="ident">memory</span>.<span class="ident">set</span>((<span class="ident">registers</span>.<span class="ident">SP</span> <span class="op">-</span> <span class="number">2</span>).<span class="ident">into</span>(), <span class="ident">lo</span>);
+            <span class="ident">registers</span>.<span class="ident">SP</span> <span class="op">-</span><span class="op">=</span> <span class="number">2</span>;
+            <span class="ident">registers</span>.<span class="ident">PC</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">operand</span>;
             <span class="prelude-val">Ok</span>(<span class="number">6</span>)
         } <span class="kw">else</span> {
             <span class="prelude-val">Ok</span>(<span class="number">3</span>)
@@ -814,28 +986,31 @@
 <span class="doccomment">/// # use gejmboj_cpu::registers::*;</span>
 <span class="doccomment">/// # use gejmboj_cpu::memory::*;</span>
 <span class="doccomment">/// # use gejmboj_cpu::instructions::*;</span>
+<span class="doccomment">/// # use gejmboj_cpu::cpu::*;</span>
 <span class="doccomment">/// let mut registers = Registers::new();</span>
 <span class="doccomment">/// let mut memory = Memory::new();</span>
+<span class="doccomment">/// let mut cpu_flags = CpuFlags::new();</span>
 <span class="doccomment">/// let function_call = Call { operand: 0xABCD };</span>
 <span class="doccomment">/// let return_call = Ret { };</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// registers.pc = 0xAAAA;</span>
-<span class="doccomment">/// function_call.execute(&amp;mut registers, &amp;mut memory).unwrap();</span>
-<span class="doccomment">/// return_call.execute(&amp;mut registers, &amp;mut memory).unwrap();</span>
+<span class="doccomment">/// registers.PC = 0xAAAA;</span>
+<span class="doccomment">/// function_call.execute(&amp;mut registers, &amp;mut memory, &amp;mut cpu_flags).unwrap();</span>
+<span class="doccomment">/// return_call.execute(&amp;mut registers, &amp;mut memory, &amp;mut cpu_flags).unwrap();</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// assert_eq!(0xAAAA, registers.pc);</span>
-<span class="doccomment">/// assert_eq!(0xFFFE, registers.sp);</span>
+<span class="doccomment">/// assert_eq!(0xAAAA, registers.PC);</span>
+<span class="doccomment">/// assert_eq!(0xFFFE, registers.SP);</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Ret</span> {}
 
 <span class="kw">impl</span> <span class="ident">Instruction</span> <span class="kw">for</span> <span class="ident">Ret</span> {
     <span class="kw">fn</span> <span class="ident">execute</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">registers</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">crate</span>::<span class="ident">registers</span>::<span class="ident">Registers</span>,
-        <span class="ident">memory</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">crate</span>::<span class="ident">memory</span>::<span class="ident">Memory</span>,
+        <span class="ident">registers</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registers</span>,
+        <span class="ident">memory</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Memory</span>,
+        <span class="ident">_cpu_flags</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CpuFlags</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">InstructionResult</span> {
-        <span class="ident">registers</span>.<span class="ident">pc</span> <span class="op">=</span> <span class="ident">memory</span>.<span class="ident">get_u16</span>(<span class="ident">registers</span>.<span class="ident">sp</span>.<span class="ident">into</span>());
-        <span class="ident">registers</span>.<span class="ident">sp</span> <span class="op">+</span><span class="op">=</span> <span class="number">2</span>;
+        <span class="ident">registers</span>.<span class="ident">PC</span> <span class="op">=</span> <span class="ident">memory</span>.<span class="ident">get_u16</span>(<span class="ident">registers</span>.<span class="ident">SP</span>.<span class="ident">into</span>());
+        <span class="ident">registers</span>.<span class="ident">SP</span> <span class="op">+</span><span class="op">=</span> <span class="number">2</span>;
         <span class="prelude-val">Ok</span>(<span class="number">4</span>)
     }
 
@@ -860,26 +1035,28 @@
 <span class="doccomment">/// # use gejmboj_cpu::registers::*;</span>
 <span class="doccomment">/// # use gejmboj_cpu::memory::*;</span>
 <span class="doccomment">/// # use gejmboj_cpu::instructions::*;</span>
+<span class="doccomment">/// # use gejmboj_cpu::cpu::*;</span>
 <span class="doccomment">/// let mut registers = Registers::new();</span>
 <span class="doccomment">/// let mut memory = Memory::new();</span>
-<span class="doccomment">/// registers.pc = 0xAAAA;</span>
+<span class="doccomment">/// let mut cpu_flags = CpuFlags::new();</span>
+<span class="doccomment">/// registers.PC = 0xAAAA;</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// let call = Call { operand: 0xABCD };</span>
-<span class="doccomment">/// call.execute(&amp;mut registers, &amp;mut memory).unwrap();</span>
+<span class="doccomment">/// call.execute(&amp;mut registers, &amp;mut memory, &amp;mut cpu_flags).unwrap();</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// let ret = RetIf { condition: Condition::Carry };</span>
 <span class="doccomment">/// let mut cycles = 0;</span>
-<span class="doccomment">/// cycles = ret.execute(&amp;mut registers, &amp;mut memory).unwrap();</span>
+<span class="doccomment">/// cycles = ret.execute(&amp;mut registers, &amp;mut memory, &amp;mut cpu_flags).unwrap();</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// assert_eq!(0xABCD, registers.pc);</span>
-<span class="doccomment">/// assert_eq!(0xFFFC, registers.sp);</span>
+<span class="doccomment">/// assert_eq!(0xABCD, registers.PC);</span>
+<span class="doccomment">/// assert_eq!(0xFFFC, registers.SP);</span>
 <span class="doccomment">/// assert_eq!(2, cycles);</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// registers.set_single(SingleRegister::F, 0b0001_0000);</span>
-<span class="doccomment">/// cycles = ret.execute(&amp;mut registers, &amp;mut memory).unwrap();</span>
+<span class="doccomment">/// cycles = ret.execute(&amp;mut registers, &amp;mut memory, &amp;mut cpu_flags).unwrap();</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// assert_eq!(0xAAAA, registers.pc);</span>
-<span class="doccomment">/// assert_eq!(0xFFFE, registers.sp);</span>
+<span class="doccomment">/// assert_eq!(0xAAAA, registers.PC);</span>
+<span class="doccomment">/// assert_eq!(0xFFFE, registers.SP);</span>
 <span class="doccomment">/// assert_eq!(5, cycles);</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RetIf</span> {
@@ -889,12 +1066,13 @@
 <span class="kw">impl</span> <span class="ident">Instruction</span> <span class="kw">for</span> <span class="ident">RetIf</span> {
     <span class="kw">fn</span> <span class="ident">execute</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">registers</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">crate</span>::<span class="ident">registers</span>::<span class="ident">Registers</span>,
-        <span class="ident">memory</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">crate</span>::<span class="ident">memory</span>::<span class="ident">Memory</span>,
+        <span class="ident">registers</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registers</span>,
+        <span class="ident">memory</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Memory</span>,
+        <span class="ident">_cpu_flags</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CpuFlags</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">InstructionResult</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">condition</span>.<span class="ident">is_fulfilled</span>(<span class="ident">registers</span>) {
-            <span class="ident">registers</span>.<span class="ident">pc</span> <span class="op">=</span> <span class="ident">memory</span>.<span class="ident">get_u16</span>(<span class="ident">registers</span>.<span class="ident">sp</span>.<span class="ident">into</span>());
-            <span class="ident">registers</span>.<span class="ident">sp</span> <span class="op">+</span><span class="op">=</span> <span class="number">2</span>;
+            <span class="ident">registers</span>.<span class="ident">PC</span> <span class="op">=</span> <span class="ident">memory</span>.<span class="ident">get_u16</span>(<span class="ident">registers</span>.<span class="ident">SP</span>.<span class="ident">into</span>());
+            <span class="ident">registers</span>.<span class="ident">SP</span> <span class="op">+</span><span class="op">=</span> <span class="number">2</span>;
             <span class="prelude-val">Ok</span>(<span class="number">5</span>)
         } <span class="kw">else</span> {
             <span class="prelude-val">Ok</span>(<span class="number">2</span>)
@@ -910,6 +1088,114 @@
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
         <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;RET {:?}&quot;</span>, <span class="self">self</span>.<span class="ident">condition</span>)
     }
+}
+
+<span class="doccomment">/// Unconditional return from a function which enables interrupts</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ## Examples</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">/// # use gejmboj_cpu::registers::*;</span>
+<span class="doccomment">/// # use gejmboj_cpu::memory::*;</span>
+<span class="doccomment">/// # use gejmboj_cpu::instructions::*;</span>
+<span class="doccomment">/// # use gejmboj_cpu::cpu::*;</span>
+<span class="doccomment">/// let mut registers = Registers::new();</span>
+<span class="doccomment">/// let mut memory = Memory::new();</span>
+<span class="doccomment">/// let mut cpu_flags = CpuFlags::new();</span>
+<span class="doccomment">/// let call = Call { operand: 0xABCD };</span>
+<span class="doccomment">/// let reti = RetI { };</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// registers.PC = 0xAAAA;</span>
+<span class="doccomment">/// call.execute(&amp;mut registers, &amp;mut memory, &amp;mut cpu_flags).unwrap();</span>
+<span class="doccomment">/// reti.execute(&amp;mut registers, &amp;mut memory, &amp;mut cpu_flags).unwrap();</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// assert_eq!(0xAAAA, registers.PC);</span>
+<span class="doccomment">/// assert_eq!(0xFFFE, registers.SP);</span>
+<span class="doccomment">/// assert_eq!(1, cpu_flags.IME);</span>
+<span class="doccomment">/// ```</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RetI</span> {}
+
+<span class="kw">impl</span> <span class="ident">Instruction</span> <span class="kw">for</span> <span class="ident">RetI</span> {
+    <span class="kw">fn</span> <span class="ident">execute</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">registers</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registers</span>,
+        <span class="ident">memory</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Memory</span>,
+        <span class="ident">cpu_flags</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CpuFlags</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">InstructionResult</span> {
+        <span class="ident">registers</span>.<span class="ident">PC</span> <span class="op">=</span> <span class="ident">memory</span>.<span class="ident">get_u16</span>(<span class="ident">registers</span>.<span class="ident">SP</span>.<span class="ident">into</span>());
+        <span class="ident">registers</span>.<span class="ident">SP</span> <span class="op">+</span><span class="op">=</span> <span class="number">2</span>;
+        <span class="ident">cpu_flags</span>.<span class="ident">IME</span> <span class="op">=</span> <span class="number">1</span>;
+        <span class="prelude-val">Ok</span>(<span class="number">4</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">length</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u16</span> {
+        <span class="number">1</span>
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">RetI</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;RET IME=1&quot;</span>)
+    }
+}
+
+<span class="doccomment">/// Unconditional function call to the RESET address defined by bits 3-5</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Possible RESET addresses are:</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// * `0x00`</span>
+<span class="doccomment">/// * `0x08`</span>
+<span class="doccomment">/// * `0x10`</span>
+<span class="doccomment">/// * `0x18`</span>
+<span class="doccomment">/// * `0x20`</span>
+<span class="doccomment">/// * `0x28`</span>
+<span class="doccomment">/// * `0x30`</span>
+<span class="doccomment">/// * `0x38`</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ## Examples</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">/// # use gejmboj_cpu::registers::*;</span>
+<span class="doccomment">/// # use gejmboj_cpu::memory::*;</span>
+<span class="doccomment">/// # use gejmboj_cpu::instructions::*;</span>
+<span class="doccomment">/// # use gejmboj_cpu::cpu::*;</span>
+<span class="doccomment">/// let mut registers = Registers::new();</span>
+<span class="doccomment">/// let mut memory = Memory::new();</span>
+<span class="doccomment">/// let mut cpu_flags = CpuFlags::new();</span>
+<span class="doccomment">/// let instruction = Rst { opcode: 0b1101_0111};</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// instruction.execute(&amp;mut registers, &amp;mut memory, &amp;mut cpu_flags).unwrap();</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// assert_eq!(0x10, registers.PC);</span>
+<span class="doccomment">/// ```</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Rst</span> {
+    <span class="kw">pub</span> <span class="ident">opcode</span>: <span class="ident">u8</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">Instruction</span> <span class="kw">for</span> <span class="ident">Rst</span> {
+    <span class="kw">fn</span> <span class="ident">execute</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">registers</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registers</span>,
+        <span class="ident">_memory</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Memory</span>,
+        <span class="ident">_cpu_flags</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CpuFlags</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">InstructionResult</span> {
+        <span class="ident">registers</span>.<span class="ident">PC</span> <span class="op">=</span> <span class="ident">get_reset_address</span>(<span class="self">self</span>.<span class="ident">opcode</span>);
+        <span class="prelude-val">Ok</span>(<span class="number">4</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">length</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u16</span> {
+        <span class="number">1</span>
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Rst</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;RST({:02x})&quot;</span>, <span class="ident">get_reset_address</span>(<span class="self">self</span>.<span class="ident">opcode</span>))
+    }
+}
+
+<span class="kw">fn</span> <span class="ident">get_reset_address</span>(<span class="ident">opcode</span>: <span class="ident">u8</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u16</span> {
+    (<span class="ident">opcode</span> <span class="op">&amp;</span> <span class="number">0b00111000</span>) <span class="kw">as</span> <span class="ident">u16</span>
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "gejmboj_cpu";</script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>

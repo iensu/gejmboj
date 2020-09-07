@@ -20,16 +20,26 @@
 <span id="20">20</span>
 <span id="21">21</span>
 <span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">Instruction</span>, <span class="ident">InstructionResult</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">memory</span>::<span class="ident">Memory</span>, <span class="ident">registers</span>::<span class="ident">Registers</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">cpu</span>::<span class="ident">CpuFlags</span>, <span class="ident">memory</span>::<span class="ident">Memory</span>, <span class="ident">registers</span>::<span class="ident">Registers</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Display</span>;
 
 <span class="doccomment">/// No operation</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Noop</span> {}
 
 <span class="kw">impl</span> <span class="ident">Instruction</span> <span class="kw">for</span> <span class="ident">Noop</span> {
-    <span class="kw">fn</span> <span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_registers</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registers</span>, <span class="ident">_memory</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Memory</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">InstructionResult</span> {
+    <span class="kw">fn</span> <span class="ident">execute</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">_registers</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registers</span>,
+        <span class="ident">_memory</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Memory</span>,
+        <span class="ident">_cpu_flags</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CpuFlags</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">InstructionResult</span> {
         <span class="prelude-val">Ok</span>(<span class="number">1</span>)
     }
 

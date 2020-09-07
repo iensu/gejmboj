@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["CPU",""]]});
+initSidebarItems({"struct":[["CPU",""],["CpuFlags",""]]});
