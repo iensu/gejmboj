@@ -78,6 +78,9 @@ pub fn decode(opcode: u8, pc: u16, memory: &Memory) -> Result<Box<dyn Instructio
             operand: get_16bit_operand(pc, memory),
             condition: Condition::parse(c, d).unwrap(),
         })),
+        (1, 1, 0, c, d, 0, 0, 0) => Ok(Box::new(control_flow::RetIf {
+            condition: Condition::parse(c, d).unwrap(),
+        })),
         _ => Err(CpuError::UnknownInstruction(opcode)),
     }
 }

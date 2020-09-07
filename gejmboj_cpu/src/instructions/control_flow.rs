@@ -392,3 +392,65 @@ impl Display for Ret {
         write!(f, "RET")
     }
 }
+
+/// Conditionally return from function.
+///
+/// ## Examples
+///
+/// Return from function call only if condition is fulfilled:
+///
+/// ```
+/// # use gejmboj_cpu::registers::*;
+/// # use gejmboj_cpu::memory::*;
+/// # use gejmboj_cpu::instructions::*;
+/// let mut registers = Registers::new();
+/// let mut memory = Memory::new();
+/// registers.pc = 0xAAAA;
+///
+/// let call = Call { operand: 0xABCD };
+/// call.execute(&mut registers, &mut memory).unwrap();
+///
+/// let ret = RetIf { condition: Condition::Carry };
+/// let mut cycles = 0;
+/// cycles = ret.execute(&mut registers, &mut memory).unwrap();
+///
+/// assert_eq!(0xABCD, registers.pc);
+/// assert_eq!(0xFFFC, registers.sp);
+/// assert_eq!(2, cycles);
+///
+/// registers.set_single(SingleRegister::F, 0b0001_0000);
+/// cycles = ret.execute(&mut registers, &mut memory).unwrap();
+///
+/// assert_eq!(0xAAAA, registers.pc);
+/// assert_eq!(0xFFFE, registers.sp);
+/// assert_eq!(5, cycles);
+/// ```
+pub struct RetIf {
+    pub condition: Condition,
+}
+
+impl Instruction for RetIf {
+    fn execute(
+        &self,
+        registers: &mut crate::registers::Registers,
+        memory: &mut crate::memory::Memory,
+    ) -> InstructionResult {
+        if self.condition.is_fulfilled(registers) {
+            registers.pc = memory.get_u16(registers.sp.into());
+            registers.sp += 2;
+            Ok(5)
+        } else {
+            Ok(2)
+        }
+    }
+
+    fn length(&self) -> u16 {
+        1
+    }
+}
+
+impl Display for RetIf {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "RET {:?}", self.condition)
+    }
+}
