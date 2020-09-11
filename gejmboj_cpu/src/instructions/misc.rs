@@ -1,27 +1,12 @@
 use super::{Instruction, InstructionResult};
-use crate::{cpu::CpuFlags, memory::Memory, registers::Registers};
+use crate::{
+    cpu::CpuFlags, define_instruction, instruction_execute, memory::Memory, registers::Registers,
+};
 use std::fmt::Display;
 
-/// No operation
-pub struct Noop {}
+define_instruction! {
+    /// No operation
+    Noop { "NOOP"; 1 }
 
-impl Instruction for Noop {
-    fn execute(
-        &self,
-        _registers: &mut Registers,
-        _memory: &mut Memory,
-        _cpu_flags: &mut CpuFlags,
-    ) -> InstructionResult {
-        Ok(1)
-    }
-
-    fn length(&self) -> u16 {
-        1
-    }
-}
-
-impl Display for Noop {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "NOOP")
-    }
+    (self) => Ok(1)
 }

@@ -112,3 +112,72 @@ fn into_bits(x: u8) -> (u8, u8, u8, u8, u8, u8, u8, u8) {
         x & 0b0000_0001,
     )
 }
+
+#[macro_export]
+macro_rules! define_instruction {
+    ($(#[$docs:meta])* $name:ident { $template:expr $(, $operand:ident: $t:tt)* ; $length:literal }
+     ($($arg:ident),+) => $body:expr) => {
+        $(#[$docs])*
+        pub struct $name {
+            $(pub $operand: $t),*
+        }
+
+        impl Instruction for $name {
+            instruction_execute!(($($arg),+) => $body);
+
+            fn length(&self) -> u16 {
+                $length
+            }
+        }
+
+        impl Display for $name {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                write!(f, $template $(, self.$operand)*)
+            }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! instruction_execute {
+    (($self:ident) => $body:expr) => {
+        fn execute(
+            &$self,
+            _: &mut Registers,
+            _: &mut Memory,
+            _: &mut CpuFlags,
+        ) -> InstructionResult {
+            $body
+        }
+    };
+    (($self:ident, $r:ident) => $body:expr) => {
+        fn execute(
+            &$self,
+            $r: &mut Registers,
+            _: &mut Memory,
+            _: &mut CpuFlags,
+        ) -> InstructionResult {
+            $body
+        }
+    };
+    (($self:ident, $r:ident, $m:ident) => $body:expr) => {
+        fn execute(
+            &$self,
+            $r: &mut Registers,
+            $m: &mut Memory,
+            _: &mut CpuFlags,
+        ) -> InstructionResult {
+            $body
+        }
+    };
+    (($self:ident, $r:ident, $m:ident, $c:ident) => $body:expr) => {
+        fn execute(
+            &$self,
+            $r: &mut Registers,
+            $m: &mut Memory,
+            $c: &mut CpuFlags,
+        ) -> InstructionResult {
+            $body
+        }
+    };
+}

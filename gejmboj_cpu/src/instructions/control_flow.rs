@@ -1,108 +1,70 @@
 use super::{Condition, Instruction, InstructionResult};
-use crate::{
-    cpu::CpuFlags,
-    memory,
-    registers::{self, DoubleRegister},
-};
-use memory::Memory;
-use registers::Registers;
+use crate::memory::Memory;
+use crate::registers::Registers;
+use crate::{cpu::CpuFlags, define_instruction, instruction_execute, registers::DoubleRegister};
 use std::fmt::Display;
 
-/// Unconditional jump to location specified by 16-bit operand.
-///
-/// ## Examples
-///
-/// ```
-/// # use gejmboj_cpu::registers::*;
-/// # use gejmboj_cpu::memory::*;
-/// # use gejmboj_cpu::instructions::*;
-/// # use gejmboj_cpu::cpu::*;
-/// let mut registers = Registers::new();
-/// let mut memory = Memory::new();
-/// let mut cpu_flags = CpuFlags::new();
-/// let instruction = Jp { operand: 0xBADA };
-///
-/// assert_eq!(0, registers.PC);
-/// instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-/// assert_eq!(0xBADA, registers.PC);
-/// ```
-pub struct Jp {
-    pub operand: u16,
-}
+define_instruction! {
+    /// Unconditional jump to location specified by 16-bit operand.
+    ///
+    /// ## Examples
+    ///
+    /// ```
+    /// # use gejmboj_cpu::registers::*;
+    /// # use gejmboj_cpu::memory::*;
+    /// # use gejmboj_cpu::instructions::*;
+    /// # use gejmboj_cpu::cpu::*;
+    /// let mut registers = Registers::new();
+    /// let mut memory = Memory::new();
+    /// let mut cpu_flags = CpuFlags::new();
+    /// let instruction = Jp { operand: 0xBADA };
+    ///
+    /// assert_eq!(0, registers.PC);
+    /// instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+    /// assert_eq!(0xBADA, registers.PC);
+    /// ```
+    Jp { "JP({:04x})", operand: u16; 3 }
 
-impl Instruction for Jp {
-    fn execute(
-        &self,
-        registers: &mut Registers,
-        _memory: &mut Memory,
-        _cpu_flags: &mut CpuFlags,
-    ) -> InstructionResult {
+    (self, registers) => {
         registers.PC = self.operand;
         Ok(4)
     }
-
-    fn length(&self) -> u16 {
-        3
-    }
 }
 
-impl Display for Jp {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "JP({:04x})", self.operand)
-    }
-}
+define_instruction! {
+    /// Conditional jump to location specified by 16-bit operand.
+    ///
+    /// ## Examples
+    ///
+    /// ```
+    /// # use gejmboj_cpu::registers::*;
+    /// # use gejmboj_cpu::memory::*;
+    /// # use gejmboj_cpu::instructions::*;
+    /// # use gejmboj_cpu::cpu::*;
+    /// let mut registers = Registers::new();
+    /// let mut memory = Memory::new();
+    /// let mut cpu_flags = CpuFlags::new();
+    /// let instruction = JpIf { operand: 0xBADA, condition: Condition::Carry };
+    ///
+    /// let mut cycles = instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+    /// assert_eq!(0, registers.PC);
+    /// assert_eq!(3, cycles);
+    ///
+    /// registers.set_single(SingleRegister::F, 0b0001_0000);
+    /// cycles = instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+    /// assert_eq!(0xBADA, registers.PC);
+    /// assert_eq!(4, cycles);
+    /// ```
+    JpIf { "JP({:04x}) {:?}", operand: u16, condition: Condition; 3 }
 
-/// Conditional jump to location specified by 16-bit operand.
-///
-/// ## Examples
-///
-/// ```
-/// # use gejmboj_cpu::registers::*;
-/// # use gejmboj_cpu::memory::*;
-/// # use gejmboj_cpu::instructions::*;
-/// # use gejmboj_cpu::cpu::*;
-/// let mut registers = Registers::new();
-/// let mut memory = Memory::new();
-/// let mut cpu_flags = CpuFlags::new();
-/// let instruction = JpIf { operand: 0xBADA, condition: Condition::Carry };
-///
-/// let mut cycles = instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-/// assert_eq!(0, registers.PC);
-/// assert_eq!(3, cycles);
-///
-/// registers.set_single(SingleRegister::F, 0b0001_0000);
-/// cycles = instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-/// assert_eq!(0xBADA, registers.PC);
-/// assert_eq!(4, cycles);
-/// ```
-pub struct JpIf {
-    pub condition: Condition,
-    pub operand: u16,
-}
-
-impl Instruction for JpIf {
-    fn execute(
-        &self,
-        registers: &mut Registers,
-        _memory: &mut Memory,
-        _cpu_flags: &mut CpuFlags,
-    ) -> InstructionResult {
-        if self.condition.is_fulfilled(registers) {
+    (self, registers) => {
+            if self.condition.is_fulfilled(registers) {
             registers.PC = self.operand;
             Ok(4)
         } else {
             Ok(3)
         }
-    }
 
-    fn length(&self) -> u16 {
-        3
-    }
-}
-
-impl Display for JpIf {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "JP({:04x}) {:?}", self.operand, self.condition)
     }
 }
 
@@ -490,107 +452,75 @@ impl Display for RetIf {
     }
 }
 
-/// Unconditional return from a function which enables interrupts
-///
-/// ## Examples
-///
-/// ```
-/// # use gejmboj_cpu::registers::*;
-/// # use gejmboj_cpu::memory::*;
-/// # use gejmboj_cpu::instructions::*;
-/// # use gejmboj_cpu::cpu::*;
-/// let mut registers = Registers::new();
-/// let mut memory = Memory::new();
-/// let mut cpu_flags = CpuFlags::new();
-/// let call = Call { operand: 0xABCD };
-/// let reti = RetI { };
-///
-/// registers.PC = 0xAAAA;
-/// call.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-/// reti.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-///
-/// assert_eq!(0xAAAA, registers.PC);
-/// assert_eq!(0xFFFE, registers.SP);
-/// assert_eq!(1, cpu_flags.IME);
-/// ```
-pub struct RetI {}
+define_instruction! {
+    /// Unconditional return from a function which enables interrupts
+    ///
+    /// ## Examples
+    ///
+    /// ```
+    /// # use gejmboj_cpu::registers::*;
+    /// # use gejmboj_cpu::memory::*;
+    /// # use gejmboj_cpu::instructions::*;
+    /// # use gejmboj_cpu::cpu::*;
+    /// let mut registers = Registers::new();
+    /// let mut memory = Memory::new();
+    /// let mut cpu_flags = CpuFlags::new();
+    /// let call = Call { operand: 0xABCD };
+    /// let reti = RetI { };
+    ///
+    /// registers.PC = 0xAAAA;
+    /// call.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+    /// reti.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+    ///
+    /// assert_eq!(0xAAAA, registers.PC);
+    /// assert_eq!(0xFFFE, registers.SP);
+    /// assert_eq!(1, cpu_flags.IME);
+    /// ```
+    RetI { "RET IME=1"; 1 }
 
-impl Instruction for RetI {
-    fn execute(
-        &self,
-        registers: &mut Registers,
-        memory: &mut Memory,
-        cpu_flags: &mut CpuFlags,
-    ) -> InstructionResult {
+    (self, registers, memory, cpu_flags) => {
         registers.PC = memory.get_u16(registers.SP.into());
         registers.SP += 2;
         cpu_flags.IME = 1;
         Ok(4)
     }
-
-    fn length(&self) -> u16 {
-        1
-    }
 }
 
-impl Display for RetI {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "RET IME=1")
-    }
-}
+define_instruction! {
+    /// Unconditional function call to the RESET address defined by bits 3-5
+    ///
+    /// Possible RESET addresses are:
+    ///
+    /// * `0x00`
+    /// * `0x08`
+    /// * `0x10`
+    /// * `0x18`
+    /// * `0x20`
+    /// * `0x28`
+    /// * `0x30`
+    /// * `0x38`
+    ///
+    /// ## Examples
+    ///
+    /// ```
+    /// # use gejmboj_cpu::registers::*;
+    /// # use gejmboj_cpu::memory::*;
+    /// # use gejmboj_cpu::instructions::*;
+    /// # use gejmboj_cpu::cpu::*;
+    /// let mut registers = Registers::new();
+    /// let mut memory = Memory::new();
+    /// let mut cpu_flags = CpuFlags::new();
+    /// let instruction = Rst { opcode: 0b1101_0111};
+    ///
+    /// instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+    ///
+    /// assert_eq!(0x10, registers.PC);
+    /// ```
+    Rst { "RST({:08b})", opcode: u8; 1 }
 
-/// Unconditional function call to the RESET address defined by bits 3-5
-///
-/// Possible RESET addresses are:
-///
-/// * `0x00`
-/// * `0x08`
-/// * `0x10`
-/// * `0x18`
-/// * `0x20`
-/// * `0x28`
-/// * `0x30`
-/// * `0x38`
-///
-/// ## Examples
-///
-/// ```
-/// # use gejmboj_cpu::registers::*;
-/// # use gejmboj_cpu::memory::*;
-/// # use gejmboj_cpu::instructions::*;
-/// # use gejmboj_cpu::cpu::*;
-/// let mut registers = Registers::new();
-/// let mut memory = Memory::new();
-/// let mut cpu_flags = CpuFlags::new();
-/// let instruction = Rst { opcode: 0b1101_0111};
-///
-/// instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-///
-/// assert_eq!(0x10, registers.PC);
-/// ```
-pub struct Rst {
-    pub opcode: u8,
-}
-
-impl Instruction for Rst {
-    fn execute(
-        &self,
-        registers: &mut Registers,
-        _memory: &mut Memory,
-        _cpu_flags: &mut CpuFlags,
-    ) -> InstructionResult {
+    (self, registers) => {
         registers.PC = get_reset_address(self.opcode);
         Ok(4)
-    }
-
-    fn length(&self) -> u16 {
-        1
-    }
-}
-
-impl Display for Rst {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "RST({:02x})", get_reset_address(self.opcode))
     }
 }
 
