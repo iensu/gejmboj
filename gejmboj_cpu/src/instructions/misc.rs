@@ -1,6 +1,4 @@
-use super::{Instruction, InstructionResult};
-use crate::{cpu::CpuFlags, define_instruction, memory::Memory, registers::Registers};
-use std::fmt::Display;
+use crate::define_instruction;
 
 define_instruction! {
     /// No operation

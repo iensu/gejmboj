@@ -306,6 +306,7 @@ PC:{:04x?} SP:{:04x?}
 }
 
 /// Represents an 8-bit general purpose register.
+#[derive(Debug, Copy, Clone)]
 pub enum SingleRegister {
     A,
     B,
@@ -317,7 +318,23 @@ pub enum SingleRegister {
     L,
 }
 
+impl From<(u8, u8, u8)> for SingleRegister {
+    fn from(x: (u8, u8, u8)) -> Self {
+        match (x.0 > 0, x.1 > 0, x.2 > 0) {
+            (false, false, false) => SingleRegister::B,
+            (false, false, true) => SingleRegister::C,
+            (false, true, false) => SingleRegister::D,
+            (false, true, true) => SingleRegister::E,
+            (true, false, false) => SingleRegister::H,
+            (true, false, true) => SingleRegister::L,
+            (true, true, false) => SingleRegister::F,
+            (true, true, true) => SingleRegister::A,
+        }
+    }
+}
+
 /// Represents a 16-bit general purpose register.
+#[derive(Debug)]
 pub enum DoubleRegister {
     AF,
     BC,

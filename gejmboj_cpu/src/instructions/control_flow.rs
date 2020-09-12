@@ -1,8 +1,5 @@
-use super::{Condition, Instruction, InstructionResult};
-use crate::memory::Memory;
-use crate::registers::Registers;
-use crate::{cpu::CpuFlags, define_instruction, registers::DoubleRegister};
-use std::fmt::Display;
+use super::Condition;
+use crate::{define_instruction, registers::DoubleRegister};
 
 define_instruction! {
     /// Unconditional jump to location specified by 16-bit operand.

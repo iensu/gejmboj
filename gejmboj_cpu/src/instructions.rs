@@ -3,9 +3,11 @@
 use crate::{cpu::CpuFlags, errors::CpuError, memory::Memory, registers::Registers};
 
 mod control_flow;
+mod load;
 mod misc;
 
 pub use control_flow::*;
+pub use load::*;
 pub use misc::*;
 
 /// Return either the number of consumed machine cycles, or a `CpuError`.
@@ -89,6 +91,16 @@ pub fn decode(opcode: u8, pc: u16, memory: &Memory) -> Result<Box<dyn Instructio
             condition: Condition::parse(c, d).unwrap(),
         })),
         (1, 1, _, _, _, 1, 1, 1) => Ok(Box::new(control_flow::Rst { opcode })),
+        (0, 1, a, b, c, 1, 1, 0) => Ok(Box::new(load::LdFromHL {
+            r: (a, b, c).into(),
+        })),
+        (0, 1, 1, 1, 0, a, b, c) => Ok(Box::new(load::LdToHL {
+            r: (a, b, c).into(),
+        })),
+        (0, 1, a, b, c, x, y, z) => Ok(Box::new(load::Ld {
+            r1: (a, b, c).into(),
+            r2: (x, y, z).into(),
+        })),
         _ => Err(CpuError::UnknownInstruction(opcode)),
     }
 }
@@ -207,7 +219,7 @@ macro_rules! define_instruction {
             $(pub $operand: $t),*
         }
 
-        impl Instruction for $name {
+        impl $crate::instructions::Instruction for $name {
             $crate::instruction_execute!(($($arg),+) => $body);
 
             fn length(&self) -> u16 {
@@ -215,7 +227,7 @@ macro_rules! define_instruction {
             }
         }
 
-        impl Display for $name {
+        impl std::fmt::Display for $name {
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                 write!(f, $template $(, self.$operand)*)
             }
@@ -229,33 +241,33 @@ macro_rules! instruction_execute {
     (($self:ident) => $body:block) => {
         fn execute(
             &$self,
-            _: &mut Registers,
-            _: &mut Memory,
-            _: &mut CpuFlags,
-        ) -> InstructionResult $body
+            _: &mut $crate::registers::Registers,
+            _: &mut $crate::memory::Memory,
+            _: &mut $crate::cpu::CpuFlags,
+        ) -> $crate::instructions::InstructionResult $body
     };
     (($self:ident, $r:ident) => $body:block) => {
         fn execute(
             &$self,
-            $r: &mut Registers,
-            _: &mut Memory,
-            _: &mut CpuFlags,
-        ) -> InstructionResult $body
+            $r: &mut $crate::registers::Registers,
+            _: &mut $crate::memory::Memory,
+            _: &mut $crate::cpu::CpuFlags,
+        ) -> $crate::instructions::InstructionResult $body
     };
     (($self:ident, $r:ident, $m:ident) => $body:block) => {
         fn execute(
             &$self,
-            $r: &mut Registers,
-            $m: &mut Memory,
-            _: &mut CpuFlags,
-        ) -> InstructionResult $body
+            $r: &mut $crate::registers::Registers,
+            $m: &mut $crate::memory::Memory,
+            _: &mut $crate::cpu::CpuFlags,
+        ) -> $crate::instructions::InstructionResult $body
     };
     (($self:ident, $r:ident, $m:ident, $c:ident) => $body:block) => {
         fn execute(
             &$self,
-            $r: &mut Registers,
-            $m: &mut Memory,
-            $c: &mut CpuFlags,
-        ) -> InstructionResult $body
+            $r: &mut $crate::registers::Registers,
+            $m: &mut $crate::memory::Memory,
+            $c: &mut $crate::cpu::CpuFlags,
+        ) -> $crate::instructions::InstructionResult $body
     };
 }
