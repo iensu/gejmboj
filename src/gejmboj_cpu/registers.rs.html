@@ -324,6 +324,23 @@
 <span id="324">324</span>
 <span id="325">325</span>
 <span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! # Sharp SM83 register</span>
 <span class="doccomment">//!</span>
@@ -633,6 +650,7 @@ PC:{:04x?} SP:{:04x?}
 }
 
 <span class="doccomment">/// Represents an 8-bit general purpose register.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">SingleRegister</span> {
     <span class="ident">A</span>,
     <span class="ident">B</span>,
@@ -644,7 +662,23 @@ PC:{:04x?} SP:{:04x?}
     <span class="ident">L</span>,
 }
 
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span>(<span class="ident">u8</span>, <span class="ident">u8</span>, <span class="ident">u8</span>)<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SingleRegister</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">x</span>: (<span class="ident">u8</span>, <span class="ident">u8</span>, <span class="ident">u8</span>)) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="kw">match</span> (<span class="ident">x</span>.<span class="number">0</span> <span class="op">&gt;</span> <span class="number">0</span>, <span class="ident">x</span>.<span class="number">1</span> <span class="op">&gt;</span> <span class="number">0</span>, <span class="ident">x</span>.<span class="number">2</span> <span class="op">&gt;</span> <span class="number">0</span>) {
+            (<span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SingleRegister</span>::<span class="ident">B</span>,
+            (<span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SingleRegister</span>::<span class="ident">C</span>,
+            (<span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SingleRegister</span>::<span class="ident">D</span>,
+            (<span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SingleRegister</span>::<span class="ident">E</span>,
+            (<span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SingleRegister</span>::<span class="ident">H</span>,
+            (<span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SingleRegister</span>::<span class="ident">L</span>,
+            (<span class="bool-val">true</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SingleRegister</span>::<span class="ident">F</span>,
+            (<span class="bool-val">true</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SingleRegister</span>::<span class="ident">A</span>,
+        }
+    }
+}
+
 <span class="doccomment">/// Represents a 16-bit general purpose register.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">DoubleRegister</span> {
     <span class="ident">AF</span>,
     <span class="ident">BC</span>,

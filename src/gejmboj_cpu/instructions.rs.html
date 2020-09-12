@@ -259,15 +259,29 @@
 <span id="259">259</span>
 <span id="260">260</span>
 <span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Sharp SM83 instruction set</span>
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">cpu</span>::<span class="ident">CpuFlags</span>, <span class="ident">errors</span>::<span class="ident">CpuError</span>, <span class="ident">memory</span>::<span class="ident">Memory</span>, <span class="ident">registers</span>::<span class="ident">Registers</span>};
 
 <span class="kw">mod</span> <span class="ident">control_flow</span>;
+<span class="kw">mod</span> <span class="ident">load</span>;
 <span class="kw">mod</span> <span class="ident">misc</span>;
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">control_flow</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">load</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">misc</span>::<span class="kw-2">*</span>;
 
 <span class="doccomment">/// Return either the number of consumed machine cycles, or a `CpuError`.</span>
@@ -351,6 +365,16 @@
             <span class="ident">condition</span>: <span class="ident">Condition</span>::<span class="ident">parse</span>(<span class="ident">c</span>, <span class="ident">d</span>).<span class="ident">unwrap</span>(),
         })),
         (<span class="number">1</span>, <span class="number">1</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">control_flow</span>::<span class="ident">Rst</span> { <span class="ident">opcode</span> })),
+        (<span class="number">0</span>, <span class="number">1</span>, <span class="ident">a</span>, <span class="ident">b</span>, <span class="ident">c</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">load</span>::<span class="ident">LdFromHL</span> {
+            <span class="ident">r</span>: (<span class="ident">a</span>, <span class="ident">b</span>, <span class="ident">c</span>).<span class="ident">into</span>(),
+        })),
+        (<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="ident">a</span>, <span class="ident">b</span>, <span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">load</span>::<span class="ident">LdToHL</span> {
+            <span class="ident">r</span>: (<span class="ident">a</span>, <span class="ident">b</span>, <span class="ident">c</span>).<span class="ident">into</span>(),
+        })),
+        (<span class="number">0</span>, <span class="number">1</span>, <span class="ident">a</span>, <span class="ident">b</span>, <span class="ident">c</span>, <span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">load</span>::<span class="ident">Ld</span> {
+            <span class="ident">r1</span>: (<span class="ident">a</span>, <span class="ident">b</span>, <span class="ident">c</span>).<span class="ident">into</span>(),
+            <span class="ident">r2</span>: (<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>).<span class="ident">into</span>(),
+        })),
         <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">CpuError</span>::<span class="ident">UnknownInstruction</span>(<span class="ident">opcode</span>)),
     }
 }
@@ -469,7 +493,7 @@
             $(<span class="kw">pub</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">operand</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>),<span class="op">*</span>
         }
 
-        <span class="kw">impl</span> <span class="ident">Instruction</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
+        <span class="kw">impl</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">instructions</span>::<span class="ident">Instruction</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
             <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">instruction_execute</span><span class="op">!</span>(($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>),<span class="op">+</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">body</span>);
 
             <span class="kw">fn</span> <span class="ident">length</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u16</span> {
@@ -477,7 +501,7 @@
             }
         }
 
-        <span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
+        <span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
             <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
                 <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">template</span> $(, <span class="self">self</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">operand</span>)<span class="kw-2">*</span>)
             }
@@ -491,34 +515,34 @@
     ((<span class="macro-nonterminal">$</span><span class="self">self</span>:<span class="macro-nonterminal">ident</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">body</span>:<span class="ident">block</span>) <span class="op">=</span><span class="op">&gt;</span> {
         <span class="kw">fn</span> <span class="ident">execute</span>(
             <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="self">self</span>,
-            <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="macro-nonterminal">Registers</span>,
-            <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Memory</span>,
-            <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CpuFlags</span>,
-        ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">InstructionResult</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">body</span>
+            <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">registers</span>::<span class="ident">Registers</span>,
+            <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">memory</span>::<span class="ident">Memory</span>,
+            <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">cpu</span>::<span class="ident">CpuFlags</span>,
+        ) <span class="op">-</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">instructions</span>::<span class="ident">InstructionResult</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">body</span>
     };
     ((<span class="macro-nonterminal">$</span><span class="self">self</span>:<span class="macro-nonterminal">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">r</span>:<span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">body</span>:<span class="ident">block</span>) <span class="op">=</span><span class="op">&gt;</span> {
         <span class="kw">fn</span> <span class="ident">execute</span>(
             <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="self">self</span>,
-            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">r</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registers</span>,
-            <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Memory</span>,
-            <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CpuFlags</span>,
-        ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">InstructionResult</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">body</span>
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">r</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">registers</span>::<span class="ident">Registers</span>,
+            <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">memory</span>::<span class="ident">Memory</span>,
+            <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">cpu</span>::<span class="ident">CpuFlags</span>,
+        ) <span class="op">-</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">instructions</span>::<span class="ident">InstructionResult</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">body</span>
     };
     ((<span class="macro-nonterminal">$</span><span class="self">self</span>:<span class="macro-nonterminal">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">r</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>:<span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">body</span>:<span class="ident">block</span>) <span class="op">=</span><span class="op">&gt;</span> {
         <span class="kw">fn</span> <span class="ident">execute</span>(
             <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="self">self</span>,
-            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">r</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registers</span>,
-            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Memory</span>,
-            <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CpuFlags</span>,
-        ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">InstructionResult</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">body</span>
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">r</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">registers</span>::<span class="ident">Registers</span>,
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">memory</span>::<span class="ident">Memory</span>,
+            <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">cpu</span>::<span class="ident">CpuFlags</span>,
+        ) <span class="op">-</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">instructions</span>::<span class="ident">InstructionResult</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">body</span>
     };
     ((<span class="macro-nonterminal">$</span><span class="self">self</span>:<span class="macro-nonterminal">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">r</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">c</span>:<span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">body</span>:<span class="ident">block</span>) <span class="op">=</span><span class="op">&gt;</span> {
         <span class="kw">fn</span> <span class="ident">execute</span>(
             <span class="kw-2">&amp;</span><span class="macro-nonterminal">$</span><span class="self">self</span>,
-            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">r</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registers</span>,
-            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Memory</span>,
-            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">c</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CpuFlags</span>,
-        ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">InstructionResult</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">body</span>
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">r</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">registers</span>::<span class="ident">Registers</span>,
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">memory</span>::<span class="ident">Memory</span>,
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">c</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">cpu</span>::<span class="ident">CpuFlags</span>,
+        ) <span class="op">-</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">instructions</span>::<span class="ident">InstructionResult</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">body</span>
     };
 }
 </pre></div>
