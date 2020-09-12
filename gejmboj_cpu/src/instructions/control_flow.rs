@@ -1,7 +1,7 @@
 use super::{Condition, Instruction, InstructionResult};
 use crate::memory::Memory;
 use crate::registers::Registers;
-use crate::{cpu::CpuFlags, define_instruction, instruction_execute, registers::DoubleRegister};
+use crate::{cpu::CpuFlags, define_instruction, registers::DoubleRegister};
 use std::fmt::Display;
 
 define_instruction! {

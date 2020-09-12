@@ -201,14 +201,14 @@ fn into_bits(x: u8) -> (u8, u8, u8, u8, u8, u8, u8, u8) {
 #[macro_export]
 macro_rules! define_instruction {
     ($(#[$docs:meta])* $name:ident { $template:expr $(, $operand:ident: $t:tt)* ; $length:literal }
-     ($($arg:ident),+) => $body:expr) => {
+     ($($arg:ident),+) => $body:block) => {
         $(#[$docs])*
         pub struct $name {
             $(pub $operand: $t),*
         }
 
         impl Instruction for $name {
-            instruction_execute!(($($arg),+) => $body);
+            $crate::instruction_execute!(($($arg),+) => $body);
 
             fn length(&self) -> u16 {
                 $length
@@ -223,47 +223,39 @@ macro_rules! define_instruction {
     };
 }
 
-/// Generates the [Instruction.execute](instructions/trait.Instruction.html#execute) definition based on the number of provided parameters.
 #[macro_export]
+#[doc(hidden)]
 macro_rules! instruction_execute {
-    (($self:ident) => $body:expr) => {
+    (($self:ident) => $body:block) => {
         fn execute(
             &$self,
             _: &mut Registers,
             _: &mut Memory,
             _: &mut CpuFlags,
-        ) -> InstructionResult {
-            $body
-        }
+        ) -> InstructionResult $body
     };
-    (($self:ident, $r:ident) => $body:expr) => {
+    (($self:ident, $r:ident) => $body:block) => {
         fn execute(
             &$self,
             $r: &mut Registers,
             _: &mut Memory,
             _: &mut CpuFlags,
-        ) -> InstructionResult {
-            $body
-        }
+        ) -> InstructionResult $body
     };
-    (($self:ident, $r:ident, $m:ident) => $body:expr) => {
+    (($self:ident, $r:ident, $m:ident) => $body:block) => {
         fn execute(
             &$self,
             $r: &mut Registers,
             $m: &mut Memory,
             _: &mut CpuFlags,
-        ) -> InstructionResult {
-            $body
-        }
+        ) -> InstructionResult $body
     };
-    (($self:ident, $r:ident, $m:ident, $c:ident) => $body:expr) => {
+    (($self:ident, $r:ident, $m:ident, $c:ident) => $body:block) => {
         fn execute(
             &$self,
             $r: &mut Registers,
             $m: &mut Memory,
             $c: &mut CpuFlags,
-        ) -> InstructionResult {
-            $body
-        }
+        ) -> InstructionResult $body
     };
 }
