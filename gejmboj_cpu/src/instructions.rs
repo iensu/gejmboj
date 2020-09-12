@@ -13,6 +13,7 @@ pub type InstructionResult = Result<u16, CpuError>;
 
 /// Trait for implementing a Sharp SM83 instruction.
 pub trait Instruction {
+    /// Execute the instruction and return an [InstructionResult](type.InstructionResult.html)
     fn execute(
         &self,
         registers: &mut Registers,
@@ -113,6 +114,90 @@ fn into_bits(x: u8) -> (u8, u8, u8, u8, u8, u8, u8, u8) {
     )
 }
 
+/// Generates an [Instruction](instructions/trait.Instruction.html).
+///
+/// The actual instruction implementation definition takes a variable arguments list which
+/// expands to underscore for the unspecified arguments in the generated implementation.
+/// The possible order of the arguments is fixed to `self`, [Registers](registers/struct.Registers.html),
+/// [Memory](memory/struct.Memory.html), [CpuFlags](cpu/struct.CpuFlags.html).
+///
+/// ## Examples
+///
+/// In this example the struct will have no additional properties:
+///
+/// ```
+/// # #[macro_use] extern crate gejmboj_cpu;
+/// # use gejmboj_cpu::registers::*;
+/// # use gejmboj_cpu::memory::*;
+/// # use gejmboj_cpu::instructions::*;
+/// # use gejmboj_cpu::cpu::*;
+/// # use std::fmt::Display;
+/// define_instruction! {
+///    /// My awesome instruction
+///    Awesome { "AWESOME"; 1 }
+///
+///    (self) => {
+///        Ok(2)
+///    }
+///}
+///
+/// let mut registers = Registers::new();
+/// let mut memory = Memory::new();
+/// let mut cpu_flags = CpuFlags::new();
+///
+/// let instruction = Awesome {};
+/// let machine_cycles = instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+/// assert_eq!(1, instruction.length());
+/// assert_eq!(2, machine_cycles);
+/// assert_eq!("AWESOME", format!("{}", instruction));
+/// ```
+///
+/// When you add properties these must be referenced in the format string template argument:
+///
+/// ```
+/// # #[macro_use] extern crate gejmboj_cpu;
+/// # use gejmboj_cpu::registers::*;
+/// # use gejmboj_cpu::memory::*;
+/// # use gejmboj_cpu::instructions::*;
+/// # use gejmboj_cpu::cpu::*;
+/// # use std::fmt::Display;
+/// define_instruction! {
+///    /// My awesome instruction with properties
+///    AwesomeWithProps { "AWESOME({:04x}) {:?}", operand: u16, condition: Condition; 3 }
+///
+///    (self, registers, memory) => {
+///        if self.condition.is_fulfilled(registers) {
+///            let [lo, hi] = registers.PC.to_le_bytes();
+///            memory.set((registers.SP - 1).into(), hi);
+///            memory.set((registers.SP - 2).into(), lo);
+///            registers.SP -= 2;
+///            registers.PC = self.operand;
+///            Ok(6)
+///        } else {
+///            Ok(3)
+///        }
+///    }
+///}
+///
+/// let mut registers = Registers::new();
+/// let mut memory = Memory::new();
+/// let mut cpu_flags = CpuFlags::new();
+///
+/// let instruction = AwesomeWithProps { operand: 0x0200, condition: Condition::Zero };
+/// let mut machine_cycles = 0;
+///
+/// machine_cycles = instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+///
+/// assert_eq!(3, instruction.length());
+/// assert_eq!(3, machine_cycles);
+/// assert_eq!("AWESOME(0200) Zero", format!("{}", instruction));
+///
+/// registers.set_single(SingleRegister::F, 0b1000_0000);
+///
+/// machine_cycles = instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+///
+/// assert_eq!(6, machine_cycles);
+/// ```
 #[macro_export]
 macro_rules! define_instruction {
     ($(#[$docs:meta])* $name:ident { $template:expr $(, $operand:ident: $t:tt)* ; $length:literal }
@@ -138,6 +223,7 @@ macro_rules! define_instruction {
     };
 }
 
+/// Generates the [Instruction.execute](instructions/trait.Instruction.html#execute) definition based on the number of provided parameters.
 #[macro_export]
 macro_rules! instruction_execute {
     (($self:ident) => $body:expr) => {
