@@ -271,6 +271,24 @@
 <span id="271">271</span>
 <span id="272">272</span>
 <span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Sharp SM83 instruction set</span>
 
@@ -487,7 +505,10 @@
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">define_instruction</span> {
     ($(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">docs</span>:<span class="ident">meta</span>]</span>)<span class="op">*</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span> { <span class="macro-nonterminal">$</span><span class="macro-nonterminal">template</span>:<span class="ident">expr</span> $(, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">operand</span>:<span class="ident">ident</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">tt</span>)<span class="op">*</span> ; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">length</span>:<span class="ident">literal</span> }
-     ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>:<span class="ident">ident</span>),<span class="op">+</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">body</span>:<span class="ident">block</span>) <span class="op">=</span><span class="op">&gt;</span> {
+
+     ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg</span>:<span class="ident">ident</span>),<span class="op">+</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">body</span>:<span class="ident">block</span>
+
+     $(@<span class="ident">test</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">testname</span>:<span class="ident">ident</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">r</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">c</span>:<span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">testbody</span>:<span class="ident">block</span>)<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {
         $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">docs</span>]</span>)<span class="op">*</span>
         <span class="kw">pub</span> <span class="kw">struct</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> {
             $(<span class="kw">pub</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">operand</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>),<span class="op">*</span>
@@ -506,6 +527,21 @@
                 <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">template</span> $(, <span class="self">self</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">operand</span>)<span class="kw-2">*</span>)
             }
         }
+
+        $(
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+            <span class="attribute">#[<span class="ident">test</span>]</span>
+            <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">testname</span>() {
+                <span class="kw">use</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">registers</span>::<span class="kw-2">*</span>;
+                <span class="kw">use</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">instructions</span>::<span class="kw-2">*</span>;
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">r</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">registers</span>::<span class="ident">Registers</span>::<span class="ident">new</span>();
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">memory</span>::<span class="ident">Memory</span>::<span class="ident">new</span>();
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">c</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">cpu</span>::<span class="ident">CpuFlags</span>::<span class="ident">new</span>();
+
+                <span class="macro-nonterminal">$</span><span class="macro-nonterminal">testbody</span>
+            }
+
+        )<span class="op">*</span>
     };
 }
 
