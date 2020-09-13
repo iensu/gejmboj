@@ -213,7 +213,10 @@ fn into_bits(x: u8) -> (u8, u8, u8, u8, u8, u8, u8, u8) {
 #[macro_export]
 macro_rules! define_instruction {
     ($(#[$docs:meta])* $name:ident { $template:expr $(, $operand:ident: $t:tt)* ; $length:literal }
-     ($($arg:ident),+) => $body:block) => {
+
+     ($($arg:ident),+) => $body:block
+
+     $(@test $testname:ident ($r:ident, $m:ident, $c:ident) => $testbody:block)*) => {
         $(#[$docs])*
         pub struct $name {
             $(pub $operand: $t),*
@@ -232,6 +235,21 @@ macro_rules! define_instruction {
                 write!(f, $template $(, self.$operand)*)
             }
         }
+
+        $(
+            #[cfg(test)]
+            #[test]
+            fn $testname() {
+                use $crate::registers::*;
+                use $crate::instructions::*;
+                let mut $r = $crate::registers::Registers::new();
+                let mut $m = $crate::memory::Memory::new();
+                let mut $c = $crate::cpu::CpuFlags::new();
+
+                $testbody
+            }
+
+        )*
     };
 }
 
