@@ -1,10 +1,12 @@
-use crate::define_instruction;
+use crate::instruction_group;
 
-define_instruction! {
-    /// No operation
-    Noop { "NOOP"; 1 }
+instruction_group! {
+    /// Miscelleneous instructions
+    Misc (_registers, _memory, _cpu_flags) {
 
-    (self) => {
-        Ok(1)
+        /// No operation
+        Noop() [1] => {
+            Ok(1)
+        }
     }
 }

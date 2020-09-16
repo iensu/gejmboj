@@ -30,7 +30,7 @@ impl CPU {
         &mut self,
         registers: &mut Registers,
         memory: &mut Memory,
-    ) -> Result<(u16, Box<dyn Instruction>), CpuError> {
+    ) -> Result<(u16, Instruction), CpuError> {
         let opcode = memory.get(registers.PC.into());
         let instruction_location = registers.PC.clone();
 
