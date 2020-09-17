@@ -81,9 +81,9 @@ impl Registers {
     /// # use gejmboj_cpu::registers::*;
     /// let mut registers = Registers::new();
     ///
-    /// registers.set_single(SingleRegister::A, 42);
+    /// registers.set_single(&SingleRegister::A, 42);
     ///
-    /// assert_eq!(42, registers.get_single(SingleRegister::A));
+    /// assert_eq!(42, registers.get_single(&SingleRegister::A));
     /// ```
     ///
     /// ## Special cases
@@ -93,11 +93,11 @@ impl Registers {
     /// ```
     /// # use gejmboj_cpu::registers::*;
     /// # let mut registers = Registers::new();
-    /// registers.set_single(SingleRegister::F, 0xFF);
+    /// registers.set_single(&SingleRegister::F, 0xFF);
     ///
-    /// assert_eq!(0xF0, registers.get_single(SingleRegister::F));
+    /// assert_eq!(0xF0, registers.get_single(&SingleRegister::F));
     /// ```
-    pub fn set_single(&mut self, r: SingleRegister, value: u8) {
+    pub fn set_single(&mut self, r: &SingleRegister, value: u8) {
         match r {
             SingleRegister::A => {
                 self.A = value;
@@ -134,9 +134,9 @@ impl Registers {
     /// # use gejmboj_cpu::registers::*;
     /// let registers = Registers::new();
     ///
-    /// assert_eq!(0, registers.get_single(SingleRegister::A));
+    /// assert_eq!(0, registers.get_single(&SingleRegister::A));
     /// ```
-    pub fn get_single(&self, r: SingleRegister) -> u8 {
+    pub fn get_single(&self, r: &SingleRegister) -> u8 {
         match r {
             SingleRegister::A => self.A,
             SingleRegister::B => self.B,
@@ -156,12 +156,12 @@ impl Registers {
     /// ```
     /// # use gejmboj_cpu::registers::*;
     /// let mut registers = Registers::new();
-    /// registers.set_single(SingleRegister::B, 0xAB);
-    /// registers.set_single(SingleRegister::C, 0xCD);
+    /// registers.set_single(&SingleRegister::B, 0xAB);
+    /// registers.set_single(&SingleRegister::C, 0xCD);
     ///
-    /// assert_eq!(0xABCD, registers.get_double(DoubleRegister::BC));
+    /// assert_eq!(0xABCD, registers.get_double(&DoubleRegister::BC));
     /// ````
-    pub fn get_double(&self, r: DoubleRegister) -> u16 {
+    pub fn get_double(&self, r: &DoubleRegister) -> u16 {
         match r {
             DoubleRegister::AF => u16::from_be_bytes([self.A, self.F]),
             DoubleRegister::BC => u16::from_be_bytes([self.B, self.C]),
@@ -177,9 +177,9 @@ impl Registers {
     /// ```
     /// # use gejmboj_cpu::registers::*;
     /// let mut registers = Registers::new();
-    /// registers.set_double(DoubleRegister::BC, 0xAABB);
+    /// registers.set_double(&DoubleRegister::BC, 0xAABB);
     ///
-    /// assert_eq!(0xAABB, registers.get_double(DoubleRegister::BC));
+    /// assert_eq!(0xAABB, registers.get_double(&DoubleRegister::BC));
     /// ```
     ///
     /// ## Special cases
@@ -189,11 +189,11 @@ impl Registers {
     /// ```
     /// # use gejmboj_cpu::registers::*;
     /// let mut registers = Registers::new();
-    /// registers.set_double(DoubleRegister::AF, 0xABCD);
+    /// registers.set_double(&DoubleRegister::AF, 0xABCD);
     ///
-    /// assert_eq!(0xABC0, registers.get_double(DoubleRegister::AF));
+    /// assert_eq!(0xABC0, registers.get_double(&DoubleRegister::AF));
     /// ```
-    pub fn set_double(&mut self, r: DoubleRegister, value: u16) {
+    pub fn set_double(&mut self, r: &DoubleRegister, value: u16) {
         let [hi, lo] = value.to_be_bytes();
         match r {
             DoubleRegister::AF => {
@@ -223,10 +223,10 @@ impl Registers {
     /// # use gejmboj_cpu::registers::*;
     /// let mut registers = Registers::new();
     ///
-    /// registers.set_single(SingleRegister::F, 0b0000_0000);
+    /// registers.set_single(&SingleRegister::F, 0b0000_0000);
     /// assert_eq!(false, registers.is_carry());
     ///
-    /// registers.set_single(SingleRegister::F, 0b0001_0000);
+    /// registers.set_single(&SingleRegister::F, 0b0001_0000);
     /// assert_eq!(true, registers.is_carry());
     /// ```
     pub fn is_carry(&self) -> bool {
@@ -241,10 +241,10 @@ impl Registers {
     /// # use gejmboj_cpu::registers::*;
     /// let mut registers = Registers::new();
     ///
-    /// registers.set_single(SingleRegister::F, 0b0000_0000);
+    /// registers.set_single(&SingleRegister::F, 0b0000_0000);
     /// assert_eq!(false, registers.is_half_carry());
     ///
-    /// registers.set_single(SingleRegister::F, 0b0010_0000);
+    /// registers.set_single(&SingleRegister::F, 0b0010_0000);
     /// assert_eq!(true, registers.is_half_carry());
     /// ```
     pub fn is_half_carry(&self) -> bool {
@@ -259,10 +259,10 @@ impl Registers {
     /// # use gejmboj_cpu::registers::*;
     /// let mut registers = Registers::new();
     ///
-    /// registers.set_single(SingleRegister::F, 0b0000_0000);
+    /// registers.set_single(&SingleRegister::F, 0b0000_0000);
     /// assert_eq!(false, registers.is_negative());
     ///
-    /// registers.set_single(SingleRegister::F, 0b0100_0000);
+    /// registers.set_single(&SingleRegister::F, 0b0100_0000);
     /// assert_eq!(true, registers.is_negative());
     /// ```
     pub fn is_negative(&self) -> bool {
@@ -277,10 +277,10 @@ impl Registers {
     /// # use gejmboj_cpu::registers::*;
     /// let mut registers = Registers::new();
     ///
-    /// registers.set_single(SingleRegister::F, 0b0000_0000);
+    /// registers.set_single(&SingleRegister::F, 0b0000_0000);
     /// assert_eq!(false, registers.is_zero());
     ///
-    /// registers.set_single(SingleRegister::F, 0b1000_0000);
+    /// registers.set_single(&SingleRegister::F, 0b1000_0000);
     /// assert_eq!(true, registers.is_zero());
     /// ```
     pub fn is_zero(&self) -> bool {
