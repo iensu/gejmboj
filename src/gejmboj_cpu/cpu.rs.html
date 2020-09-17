@@ -76,7 +76,7 @@
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">registers</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Registers</span>,
         <span class="ident">memory</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Memory</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">u16</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Instruction</span><span class="op">&gt;</span>), <span class="ident">CpuError</span><span class="op">&gt;</span> {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">u16</span>, <span class="ident">Instruction</span>), <span class="ident">CpuError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">opcode</span> <span class="op">=</span> <span class="ident">memory</span>.<span class="ident">get</span>(<span class="ident">registers</span>.<span class="ident">PC</span>.<span class="ident">into</span>());
         <span class="kw">let</span> <span class="ident">instruction_location</span> <span class="op">=</span> <span class="ident">registers</span>.<span class="ident">PC</span>.<span class="ident">clone</span>();
 
