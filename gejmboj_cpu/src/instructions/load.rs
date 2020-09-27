@@ -37,6 +37,51 @@ instruction_group! {
             memory.set(registers.get_double(&DoubleRegister::HL).into(), *operand);
             Ok(3)
         }
+
+        /// Load data at address pointed to by BC into A
+        LdBCToA() [1] => {
+            let value = memory.get(registers.get_double(&DoubleRegister::BC).into());
+            registers.set_single(&SingleRegister::A, value);
+            Ok(2)
+        }
+
+        /// Load data at address pointed to by DE into A
+        LdDEToA() [1] => {
+            let value = memory.get(registers.get_double(&DoubleRegister::DE).into());
+            registers.set_single(&SingleRegister::A, value);
+            Ok(2)
+        }
+
+        /// Load A into into address pointed to by BC
+        LdAToBC() [1] => {
+            memory.set(
+                registers.get_double(&DoubleRegister::BC).into(),
+                registers.get_single(&SingleRegister::A)
+            );
+            Ok(2)
+        }
+
+        /// Load A into into address pointed to by DE
+        LdAToDE() [1] => {
+            memory.set(
+                registers.get_double(&DoubleRegister::DE).into(),
+                registers.get_single(&SingleRegister::A)
+            );
+            Ok(2)
+        }
+
+        /// Load data at `address` into A
+        LdToA(address: u16) [3] => {
+            let value = memory.get((*address).into());
+            registers.set_single(&SingleRegister::A, value);
+            Ok(4)
+        }
+
+        /// Load data in A into address at `address`
+        LdFromA(address: u16) [3] => {
+            memory.set((*address).into(), registers.get_single(&SingleRegister::A));
+            Ok(4)
+        }
     }
 }
 

@@ -87,6 +87,16 @@ pub fn decode(opcode: u8, pc: u16, memory: &Memory) -> Result<Instruction, CpuEr
         (0, 0, 0, 1, 1, 0, 0, 0) => Ok(Instruction::ControlFlow(ControlFlow::JpToOffset(
             get_8bit_operand(pc, memory),
         ))),
+        (0, 0, 0, 0, 1, 0, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LdBCToA())),
+        (0, 0, 0, 1, 1, 0, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LdDEToA())),
+        (0, 0, 0, 0, 0, 0, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LdBCToA())),
+        (0, 0, 0, 1, 0, 0, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LdDEToA())),
+        (1, 1, 1, 1, 1, 0, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LdToA(get_16bit_operand(
+            pc, memory,
+        )))),
+        (1, 1, 1, 0, 1, 0, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LdFromA(
+            get_16bit_operand(pc, memory),
+        ))),
         (1, 1, 0, c, d, 0, 1, 0) => Ok(Instruction::ControlFlow(ControlFlow::JpIf(
             get_16bit_operand(pc, memory),
             Condition::parse(c, d).unwrap(),
