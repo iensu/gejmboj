@@ -82,6 +82,76 @@ instruction_group! {
             memory.set((*address).into(), registers.get_single(&SingleRegister::A));
             Ok(4)
         }
+
+        /// Load data to A from the address at `0xFF00` + register C
+        LdhCToA() [1] => {
+            let lo = registers.get_single(&SingleRegister::C);
+            let address = u16::from_le_bytes([lo, 0xFF]);
+            let value = memory.get(address.into());
+            registers.set_single(&SingleRegister::A, value);
+            Ok(2)
+        }
+
+        /// Load data from A into the address at `0xFF00` + register C
+        LdhAToC() [1] => {
+            let value = registers.get_single(&SingleRegister::A);
+            let lo = registers.get_single(&SingleRegister::C);
+            let address = u16::from_le_bytes([lo, 0xFF]);
+            memory.set(address.into(), value);
+            Ok(2)
+        }
+
+        /// Load data to A from the address at `0xFF00` + `operand`
+        LdhToA(operand: u8) [2] => {
+            let address = u16::from_le_bytes([*operand, 0xFF]);
+            let value = memory.get(address.into());
+            registers.set_single(&SingleRegister::A, value);
+            Ok(3)
+        }
+
+        /// Load data from A into the address at `0xFF00` + `operand`
+        LdhFromA(operand: u8) [2] => {
+            let address = u16::from_le_bytes([*operand, 0xFF]);
+            let value = registers.get_single(&SingleRegister::A);
+            memory.set(address.into(), value);
+            Ok(3)
+        }
+
+        /// Load data to A from the address at HL, value at HL is decremented.
+        LdAFromHLDec() [1] => {
+            let address = registers.get_double(&DoubleRegister::HL);
+            let value = memory.get(address.into());
+            registers.set_double(&DoubleRegister::HL, address - 1);
+            registers.set_single(&SingleRegister::A, value);
+            Ok(2)
+        }
+
+        /// Load data to address at HL from A, HL is decremented after write.
+        LdAToHLDec() [1] => {
+            let address = registers.get_double(&DoubleRegister::HL);
+            let value = registers.get_single(&SingleRegister::A);
+            memory.set(address.into(), value);
+            registers.set_double(&DoubleRegister::HL, address - 1);
+            Ok(2)
+        }
+
+        /// Load data to A from the address at HL, value at HL is incremented.
+        LdAFromHLInc() [1] => {
+            let address = registers.get_double(&DoubleRegister::HL);
+            let value = memory.get(address.into());
+            registers.set_double(&DoubleRegister::HL, address + 1);
+            registers.set_single(&SingleRegister::A, value);
+            Ok(2)
+        }
+
+        /// Load data to address at HL from A, HL is incremented after write.
+        LdAToHLInc() [1] => {
+            let address = registers.get_double(&DoubleRegister::HL);
+            let value = registers.get_single(&SingleRegister::A);
+            memory.set(address.into(), value);
+            registers.set_double(&DoubleRegister::HL, address + 1);
+            Ok(2)
+        }
     }
 }
 

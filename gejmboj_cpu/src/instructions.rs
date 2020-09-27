@@ -74,7 +74,12 @@ fn into_bits(x: u8) -> (u8, u8, u8, u8, u8, u8, u8, u8) {
 /// Decode an operation code into an `Instruction`.
 pub fn decode(opcode: u8, pc: u16, memory: &Memory) -> Result<Instruction, CpuError> {
     match into_bits(opcode) {
+        // ABSOLUTE MATCHES
+        //
+        // misc
         (0, 0, 0, 0, 0, 0, 0, 0) => Ok(Instruction::Misc(Misc::Noop())),
+
+        // control flow
         (1, 1, 0, 0, 0, 0, 1, 1) => Ok(Instruction::ControlFlow(ControlFlow::Jp(
             get_16bit_operand(pc, memory),
         ))),
@@ -87,16 +92,34 @@ pub fn decode(opcode: u8, pc: u16, memory: &Memory) -> Result<Instruction, CpuEr
         (0, 0, 0, 1, 1, 0, 0, 0) => Ok(Instruction::ControlFlow(ControlFlow::JpToOffset(
             get_8bit_operand(pc, memory),
         ))),
+
+        // 8 bit load instructions
         (0, 0, 0, 0, 1, 0, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LdBCToA())),
         (0, 0, 0, 1, 1, 0, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LdDEToA())),
-        (0, 0, 0, 0, 0, 0, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LdBCToA())),
-        (0, 0, 0, 1, 0, 0, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LdDEToA())),
+        (0, 0, 0, 0, 0, 0, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LdAToBC())),
+        (0, 0, 0, 1, 0, 0, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LdAToDE())),
         (1, 1, 1, 1, 1, 0, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LdToA(get_16bit_operand(
             pc, memory,
         )))),
+        (1, 1, 1, 1, 0, 0, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LdhCToA())),
+        (1, 1, 1, 0, 0, 0, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LdhAToC())),
+        (1, 1, 1, 1, 0, 0, 0, 0) => Ok(Instruction::Load8Bit(Load8Bit::LdhToA(get_8bit_operand(
+            pc, memory,
+        )))),
+        (1, 1, 1, 0, 0, 0, 0, 0) => Ok(Instruction::Load8Bit(Load8Bit::LdhFromA(
+            get_8bit_operand(pc, memory),
+        ))),
         (1, 1, 1, 0, 1, 0, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LdFromA(
             get_16bit_operand(pc, memory),
         ))),
+        (0, 0, 1, 1, 1, 0, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LdAFromHLDec())),
+        (0, 0, 1, 1, 0, 0, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LdAToHLDec())),
+        (0, 0, 1, 0, 1, 0, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LdAFromHLInc())),
+        (0, 0, 1, 0, 0, 0, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LdAToHLInc())),
+
+        // VARIABLE MATCHES
+        //
+        // control flow
         (1, 1, 0, c, d, 0, 1, 0) => Ok(Instruction::ControlFlow(ControlFlow::JpIf(
             get_16bit_operand(pc, memory),
             Condition::parse(c, d).unwrap(),
@@ -113,12 +136,16 @@ pub fn decode(opcode: u8, pc: u16, memory: &Memory) -> Result<Instruction, CpuEr
             Condition::parse(c, d).unwrap(),
         ))),
         (1, 1, _, _, _, 1, 1, 1) => Ok(Instruction::ControlFlow(ControlFlow::Rst(opcode))),
+
+        // 8 bit load instructions
         (0, 1, a, b, c, 1, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LdFromHL((a, b, c).into()))),
         (0, 1, 1, 1, 0, a, b, c) => Ok(Instruction::Load8Bit(Load8Bit::LdToHL((a, b, c).into()))),
         (0, 1, a, b, c, x, y, z) => Ok(Instruction::Load8Bit(Load8Bit::Ld(
             (a, b, c).into(),
             (x, y, z).into(),
         ))),
+
+        // Catch all
         _ => Err(CpuError::UnknownInstruction(opcode)),
     }
 }
