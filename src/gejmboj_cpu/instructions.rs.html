@@ -155,9 +155,9 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">combine_instructions</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">errors</span>::<span class="ident">CpuError</span>, <span class="ident">memory</span>::<span class="ident">Memory</span>, <span class="ident">registers</span>::<span class="ident">Registers</span>};
 
-<span class="kw">mod</span> <span class="ident">control_flow</span>;
-<span class="kw">mod</span> <span class="ident">load</span>;
-<span class="kw">mod</span> <span class="ident">misc</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">control_flow</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">load</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">misc</span>;
 
 <span class="kw">use</span> <span class="ident">control_flow</span>::<span class="ident">ControlFlow</span>;
 <span class="kw">use</span> <span class="ident">load</span>::<span class="ident">Load8Bit</span>;
