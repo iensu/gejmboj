@@ -3,9 +3,9 @@
 use crate::combine_instructions;
 use crate::{errors::CpuError, memory::Memory, registers::Registers};
 
-mod control_flow;
-mod load;
-mod misc;
+pub mod control_flow;
+pub mod load;
+pub mod misc;
 
 use control_flow::ControlFlow;
 use load::Load8Bit;
