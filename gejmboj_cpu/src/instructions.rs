@@ -4,11 +4,11 @@ use crate::combine_instructions;
 use crate::{errors::CpuError, memory::Memory, registers::Registers};
 
 pub mod control_flow;
-pub mod load;
+pub mod load_8bit;
 pub mod misc;
 
 use control_flow::ControlFlow;
-use load::Load8Bit;
+use load_8bit::Load8Bit;
 use misc::Misc;
 
 /// Return either the number of consumed machine cycles, or a `CpuError`.
