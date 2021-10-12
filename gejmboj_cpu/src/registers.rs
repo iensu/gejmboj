@@ -306,7 +306,7 @@ PC:{:04x?} SP:{:04x?}
 }
 
 /// Represents an 8-bit general purpose register.
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum SingleRegister {
     A,
     B,
@@ -334,7 +334,7 @@ impl From<(u8, u8, u8)> for SingleRegister {
 }
 
 /// Represents a 16-bit general purpose register.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum DoubleRegister {
     AF,
     BC,

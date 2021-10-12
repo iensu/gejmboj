@@ -10,7 +10,7 @@ macro_rules! instruction_group {
       }) => {
 
         $(#[$groupdocs])*
-        #[derive(Debug)]
+        #[derive(Debug, PartialEq)]
         pub enum $group_name {
             $($(#[$itemdocs])*$item_name($($t),*),)+
         }
@@ -67,6 +67,7 @@ macro_rules! instruction_tests {
 #[macro_export]
 macro_rules! combine_instructions {
     ($name:ident( $($group:ident),+ )) => {
+        #[derive(Debug, PartialEq)]
         pub enum $name {
             $($group($group)),+
         }
