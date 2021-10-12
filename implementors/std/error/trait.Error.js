@@ -1,3 +1,3 @@
 (function() {var implementors = {};
-implementors["gejmboj_cpu"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/std/error/trait.Error.html\" title=\"trait std::error::Error\">Error</a> for <a class=\"enum\" href=\"gejmboj_cpu/errors/enum.CpuError.html\" title=\"enum gejmboj_cpu::errors::CpuError\">CpuError</a>","synthetic":false,"types":["gejmboj_cpu::errors::CpuError"]}];
+implementors["gejmboj_cpu"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.55.0/std/error/trait.Error.html\" title=\"trait std::error::Error\">Error</a> for <a class=\"enum\" href=\"gejmboj_cpu/errors/enum.CpuError.html\" title=\"enum gejmboj_cpu::errors::CpuError\">CpuError</a>","synthetic":false,"types":["gejmboj_cpu::errors::CpuError"]}];
 if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

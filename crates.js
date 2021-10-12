@@ -1,0 +1,1 @@
+window.ALL_CRATES = ["gejmboj","gejmboj_cpu"];
