@@ -123,6 +123,7 @@
 <span id="123">123</span>
 <span id="124">124</span>
 <span id="125">125</span>
+<span id="126">126</span>
 </pre><pre class="rust">
 <span class="doccomment">//! # Memory implementation</span>
 <span class="doccomment">//!</span>
@@ -153,7 +154,8 @@
 <span class="kw">impl</span> <span class="ident">Memory</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">memory</span>: <span class="macro">vec!</span>[<span class="number">0</span>; <span class="number">0xFFFF</span>],
+            <span class="comment">// 65536 bytes which is 0xFFFF + 1</span>
+            <span class="ident">memory</span>: <span class="macro">vec!</span>[<span class="number">0</span>; <span class="number">0xFFFF</span> <span class="op">+</span> <span class="number">1</span>],
         }
     }
 
