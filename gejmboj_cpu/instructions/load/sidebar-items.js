@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["Load8Bit","8 Bit load instructions."]]});

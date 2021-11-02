@@ -1,9 +1,0 @@
-[package]
-name = "gejmboj_cpu"
-version = "0.1.0"
-authors = ["Jens Östlund <jostlund@gmail.com>"]
-edition = "2018"
-
-[dependencies]
-env_logger = { version = "0.7.1" }
-log = { version = "0.4.11" }
