@@ -27,7 +27,8 @@ pub struct Memory {
 impl Memory {
     pub fn new() -> Self {
         Self {
-            memory: vec![0; 0xFFFF],
+            // 65536 bytes which is 0xFFFF + 1
+            memory: vec![0; 0xFFFF + 1],
         }
     }
 
