@@ -4,10 +4,12 @@ use crate::combine_instructions;
 use crate::{errors::CpuError, memory::Memory, registers::Registers};
 
 pub mod control_flow;
+pub mod load_16bit;
 pub mod load_8bit;
 pub mod misc;
 
 use control_flow::ControlFlow;
+use load_16bit::Load16Bit;
 use load_8bit::Load8Bit;
 use misc::Misc;
 
@@ -15,7 +17,7 @@ use misc::Misc;
 pub type InstructionResult = Result<u16, CpuError>;
 
 combine_instructions! {
-    Instruction(ControlFlow, Load8Bit, Misc)
+    Instruction(ControlFlow, Load8Bit, Load16Bit, Misc)
 }
 
 #[derive(Debug, PartialEq)]
@@ -145,6 +147,12 @@ pub fn decode(opcode: u8, pc: u16, memory: &Memory) -> Result<Instruction, CpuEr
             (x, y, z).into(),
         ))),
 
+        // 16 bit load instructions
+        (0, 0, a, b, 0, 0, 0, 1) => Ok(Instruction::Load16Bit(Load16Bit::Ld(
+            (a, b).into(),
+            get_16bit_operand(pc, memory),
+        ))),
+
         // Catch all
         _ => Err(CpuError::UnknownInstruction(opcode)),
     }
@@ -152,6 +160,8 @@ pub fn decode(opcode: u8, pc: u16, memory: &Memory) -> Result<Instruction, CpuEr
 
 #[cfg(test)]
 mod tests {
+    use crate::registers::DoubleRegister;
+
     use super::*;
 
     #[test]
@@ -335,6 +345,34 @@ mod tests {
         assert_eq!(
             decode(0b01100000, pc, &memory).unwrap(),
             Instruction::Load8Bit(Load8Bit::Ld((1, 0, 0).into(), (0, 0, 0).into()))
+        );
+        assert_eq!(
+            decode(0b00000001, pc, &memory).unwrap(),
+            Instruction::Load16Bit(Load16Bit::Ld(
+                DoubleRegister::BC,
+                get_16bit_operand(pc, &memory)
+            ))
+        );
+        assert_eq!(
+            decode(0b00010001, pc, &memory).unwrap(),
+            Instruction::Load16Bit(Load16Bit::Ld(
+                DoubleRegister::DE,
+                get_16bit_operand(pc, &memory)
+            ))
+        );
+        assert_eq!(
+            decode(0b00100001, pc, &memory).unwrap(),
+            Instruction::Load16Bit(Load16Bit::Ld(
+                DoubleRegister::HL,
+                get_16bit_operand(pc, &memory)
+            ))
+        );
+        assert_eq!(
+            decode(0b00110001, pc, &memory).unwrap(),
+            Instruction::Load16Bit(Load16Bit::Ld(
+                DoubleRegister::SP,
+                get_16bit_operand(pc, &memory)
+            ))
         );
     }
 }

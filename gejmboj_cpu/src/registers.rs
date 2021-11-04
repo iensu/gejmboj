@@ -167,6 +167,7 @@ impl Registers {
             DoubleRegister::BC => u16::from_be_bytes([self.B, self.C]),
             DoubleRegister::DE => u16::from_be_bytes([self.D, self.E]),
             DoubleRegister::HL => u16::from_be_bytes([self.H, self.L]),
+            DoubleRegister::SP => self.SP,
         }
     }
 
@@ -211,6 +212,9 @@ impl Registers {
             DoubleRegister::HL => {
                 self.H = hi;
                 self.L = lo;
+            }
+            DoubleRegister::SP => {
+                self.SP = u16::from_be_bytes([hi, lo]);
             }
         }
     }
@@ -340,4 +344,16 @@ pub enum DoubleRegister {
     BC,
     DE,
     HL,
+    SP,
+}
+
+impl From<(u8, u8)> for DoubleRegister {
+    fn from(x: (u8, u8)) -> Self {
+        match (x.0 > 0, x.1 > 0) {
+            (false, false) => DoubleRegister::BC,
+            (false, true) => DoubleRegister::DE,
+            (true, false) => DoubleRegister::HL,
+            (true, true) => DoubleRegister::SP,
+        }
+    }
 }
