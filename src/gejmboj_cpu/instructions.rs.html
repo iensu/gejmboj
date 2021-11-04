@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `gejmboj_cpu&#x2F;src&#x2F;instructions.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>instructions.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../gejmboj_cpu/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `gejmboj_cpu&#x2F;src&#x2F;instructions.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>instructions.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../gejmboj_cpu/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -338,17 +338,56 @@
 <span id="338">338</span>
 <span id="339">339</span>
 <span id="340">340</span>
-</pre><pre class="rust">
-<span class="doccomment">//! Sharp SM83 instruction set</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Sharp SM83 instruction set</span>
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::combine_instructions</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::combine_instructions</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">errors::CpuError</span>, <span class="ident">memory::Memory</span>, <span class="ident">registers::Registers</span>};
 
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">control_flow</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">load_16bit</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">load_8bit</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">misc</span>;
 
 <span class="kw">use</span> <span class="ident">control_flow::ControlFlow</span>;
+<span class="kw">use</span> <span class="ident">load_16bit::Load16Bit</span>;
 <span class="kw">use</span> <span class="ident">load_8bit::Load8Bit</span>;
 <span class="kw">use</span> <span class="ident">misc::Misc</span>;
 
@@ -356,7 +395,7 @@
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">InstructionResult</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u16</span>, <span class="ident">CpuError</span><span class="op">&gt;</span>;
 
 <span class="macro">combine_instructions!</span> {
-    <span class="ident">Instruction</span>(<span class="ident">ControlFlow</span>, <span class="ident">Load8Bit</span>, <span class="ident">Misc</span>)
+    <span class="ident">Instruction</span>(<span class="ident">ControlFlow</span>, <span class="ident">Load8Bit</span>, <span class="ident">Load16Bit</span>, <span class="ident">Misc</span>)
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
@@ -486,6 +525,12 @@
             (<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>).<span class="ident">into</span>(),
         ))),
 
+        <span class="comment">// 16 bit load instructions</span>
+        (<span class="number">0</span>, <span class="number">0</span>, <span class="ident">a</span>, <span class="ident">b</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Instruction::Load16Bit</span>(<span class="ident">Load16Bit::Ld</span>(
+            (<span class="ident">a</span>, <span class="ident">b</span>).<span class="ident">into</span>(),
+            <span class="ident">get_16bit_operand</span>(<span class="ident">pc</span>, <span class="ident">memory</span>),
+        ))),
+
         <span class="comment">// Catch all</span>
         <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">CpuError::UnknownInstruction</span>(<span class="ident">opcode</span>)),
     }
@@ -493,6 +538,8 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::registers::DoubleRegister</span>;
+
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -677,9 +724,37 @@
             <span class="ident">decode</span>(<span class="number">0b01100000</span>, <span class="ident">pc</span>, <span class="kw-2">&amp;</span><span class="ident">memory</span>).<span class="ident">unwrap</span>(),
             <span class="ident">Instruction::Load8Bit</span>(<span class="ident">Load8Bit::Ld</span>((<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>).<span class="ident">into</span>(), (<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>).<span class="ident">into</span>()))
         );
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">decode</span>(<span class="number">0b00000001</span>, <span class="ident">pc</span>, <span class="kw-2">&amp;</span><span class="ident">memory</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Instruction::Load16Bit</span>(<span class="ident">Load16Bit::Ld</span>(
+                <span class="ident">DoubleRegister::BC</span>,
+                <span class="ident">get_16bit_operand</span>(<span class="ident">pc</span>, <span class="kw-2">&amp;</span><span class="ident">memory</span>)
+            ))
+        );
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">decode</span>(<span class="number">0b00010001</span>, <span class="ident">pc</span>, <span class="kw-2">&amp;</span><span class="ident">memory</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Instruction::Load16Bit</span>(<span class="ident">Load16Bit::Ld</span>(
+                <span class="ident">DoubleRegister::DE</span>,
+                <span class="ident">get_16bit_operand</span>(<span class="ident">pc</span>, <span class="kw-2">&amp;</span><span class="ident">memory</span>)
+            ))
+        );
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">decode</span>(<span class="number">0b00100001</span>, <span class="ident">pc</span>, <span class="kw-2">&amp;</span><span class="ident">memory</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Instruction::Load16Bit</span>(<span class="ident">Load16Bit::Ld</span>(
+                <span class="ident">DoubleRegister::HL</span>,
+                <span class="ident">get_16bit_operand</span>(<span class="ident">pc</span>, <span class="kw-2">&amp;</span><span class="ident">memory</span>)
+            ))
+        );
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">decode</span>(<span class="number">0b00110001</span>, <span class="ident">pc</span>, <span class="kw-2">&amp;</span><span class="ident">memory</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Instruction::Load16Bit</span>(<span class="ident">Load16Bit::Ld</span>(
+                <span class="ident">DoubleRegister::SP</span>,
+                <span class="ident">get_16bit_operand</span>(<span class="ident">pc</span>, <span class="kw-2">&amp;</span><span class="ident">memory</span>)
+            ))
+        );
     }
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="gejmboj_cpu" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
 </body></html>
