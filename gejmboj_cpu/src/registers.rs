@@ -380,13 +380,14 @@ pub enum DoubleRegister {
     SP,
 }
 
-impl From<(u8, u8)> for DoubleRegister {
-    fn from(x: (u8, u8)) -> Self {
-        match (x.0 > 0, x.1 > 0) {
-            (false, false) => DoubleRegister::BC,
-            (false, true) => DoubleRegister::DE,
-            (true, false) => DoubleRegister::HL,
-            (true, true) => DoubleRegister::SP,
+impl From<(u8, u8, u8)> for DoubleRegister {
+    fn from(x: (u8, u8, u8)) -> Self {
+        match (x.0 > 0, x.1 > 0, x.2 > 0) {
+            (false | true, false, false) => DoubleRegister::BC,
+            (false | true, false, true) => DoubleRegister::DE,
+            (false | true, true, false) => DoubleRegister::HL,
+            (false, true, true) => DoubleRegister::SP,
+            (true, true, true) => DoubleRegister::AF,
         }
     }
 }
