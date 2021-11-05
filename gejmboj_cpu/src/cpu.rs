@@ -5,13 +5,23 @@ use crate::{
 };
 
 #[allow(non_snake_case)]
+#[derive(Debug, PartialEq)]
 pub struct CpuFlags {
-    pub IME: u8,
+    /// Interrupt Master Enable
+    ///
+    /// Enables interrupts based on the current state of the IE register (memory address 0xFFFF)
+    pub IME: bool,
+
+    /// If true at the start of a machine cycle IME should be enabled
+    pub IME_scheduled: bool,
 }
 
 impl CpuFlags {
     pub fn new() -> Self {
-        Self { IME: 0 }
+        Self {
+            IME: false,
+            IME_scheduled: false,
+        }
     }
 }
 

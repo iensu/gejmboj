@@ -89,7 +89,7 @@ instruction_group! {
         RetI() [1] => {
             registers.PC = memory.get_u16(registers.SP.into());
             registers.increment_sp();
-            cpu_flags.IME = 1;
+            cpu_flags.IME = true;
             Ok(4)
         }
 
@@ -246,7 +246,7 @@ crate::instruction_tests! {
 
         assert_eq!(0xAAAA, registers.PC);
         assert_eq!(0xFFFE, registers.SP);
-        assert_eq!(1, cpu_flags.IME);
+        assert_eq!(true, cpu_flags.IME);
     }
 
     rst_calls_function_at_reset_address(registers, memory, cpu_flags) => {
