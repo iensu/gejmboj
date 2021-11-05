@@ -348,7 +348,7 @@
         <span class="ident">RetI</span>() [<span class="number">1</span>] <span class="op">=</span><span class="op">&gt;</span> {
             <span class="ident">registers</span>.<span class="ident">PC</span> <span class="op">=</span> <span class="ident">memory</span>.<span class="ident">get_u16</span>(<span class="ident">registers</span>.<span class="ident">SP</span>.<span class="ident">into</span>());
             <span class="ident">registers</span>.<span class="ident">increment_sp</span>();
-            <span class="ident">cpu_flags</span>.<span class="ident">IME</span> <span class="op">=</span> <span class="number">1</span>;
+            <span class="ident">cpu_flags</span>.<span class="ident">IME</span> <span class="op">=</span> <span class="bool-val">true</span>;
             <span class="prelude-val">Ok</span>(<span class="number">4</span>)
         }
 
@@ -505,7 +505,7 @@
 
         <span class="macro">assert_eq!</span>(<span class="number">0xAAAA</span>, <span class="ident">registers</span>.<span class="ident">PC</span>);
         <span class="macro">assert_eq!</span>(<span class="number">0xFFFE</span>, <span class="ident">registers</span>.<span class="ident">SP</span>);
-        <span class="macro">assert_eq!</span>(<span class="number">1</span>, <span class="ident">cpu_flags</span>.<span class="ident">IME</span>);
+        <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, <span class="ident">cpu_flags</span>.<span class="ident">IME</span>);
     }
 
     <span class="ident">rst_calls_function_at_reset_address</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) <span class="op">=</span><span class="op">&gt;</span> {
