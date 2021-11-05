@@ -121,6 +121,7 @@ pub fn decode(opcode: u8, pc: u16, memory: &Memory) -> Result<Instruction, CpuEr
         (0, 0, 0, 0, 1, 0, 0, 0) => Ok(Instruction::Load16Bit(Load16Bit::LdFromSP(
             get_16bit_operand(pc, memory),
         ))),
+        (1, 1, 1, 1, 1, 0, 0, 1) => Ok(Instruction::Load16Bit(Load16Bit::LdHLToSP())),
 
         // VARIABLE MATCHES
         //
@@ -381,5 +382,9 @@ mod tests {
             decode(0b00001000, pc, &memory).unwrap(),
             Instruction::Load16Bit(Load16Bit::LdFromSP(get_16bit_operand(pc, &memory)))
         );
+        assert_eq!(
+            decode(0b11111001, pc, &memory).unwrap(),
+            Instruction::Load16Bit(Load16Bit::LdHLToSP())
+        )
     }
 }

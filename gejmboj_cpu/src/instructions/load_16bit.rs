@@ -17,6 +17,13 @@ instruction_group! {
             memory.set_u16((*address).into(), value);
             Ok(5)
         }
+
+        /// Loads data from HL into SP
+        LdHLToSP() [1] => {
+            let value = registers.get_double(&DoubleRegister::HL);
+            registers.set_double(&DoubleRegister::SP, value);
+            Ok(2)
+        }
     }
 }
 
@@ -47,5 +54,16 @@ crate::instruction_tests! {
         let cycles = instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(5, cycles);
         assert_eq!(0x1234, memory.get_u16(0xABCD));
+    }
+
+    load_hl_to_sp(registers, memory, cpu_flags) => {
+        registers.set_double(&DoubleRegister::HL, 0x1234);
+        let stack_pointer_start_address = 0xFFFE;
+        assert_eq!(stack_pointer_start_address, registers.get_double(&DoubleRegister::SP));
+
+        let instruction = Load16Bit::LdHLToSP();
+        let cycles = instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(2, cycles);
+        assert_eq!(0x1234, registers.get_double(&DoubleRegister::SP));
     }
 }
