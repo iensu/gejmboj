@@ -357,6 +357,40 @@
 <span id="357">357</span>
 <span id="358">358</span>
 <span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
 </pre><pre class="rust"><code><span class="doccomment">//! # Sharp SM83 register</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ## 16-bit special purpose registers</span>
@@ -578,6 +612,39 @@
         }
     }
 
+    <span class="doccomment">/// Increments the SP by 2 and returns new SP value.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ## Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # use gejmboj_cpu::registers::*;</span>
+    <span class="doccomment">/// let mut registers = Registers::new();</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// assert_eq!(0xFFFE, registers.get_double(&amp;DoubleRegister::SP));</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// registers.decrement_sp();</span>
+    <span class="doccomment">/// registers.increment_sp();</span>
+    <span class="doccomment">/// assert_eq!(0xFFFE, registers.get_double(&amp;DoubleRegister::SP));</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">increment_sp</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u16</span> {
+        <span class="self">self</span>.<span class="ident">SP</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">SP</span> <span class="op">+</span> <span class="number">2</span>;
+        <span class="self">self</span>.<span class="ident">SP</span>
+    }
+
+    <span class="doccomment">/// Decrements the SP by 2 and returns new SP value.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ## Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # use gejmboj_cpu::registers::*;</span>
+    <span class="doccomment">/// let mut registers = Registers::new();</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// assert_eq!(0xFFFE, registers.get_double(&amp;DoubleRegister::SP));</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// registers.decrement_sp();</span>
+    <span class="doccomment">/// assert_eq!(0xFFFC, registers.get_double(&amp;DoubleRegister::SP));</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">decrement_sp</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u16</span> {
+        <span class="self">self</span>.<span class="ident">SP</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">SP</span> <span class="op">-</span> <span class="number">2</span>;
+        <span class="self">self</span>.<span class="ident">SP</span>
+    }
+
     <span class="doccomment">/// Returns `true` if the carry flag is set.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ## Examples</span>
@@ -706,13 +773,14 @@ PC:{:04x?} SP:{:04x?}
     <span class="ident">SP</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span>(<span class="ident">u8</span>, <span class="ident">u8</span>)<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DoubleRegister</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">x</span>: (<span class="ident">u8</span>, <span class="ident">u8</span>)) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="kw">match</span> (<span class="ident">x</span>.<span class="number">0</span> <span class="op">&gt;</span> <span class="number">0</span>, <span class="ident">x</span>.<span class="number">1</span> <span class="op">&gt;</span> <span class="number">0</span>) {
-            (<span class="bool-val">false</span>, <span class="bool-val">false</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DoubleRegister::BC</span>,
-            (<span class="bool-val">false</span>, <span class="bool-val">true</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DoubleRegister::DE</span>,
-            (<span class="bool-val">true</span>, <span class="bool-val">false</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DoubleRegister::HL</span>,
-            (<span class="bool-val">true</span>, <span class="bool-val">true</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DoubleRegister::SP</span>,
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span>(<span class="ident">u8</span>, <span class="ident">u8</span>, <span class="ident">u8</span>)<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DoubleRegister</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">x</span>: (<span class="ident">u8</span>, <span class="ident">u8</span>, <span class="ident">u8</span>)) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="kw">match</span> (<span class="ident">x</span>.<span class="number">0</span> <span class="op">&gt;</span> <span class="number">0</span>, <span class="ident">x</span>.<span class="number">1</span> <span class="op">&gt;</span> <span class="number">0</span>, <span class="ident">x</span>.<span class="number">2</span> <span class="op">&gt;</span> <span class="number">0</span>) {
+            (<span class="bool-val">false</span> <span class="op">|</span> <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DoubleRegister::BC</span>,
+            (<span class="bool-val">false</span> <span class="op">|</span> <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DoubleRegister::DE</span>,
+            (<span class="bool-val">false</span> <span class="op">|</span> <span class="bool-val">true</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DoubleRegister::HL</span>,
+            (<span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DoubleRegister::SP</span>,
+            (<span class="bool-val">true</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DoubleRegister::AF</span>,
         }
     }
 }
