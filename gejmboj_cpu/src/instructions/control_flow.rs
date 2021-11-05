@@ -45,12 +45,9 @@ instruction_group! {
 
         /// Unconditional call of the function at operand address.
         Call(operand: u16) [3] => {
-            let [lo, hi] = registers.PC.to_le_bytes();
+            let sp = registers.decrement_sp();
 
-            memory.set((registers.SP - 1).into(), hi);
-            memory.set((registers.SP - 2).into(), lo);
-
-            registers.SP -= 2;
+            memory.set_u16(sp.into(), registers.PC);
             registers.PC = *operand;
 
             Ok(6)
@@ -59,12 +56,9 @@ instruction_group! {
         /// Conditional function call.
         CallIf(operand: u16, condition: Condition) [3] => {
             if condition.is_fulfilled(registers) {
-                let [lo, hi] = registers.PC.to_le_bytes();
+                let sp = registers.decrement_sp();
 
-                memory.set((registers.SP - 1).into(), hi);
-                memory.set((registers.SP - 2).into(), lo);
-
-                registers.SP -= 2;
+                memory.set_u16(sp.into(), registers.PC);
                 registers.PC = *operand;
 
                 Ok(6)
@@ -76,7 +70,7 @@ instruction_group! {
         /// Unconditional return from function.
         Ret() [1] => {
             registers.PC = memory.get_u16(registers.SP.into());
-            registers.SP += 2;
+            registers.increment_sp();
             Ok(4)
         }
 
@@ -84,7 +78,7 @@ instruction_group! {
         RetIf(condition: Condition) [1] => {
             if condition.is_fulfilled(registers) {
                 registers.PC = memory.get_u16(registers.SP.into());
-                registers.SP += 2;
+                registers.increment_sp();
                 Ok(5)
             } else {
                 Ok(2)
@@ -94,7 +88,7 @@ instruction_group! {
         /// Unconditional return from a function which enables interrupts
         RetI() [1] => {
             registers.PC = memory.get_u16(registers.SP.into());
-            registers.SP += 2;
+            registers.increment_sp();
             cpu_flags.IME = 1;
             Ok(4)
         }
