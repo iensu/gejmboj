@@ -118,6 +118,9 @@ pub fn decode(opcode: u8, pc: u16, memory: &Memory) -> Result<Instruction, CpuEr
         (0, 0, 1, 1, 0, 0, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LdAToHLDec())),
         (0, 0, 1, 0, 1, 0, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LdAFromHLInc())),
         (0, 0, 1, 0, 0, 0, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LdAToHLInc())),
+        (0, 0, 0, 0, 1, 0, 0, 0) => Ok(Instruction::Load16Bit(Load16Bit::LdFromSP(
+            get_16bit_operand(pc, memory),
+        ))),
 
         // VARIABLE MATCHES
         //
@@ -373,6 +376,10 @@ mod tests {
                 DoubleRegister::SP,
                 get_16bit_operand(pc, &memory)
             ))
+        );
+        assert_eq!(
+            decode(0b00001000, pc, &memory).unwrap(),
+            Instruction::Load16Bit(Load16Bit::LdFromSP(get_16bit_operand(pc, &memory)))
         );
     }
 }
