@@ -219,6 +219,39 @@ impl Registers {
         }
     }
 
+    /// Increments the SP by 2 and returns new SP value.
+    ///
+    /// ## Examples
+    ///
+    /// # use gejmboj_cpu::registers::*;
+    /// let mut registers = Registers::new();
+    ///
+    /// assert_eq!(0xFFFE, registers.get_double(&DoubleRegister::SP));
+    ///
+    /// registers.decrement_sp();
+    /// registers.increment_sp();
+    /// assert_eq!(0xFFFE, registers.get_double(&DoubleRegister::SP));
+    pub fn increment_sp(&mut self) -> u16 {
+        self.SP = self.SP + 2;
+        self.SP
+    }
+
+    /// Decrements the SP by 2 and returns new SP value.
+    ///
+    /// ## Examples
+    ///
+    /// # use gejmboj_cpu::registers::*;
+    /// let mut registers = Registers::new();
+    ///
+    /// assert_eq!(0xFFFE, registers.get_double(&DoubleRegister::SP));
+    ///
+    /// registers.decrement_sp();
+    /// assert_eq!(0xFFFC, registers.get_double(&DoubleRegister::SP));
+    pub fn decrement_sp(&mut self) -> u16 {
+        self.SP = self.SP - 2;
+        self.SP
+    }
+
     /// Returns `true` if the carry flag is set.
     ///
     /// ## Examples
