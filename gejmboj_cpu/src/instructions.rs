@@ -153,9 +153,11 @@ pub fn decode(opcode: u8, pc: u16, memory: &Memory) -> Result<Instruction, CpuEr
 
         // 16 bit load instructions
         (0, 0, a, b, 0, 0, 0, 1) => Ok(Instruction::Load16Bit(Load16Bit::Ld(
-            (a, b).into(),
+            (0, a, b).into(),
             get_16bit_operand(pc, memory),
         ))),
+        (1, 1, a, b, 0, 1, 0, 1) => Ok(Instruction::Load16Bit(Load16Bit::Push((1, a, b).into()))),
+        (1, 1, a, b, 0, 0, 0, 1) => Ok(Instruction::Load16Bit(Load16Bit::Pop((1, a, b).into()))),
 
         // Catch all
         _ => Err(CpuError::UnknownInstruction(opcode)),
@@ -385,6 +387,38 @@ mod tests {
         assert_eq!(
             decode(0b11111001, pc, &memory).unwrap(),
             Instruction::Load16Bit(Load16Bit::LdHLToSP())
-        )
+        );
+        assert_eq!(
+            decode(0b11000101, pc, &memory).unwrap(),
+            Instruction::Load16Bit(Load16Bit::Push(DoubleRegister::BC))
+        );
+        assert_eq!(
+            decode(0b11010101, pc, &memory).unwrap(),
+            Instruction::Load16Bit(Load16Bit::Push(DoubleRegister::DE))
+        );
+        assert_eq!(
+            decode(0b11100101, pc, &memory).unwrap(),
+            Instruction::Load16Bit(Load16Bit::Push(DoubleRegister::HL))
+        );
+        assert_eq!(
+            decode(0b11110101, pc, &memory).unwrap(),
+            Instruction::Load16Bit(Load16Bit::Push(DoubleRegister::AF))
+        );
+        assert_eq!(
+            decode(0b11000001, pc, &memory).unwrap(),
+            Instruction::Load16Bit(Load16Bit::Pop(DoubleRegister::BC))
+        );
+        assert_eq!(
+            decode(0b11010001, pc, &memory).unwrap(),
+            Instruction::Load16Bit(Load16Bit::Pop(DoubleRegister::DE))
+        );
+        assert_eq!(
+            decode(0b11100001, pc, &memory).unwrap(),
+            Instruction::Load16Bit(Load16Bit::Pop(DoubleRegister::HL))
+        );
+        assert_eq!(
+            decode(0b11110001, pc, &memory).unwrap(),
+            Instruction::Load16Bit(Load16Bit::Pop(DoubleRegister::AF))
+        );
     }
 }

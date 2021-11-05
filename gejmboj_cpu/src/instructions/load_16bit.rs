@@ -24,6 +24,23 @@ instruction_group! {
             registers.set_double(&DoubleRegister::SP, value);
             Ok(2)
         }
+
+        /// Push data from 16-bit register to stack memory
+        Push(r: DoubleRegister) [1] => {
+            let sp = registers.decrement_sp();
+            let value = registers.get_double(r);
+            memory.set_u16(sp.into(), value);
+            Ok(4)
+        }
+
+        /// Pop data from stack memory to 16-bit register
+        Pop(r: DoubleRegister) [1] => {
+            let sp = registers.get_double(&DoubleRegister::SP);
+            let value = memory.get_u16(sp.into());
+            registers.set_double(&r, value);
+            registers.increment_sp();
+            Ok(3)
+        }
     }
 }
 
@@ -65,5 +82,80 @@ crate::instruction_tests! {
         let cycles = instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(2, cycles);
         assert_eq!(0x1234, registers.get_double(&DoubleRegister::SP));
+    }
+
+    push_register_to_stack_memory(registers, memory, cpu_flags) => {
+        let stack_pointer_start_address = 0xFFFE;
+        assert_eq!(stack_pointer_start_address, registers.get_double(&DoubleRegister::SP));
+
+        registers.set_double(&DoubleRegister::BC, 0x1122);
+        registers.set_double(&DoubleRegister::DE, 0x3344);
+        registers.set_double(&DoubleRegister::HL, 0x5566);
+        registers.set_double(&DoubleRegister::AF, 0x7780);
+
+        let cycles = Load16Bit::Push(DoubleRegister::BC).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        let sp = registers.get_double(&DoubleRegister::SP);
+        assert_eq!(4, cycles);
+        assert_eq!(stack_pointer_start_address - 2, sp);
+        assert_eq!(0x1122, memory.get_u16(sp.into()));
+
+        let cycles = Load16Bit::Push(DoubleRegister::DE).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        let sp = registers.get_double(&DoubleRegister::SP);
+        assert_eq!(4, cycles);
+        assert_eq!(stack_pointer_start_address - 4, sp);
+        assert_eq!(0x3344, memory.get_u16(sp.into()));
+
+        let cycles = Load16Bit::Push(DoubleRegister::HL).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        let sp = registers.get_double(&DoubleRegister::SP);
+        assert_eq!(4, cycles);
+        assert_eq!(stack_pointer_start_address - 6, sp);
+        assert_eq!(0x5566, memory.get_u16(sp.into()));
+
+        let cycles = Load16Bit::Push(DoubleRegister::AF).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        let sp = registers.get_double(&DoubleRegister::SP);
+        assert_eq!(4, cycles);
+        assert_eq!(stack_pointer_start_address - 8, sp);
+        assert_eq!(0x7780, memory.get_u16(sp.into()));
+    }
+
+    pop_stack_memory_to_bc_register(registers, memory, cpu_flags) => {
+        let sp = registers.decrement_sp();
+        memory.set_u16(sp.into(), 0xABCD);
+        let cycles = Load16Bit::Pop(DoubleRegister::BC).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(cycles, 3);
+        assert_eq!(sp + 2, registers.get_double(&DoubleRegister::SP));
+        assert_eq!(0xABCD, registers.get_double(&DoubleRegister::BC));
+    }
+
+    pop_stack_memory_to_de_register(registers, memory, cpu_flags) => {
+        let sp = registers.decrement_sp();
+        memory.set_u16(sp.into(), 0xABCD);
+        let cycles = Load16Bit::Pop(DoubleRegister::DE).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(cycles, 3);
+        assert_eq!(sp + 2, registers.get_double(&DoubleRegister::SP));
+        assert_eq!(0xABCD, registers.get_double(&DoubleRegister::DE));
+    }
+
+    pop_stack_memory_to_hl_register(registers, memory, cpu_flags) => {
+        let sp = registers.decrement_sp();
+        memory.set_u16(sp.into(), 0xABCD);
+        let cycles = Load16Bit::Pop(DoubleRegister::HL).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(cycles, 3);
+        assert_eq!(sp + 2, registers.get_double(&DoubleRegister::SP));
+        assert_eq!(0xABCD, registers.get_double(&DoubleRegister::HL));
+    }
+
+    pop_stack_memory_to_af_register(registers, memory, cpu_flags) => {
+        let sp = registers.decrement_sp();
+        memory.set_u16(sp.into(), 0xABCD);
+        let cycles = Load16Bit::Pop(DoubleRegister::AF).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(cycles, 3);
+        assert_eq!(sp + 2, registers.get_double(&DoubleRegister::SP));
+        // Lowest nibble (4 bits) of the AF register are unwriteable.
+        assert_eq!(0xABC0, registers.get_double(&DoubleRegister::AF));
     }
 }
