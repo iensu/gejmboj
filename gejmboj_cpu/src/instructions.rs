@@ -80,6 +80,8 @@ pub fn decode(opcode: u8, pc: u16, memory: &Memory) -> Result<Instruction, CpuEr
         //
         // misc
         (0, 0, 0, 0, 0, 0, 0, 0) => Ok(Instruction::Misc(Misc::Noop())),
+        (1, 1, 1, 1, 0, 0, 1, 1) => Ok(Instruction::Misc(Misc::DI())),
+        (1, 1, 1, 1, 1, 0, 1, 1) => Ok(Instruction::Misc(Misc::EI())),
 
         // control flow
         (1, 1, 0, 0, 0, 0, 1, 1) => Ok(Instruction::ControlFlow(ControlFlow::Jp(
@@ -419,6 +421,14 @@ mod tests {
         assert_eq!(
             decode(0b11110001, pc, &memory).unwrap(),
             Instruction::Load16Bit(Load16Bit::Pop(DoubleRegister::AF))
+        );
+        assert_eq!(
+            decode(0b11111011, pc, &memory).unwrap(),
+            Instruction::Misc(Misc::EI()),
+        );
+        assert_eq!(
+            decode(0b11110011, pc, &memory).unwrap(),
+            Instruction::Misc(Misc::DI()),
         );
     }
 }
