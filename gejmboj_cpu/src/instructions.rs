@@ -82,6 +82,10 @@ pub fn decode(opcode: u8, pc: u16, memory: &Memory) -> Result<Instruction, CpuEr
         (0, 0, 0, 0, 0, 0, 0, 0) => Ok(Instruction::Misc(Misc::Noop())),
         (1, 1, 1, 1, 0, 0, 1, 1) => Ok(Instruction::Misc(Misc::DI())),
         (1, 1, 1, 1, 1, 0, 1, 1) => Ok(Instruction::Misc(Misc::EI())),
+        (0, 0, 1, 1, 1, 1, 1, 1) => Ok(Instruction::Misc(Misc::CCF())),
+        (0, 0, 1, 1, 0, 1, 1, 1) => Ok(Instruction::Misc(Misc::SCF())),
+        (0, 0, 1, 0, 0, 1, 1, 1) => Ok(Instruction::Misc(Misc::DAA())),
+        (0, 0, 1, 0, 1, 1, 1, 1) => Ok(Instruction::Misc(Misc::CPL())),
 
         // control flow
         (1, 1, 0, 0, 0, 0, 1, 1) => Ok(Instruction::ControlFlow(ControlFlow::Jp(
@@ -429,6 +433,22 @@ mod tests {
         assert_eq!(
             decode(0b11110011, pc, &memory).unwrap(),
             Instruction::Misc(Misc::DI()),
+        );
+        assert_eq!(
+            decode(0b00111111, pc, &memory).unwrap(),
+            Instruction::Misc(Misc::CCF()),
+        );
+        assert_eq!(
+            decode(0b00110111, pc, &memory).unwrap(),
+            Instruction::Misc(Misc::SCF()),
+        );
+        assert_eq!(
+            decode(0b00100111, pc, &memory).unwrap(),
+            Instruction::Misc(Misc::DAA()),
+        );
+        assert_eq!(
+            decode(0b00101111, pc, &memory).unwrap(),
+            Instruction::Misc(Misc::CPL()),
         );
     }
 }
