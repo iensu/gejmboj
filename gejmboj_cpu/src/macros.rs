@@ -46,6 +46,7 @@ macro_rules! instruction_tests {
         #[cfg(test)]
         mod tests {
             use super::*;
+            #[allow(unused_imports)]
             use $crate::registers::*;
 
             $(

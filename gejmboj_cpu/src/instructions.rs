@@ -3,11 +3,13 @@
 use crate::combine_instructions;
 use crate::{errors::CpuError, memory::Memory, registers::Registers};
 
+pub mod alu_8bit;
 pub mod control_flow;
 pub mod load_16bit;
 pub mod load_8bit;
 pub mod misc;
 
+use alu_8bit::ALU8Bit;
 use control_flow::ControlFlow;
 use load_16bit::Load16Bit;
 use load_8bit::Load8Bit;
@@ -17,7 +19,7 @@ use misc::Misc;
 pub type InstructionResult = Result<u16, CpuError>;
 
 combine_instructions! {
-    Instruction(ControlFlow, Load8Bit, Load16Bit, Misc)
+    Instruction(ALU8Bit,ControlFlow, Load8Bit, Load16Bit, Misc)
 }
 
 #[derive(Debug, PartialEq)]
@@ -129,6 +131,12 @@ pub fn decode(opcode: u8, pc: u16, memory: &Memory) -> Result<Instruction, CpuEr
         ))),
         (1, 1, 1, 1, 1, 0, 0, 1) => Ok(Instruction::Load16Bit(Load16Bit::LdHLToSP())),
 
+        // ALU 8-bit instructions
+        (1, 0, 0, 0, 0, 1, 1, 0) => Ok(Instruction::ALU8Bit(ALU8Bit::AddAHL())),
+        (1, 1, 0, 0, 0, 1, 1, 0) => Ok(Instruction::ALU8Bit(ALU8Bit::AddAN(get_8bit_operand(
+            pc, memory,
+        )))),
+
         // VARIABLE MATCHES
         //
         // control flow
@@ -165,6 +173,9 @@ pub fn decode(opcode: u8, pc: u16, memory: &Memory) -> Result<Instruction, CpuEr
         (1, 1, a, b, 0, 1, 0, 1) => Ok(Instruction::Load16Bit(Load16Bit::Push((1, a, b).into()))),
         (1, 1, a, b, 0, 0, 0, 1) => Ok(Instruction::Load16Bit(Load16Bit::Pop((1, a, b).into()))),
 
+        // ALU 8-bit instructions
+        (1, 0, 0, 0, 0, a, b, c) => Ok(Instruction::ALU8Bit(ALU8Bit::AddA((a, b, c).into()))),
+
         // Catch all
         _ => Err(CpuError::UnknownInstruction(opcode)),
     }
@@ -172,7 +183,7 @@ pub fn decode(opcode: u8, pc: u16, memory: &Memory) -> Result<Instruction, CpuEr
 
 #[cfg(test)]
 mod tests {
-    use crate::registers::DoubleRegister;
+    use crate::registers::{DoubleRegister, SingleRegister};
 
     use super::*;
 
@@ -449,6 +460,42 @@ mod tests {
         assert_eq!(
             decode(0b00101111, pc, &memory).unwrap(),
             Instruction::Misc(Misc::CPL()),
+        );
+        assert_eq!(
+            decode(0b10000000, pc, &memory).unwrap(),
+            Instruction::ALU8Bit(ALU8Bit::AddA(SingleRegister::B)),
+        );
+        assert_eq!(
+            decode(0b10000001, pc, &memory).unwrap(),
+            Instruction::ALU8Bit(ALU8Bit::AddA(SingleRegister::C)),
+        );
+        assert_eq!(
+            decode(0b10000010, pc, &memory).unwrap(),
+            Instruction::ALU8Bit(ALU8Bit::AddA(SingleRegister::D)),
+        );
+        assert_eq!(
+            decode(0b10000011, pc, &memory).unwrap(),
+            Instruction::ALU8Bit(ALU8Bit::AddA(SingleRegister::E)),
+        );
+        assert_eq!(
+            decode(0b10000100, pc, &memory).unwrap(),
+            Instruction::ALU8Bit(ALU8Bit::AddA(SingleRegister::H)),
+        );
+        assert_eq!(
+            decode(0b10000101, pc, &memory).unwrap(),
+            Instruction::ALU8Bit(ALU8Bit::AddA(SingleRegister::L)),
+        );
+        assert_eq!(
+            decode(0b10000111, pc, &memory).unwrap(),
+            Instruction::ALU8Bit(ALU8Bit::AddA(SingleRegister::A)),
+        );
+        assert_eq!(
+            decode(0b10000110, pc, &memory).unwrap(),
+            Instruction::ALU8Bit(ALU8Bit::AddAHL()),
+        );
+        assert_eq!(
+            decode(0b11000110, pc, &memory).unwrap(),
+            Instruction::ALU8Bit(ALU8Bit::AddAN(get_8bit_operand(pc, &memory))),
         );
     }
 }

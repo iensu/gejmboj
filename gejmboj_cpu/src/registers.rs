@@ -48,6 +48,11 @@
 
 use std::fmt::Display;
 
+pub const MASK_FLAG_CARRY: u8 = 0b0001_0000;
+pub const MASK_FLAG_HALF_CARRY: u8 = 0b0010_0000;
+pub const MASK_FLAG_NEGATIVE: u8 = 0b0100_0000;
+pub const MASK_FLAG_ZERO: u8 = 0b1000_0000;
+
 #[allow(non_snake_case)]
 pub struct Registers {
     A: u8,
@@ -273,7 +278,7 @@ impl Registers {
     /// assert_eq!(true, registers.is_carry());
     /// ```
     pub fn is_carry(&self) -> bool {
-        self.F & 0b0001_0000 > 0
+        self.F & MASK_FLAG_CARRY > 0
     }
 
     /// Returns `true` if the half carry flag is set.
@@ -291,7 +296,7 @@ impl Registers {
     /// assert_eq!(true, registers.is_half_carry());
     /// ```
     pub fn is_half_carry(&self) -> bool {
-        self.F & 0b0010_0000 > 0
+        self.F & MASK_FLAG_HALF_CARRY > 0
     }
 
     /// Returns `true` if the negative flag is set.
@@ -309,7 +314,7 @@ impl Registers {
     /// assert_eq!(true, registers.is_negative());
     /// ```
     pub fn is_negative(&self) -> bool {
-        self.F & 0b0100_0000 > 0
+        self.F & MASK_FLAG_NEGATIVE > 0
     }
 
     /// Returns `true` if the zero flag is set.
@@ -327,7 +332,7 @@ impl Registers {
     /// assert_eq!(true, registers.is_zero());
     /// ```
     pub fn is_zero(&self) -> bool {
-        self.F & 0b1000_0000 > 0
+        self.F & MASK_FLAG_ZERO > 0
     }
 }
 
