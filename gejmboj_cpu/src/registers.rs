@@ -33,8 +33,14 @@
 //! `---´---´---´---´---´---´---´---´
 //! ```
 //!
-//! Where bit 0-3 are grounded to `0` and can't be overwritten and `C` is for carry, `H` for half-carry, `N`
-//! for negative and `Z` for zero.
+//! | Flag | Name       | Description                                                                       |
+//! |------|------------|-----------------------------------------------------------------------------------|
+//! | Z    | Zero       | Set if result of math operation was `0` or if two values match after `CP`         |
+//! | N    | Negative   | Set if last math operation was a subtraction                                      |
+//! | H    | Half-carry | Set if carry occurred from the lower nibble (4 bits) in the last math operation   |
+//! | C    | Carry      | Set if carry occurred last math operation or if A is the smaller value after `CP` |
+//!
+//! Bits 0-3 are grounded to `0` and can't be overwritten.
 //!
 //! ## Stack pointer register (SP)
 //!
