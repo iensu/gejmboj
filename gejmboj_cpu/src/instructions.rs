@@ -183,7 +183,11 @@ pub fn decode(opcode: u8, pc: u16, memory: &Memory) -> Result<Instruction, CpuEr
 
 #[cfg(test)]
 mod tests {
-    use crate::registers::{DoubleRegister, SingleRegister};
+    use crate::registers::{DoubleRegister as DR, SingleRegister as SR};
+
+    use super::Condition as C;
+    use super::ControlFlow as CF;
+    use super::Instruction as I;
 
     use super::*;
 
@@ -207,295 +211,84 @@ mod tests {
         let memory = Memory::new();
         let pc = 0;
 
-        assert_eq!(
-            decode(0b00000000, pc, &memory).unwrap(),
-            Instruction::Misc(Misc::Noop())
-        );
-        assert_eq!(
-            decode(0b11000011, pc, &memory).unwrap(),
-            Instruction::ControlFlow(ControlFlow::Jp(get_16bit_operand(pc, &memory)))
-        );
-        assert_eq!(
-            decode(0b11001001, pc, &memory).unwrap(),
-            Instruction::ControlFlow(ControlFlow::Ret())
-        );
-        assert_eq!(
-            decode(0b11011001, pc, &memory).unwrap(),
-            Instruction::ControlFlow(ControlFlow::RetI())
-        );
-        assert_eq!(
-            decode(0b11001101, pc, &memory).unwrap(),
-            Instruction::ControlFlow(ControlFlow::Call(get_16bit_operand(pc, &memory)))
-        );
-        assert_eq!(
-            decode(0b11101001, pc, &memory).unwrap(),
-            Instruction::ControlFlow(ControlFlow::JpToHL())
-        );
-        assert_eq!(
-            decode(0b00011000, pc, &memory).unwrap(),
-            Instruction::ControlFlow(ControlFlow::JpToOffset(get_8bit_operand(pc, &memory)))
-        );
-        assert_eq!(
-            decode(0b00001010, pc, &memory).unwrap(),
-            Instruction::Load8Bit(Load8Bit::LdBCToA())
-        );
-        assert_eq!(
-            decode(0b00011010, pc, &memory).unwrap(),
-            Instruction::Load8Bit(Load8Bit::LdDEToA())
-        );
-        assert_eq!(
-            decode(0b00000010, pc, &memory).unwrap(),
-            Instruction::Load8Bit(Load8Bit::LdAToBC())
-        );
-        assert_eq!(
-            decode(0b00010010, pc, &memory).unwrap(),
-            Instruction::Load8Bit(Load8Bit::LdAToDE())
-        );
-        assert_eq!(
-            decode(0b11111010, pc, &memory).unwrap(),
-            Instruction::Load8Bit(Load8Bit::LdToA(get_16bit_operand(pc, &memory)))
-        );
-        assert_eq!(
-            decode(0b11110010, pc, &memory).unwrap(),
-            Instruction::Load8Bit(Load8Bit::LdhCToA())
-        );
-        assert_eq!(
-            decode(0b11100010, pc, &memory).unwrap(),
-            Instruction::Load8Bit(Load8Bit::LdhAToC())
-        );
-        assert_eq!(
-            decode(0b11110000, pc, &memory).unwrap(),
-            Instruction::Load8Bit(Load8Bit::LdhToA(get_8bit_operand(pc, &memory)))
-        );
-        assert_eq!(
-            decode(0b11100000, pc, &memory).unwrap(),
-            Instruction::Load8Bit(Load8Bit::LdhFromA(get_8bit_operand(pc, &memory)))
-        );
-        assert_eq!(
-            decode(0b11101010, pc, &memory).unwrap(),
-            Instruction::Load8Bit(Load8Bit::LdFromA(get_16bit_operand(pc, &memory)))
-        );
-        assert_eq!(
-            decode(0b00111010, pc, &memory).unwrap(),
-            Instruction::Load8Bit(Load8Bit::LdAFromHLDec())
-        );
-        assert_eq!(
-            decode(0b00110010, pc, &memory).unwrap(),
-            Instruction::Load8Bit(Load8Bit::LdAToHLDec())
-        );
-        assert_eq!(
-            decode(0b00101010, pc, &memory).unwrap(),
-            Instruction::Load8Bit(Load8Bit::LdAFromHLInc())
-        );
-        assert_eq!(
-            decode(0b00100010, pc, &memory).unwrap(),
-            Instruction::Load8Bit(Load8Bit::LdAToHLInc())
-        );
-        assert_eq!(
-            decode(0b11000010, pc, &memory).unwrap(),
-            Instruction::ControlFlow(ControlFlow::JpIf(
-                get_16bit_operand(pc, &memory),
-                Condition::parse(0, 0).unwrap()
-            ))
-        );
-        assert_eq!(
-            decode(0b11011010, pc, &memory).unwrap(),
-            Instruction::ControlFlow(ControlFlow::JpIf(
-                get_16bit_operand(pc, &memory),
-                Condition::parse(1, 1).unwrap()
-            ))
-        );
-        assert_eq!(
-            decode(0b00100000, pc, &memory).unwrap(),
-            Instruction::ControlFlow(ControlFlow::JpToOffsetIf(
-                get_8bit_operand(pc, &memory),
-                Condition::parse(0, 0).unwrap()
-            ))
-        );
-        assert_eq!(
-            decode(0b00111000, pc, &memory).unwrap(),
-            Instruction::ControlFlow(ControlFlow::JpToOffsetIf(
-                get_8bit_operand(pc, &memory),
-                Condition::parse(1, 1).unwrap()
-            ))
-        );
-        assert_eq!(
-            decode(0b11000100, pc, &memory).unwrap(),
-            Instruction::ControlFlow(ControlFlow::CallIf(
-                get_16bit_operand(pc, &memory),
-                Condition::parse(0, 0).unwrap()
-            ))
-        );
-        assert_eq!(
-            decode(0b11011100, pc, &memory).unwrap(),
-            Instruction::ControlFlow(ControlFlow::CallIf(
-                get_16bit_operand(pc, &memory),
-                Condition::parse(1, 1).unwrap()
-            ))
-        );
-        assert_eq!(
-            decode(0b11000000, pc, &memory).unwrap(),
-            Instruction::ControlFlow(ControlFlow::RetIf(Condition::parse(0, 0).unwrap()))
-        );
-        assert_eq!(
-            decode(0b11011000, pc, &memory).unwrap(),
-            Instruction::ControlFlow(ControlFlow::RetIf(Condition::parse(1, 1).unwrap()))
-        );
-        assert_eq!(
-            decode(0b11000111, pc, &memory).unwrap(),
-            Instruction::ControlFlow(ControlFlow::Rst(0b11000111))
-        );
-        assert_eq!(
-            decode(0b11111111, pc, &memory).unwrap(),
-            Instruction::ControlFlow(ControlFlow::Rst(0b11111111))
-        );
-        assert_eq!(
-            decode(0b01000110, pc, &memory).unwrap(),
-            Instruction::Load8Bit(Load8Bit::LdFromHL((0, 0, 0).into()))
-        );
-        assert_eq!(
-            decode(0b01111110, pc, &memory).unwrap(),
-            Instruction::Load8Bit(Load8Bit::LdFromHL((1, 1, 1).into()))
-        );
-        assert_eq!(
-            decode(0b01110000, pc, &memory).unwrap(),
-            Instruction::Load8Bit(Load8Bit::LdToHL((0, 0, 0).into()))
-        );
-        assert_eq!(
-            decode(0b01110111, pc, &memory).unwrap(),
-            Instruction::Load8Bit(Load8Bit::LdToHL((1, 1, 1).into()))
-        );
-        assert_eq!(
-            decode(0b01100000, pc, &memory).unwrap(),
-            Instruction::Load8Bit(Load8Bit::Ld((1, 0, 0).into(), (0, 0, 0).into()))
-        );
-        assert_eq!(
-            decode(0b00000001, pc, &memory).unwrap(),
-            Instruction::Load16Bit(Load16Bit::Ld(
-                DoubleRegister::BC,
-                get_16bit_operand(pc, &memory)
-            ))
-        );
-        assert_eq!(
-            decode(0b00010001, pc, &memory).unwrap(),
-            Instruction::Load16Bit(Load16Bit::Ld(
-                DoubleRegister::DE,
-                get_16bit_operand(pc, &memory)
-            ))
-        );
-        assert_eq!(
-            decode(0b00100001, pc, &memory).unwrap(),
-            Instruction::Load16Bit(Load16Bit::Ld(
-                DoubleRegister::HL,
-                get_16bit_operand(pc, &memory)
-            ))
-        );
-        assert_eq!(
-            decode(0b00110001, pc, &memory).unwrap(),
-            Instruction::Load16Bit(Load16Bit::Ld(
-                DoubleRegister::SP,
-                get_16bit_operand(pc, &memory)
-            ))
-        );
-        assert_eq!(
-            decode(0b00001000, pc, &memory).unwrap(),
-            Instruction::Load16Bit(Load16Bit::LdFromSP(get_16bit_operand(pc, &memory)))
-        );
-        assert_eq!(
-            decode(0b11111001, pc, &memory).unwrap(),
-            Instruction::Load16Bit(Load16Bit::LdHLToSP())
-        );
-        assert_eq!(
-            decode(0b11000101, pc, &memory).unwrap(),
-            Instruction::Load16Bit(Load16Bit::Push(DoubleRegister::BC))
-        );
-        assert_eq!(
-            decode(0b11010101, pc, &memory).unwrap(),
-            Instruction::Load16Bit(Load16Bit::Push(DoubleRegister::DE))
-        );
-        assert_eq!(
-            decode(0b11100101, pc, &memory).unwrap(),
-            Instruction::Load16Bit(Load16Bit::Push(DoubleRegister::HL))
-        );
-        assert_eq!(
-            decode(0b11110101, pc, &memory).unwrap(),
-            Instruction::Load16Bit(Load16Bit::Push(DoubleRegister::AF))
-        );
-        assert_eq!(
-            decode(0b11000001, pc, &memory).unwrap(),
-            Instruction::Load16Bit(Load16Bit::Pop(DoubleRegister::BC))
-        );
-        assert_eq!(
-            decode(0b11010001, pc, &memory).unwrap(),
-            Instruction::Load16Bit(Load16Bit::Pop(DoubleRegister::DE))
-        );
-        assert_eq!(
-            decode(0b11100001, pc, &memory).unwrap(),
-            Instruction::Load16Bit(Load16Bit::Pop(DoubleRegister::HL))
-        );
-        assert_eq!(
-            decode(0b11110001, pc, &memory).unwrap(),
-            Instruction::Load16Bit(Load16Bit::Pop(DoubleRegister::AF))
-        );
-        assert_eq!(
-            decode(0b11111011, pc, &memory).unwrap(),
-            Instruction::Misc(Misc::EI()),
-        );
-        assert_eq!(
-            decode(0b11110011, pc, &memory).unwrap(),
-            Instruction::Misc(Misc::DI()),
-        );
-        assert_eq!(
-            decode(0b00111111, pc, &memory).unwrap(),
-            Instruction::Misc(Misc::CCF()),
-        );
-        assert_eq!(
-            decode(0b00110111, pc, &memory).unwrap(),
-            Instruction::Misc(Misc::SCF()),
-        );
-        assert_eq!(
-            decode(0b00100111, pc, &memory).unwrap(),
-            Instruction::Misc(Misc::DAA()),
-        );
-        assert_eq!(
-            decode(0b00101111, pc, &memory).unwrap(),
-            Instruction::Misc(Misc::CPL()),
-        );
-        assert_eq!(
-            decode(0b10000000, pc, &memory).unwrap(),
-            Instruction::ALU8Bit(ALU8Bit::AddA(SingleRegister::B)),
-        );
-        assert_eq!(
-            decode(0b10000001, pc, &memory).unwrap(),
-            Instruction::ALU8Bit(ALU8Bit::AddA(SingleRegister::C)),
-        );
-        assert_eq!(
-            decode(0b10000010, pc, &memory).unwrap(),
-            Instruction::ALU8Bit(ALU8Bit::AddA(SingleRegister::D)),
-        );
-        assert_eq!(
-            decode(0b10000011, pc, &memory).unwrap(),
-            Instruction::ALU8Bit(ALU8Bit::AddA(SingleRegister::E)),
-        );
-        assert_eq!(
-            decode(0b10000100, pc, &memory).unwrap(),
-            Instruction::ALU8Bit(ALU8Bit::AddA(SingleRegister::H)),
-        );
-        assert_eq!(
-            decode(0b10000101, pc, &memory).unwrap(),
-            Instruction::ALU8Bit(ALU8Bit::AddA(SingleRegister::L)),
-        );
-        assert_eq!(
-            decode(0b10000111, pc, &memory).unwrap(),
-            Instruction::ALU8Bit(ALU8Bit::AddA(SingleRegister::A)),
-        );
-        assert_eq!(
-            decode(0b10000110, pc, &memory).unwrap(),
-            Instruction::ALU8Bit(ALU8Bit::AddAHL()),
-        );
-        assert_eq!(
-            decode(0b11000110, pc, &memory).unwrap(),
-            Instruction::ALU8Bit(ALU8Bit::AddAN(get_8bit_operand(pc, &memory))),
-        );
+        for (code, instruction) in vec![
+            // Misc instructions
+            (0b00000000, I::Misc(Misc::Noop())),
+            (0b00111111, I::Misc(Misc::CCF())),
+            (0b00110111, I::Misc(Misc::SCF())),
+            (0b00100111, I::Misc(Misc::DAA())),
+            (0b00101111, I::Misc(Misc::CPL())),
+            (0b11111011, I::Misc(Misc::EI())),
+            (0b11110011, I::Misc(Misc::DI())),
+            // Control flow instructions
+            (0b11000011, I::ControlFlow(CF::Jp(0))),
+            (0b11001001, I::ControlFlow(CF::Ret())),
+            (0b11011001, I::ControlFlow(CF::RetI())),
+            (0b11001101, I::ControlFlow(CF::Call(0))),
+            (0b11101001, I::ControlFlow(CF::JpToHL())),
+            (0b00011000, I::ControlFlow(CF::JpToOffset(0))),
+            (0b11000010, I::ControlFlow(CF::JpIf(0, C::Carry))),
+            (0b11011010, I::ControlFlow(CF::JpIf(0, C::NotZero))),
+            (0b11000000, I::ControlFlow(CF::RetIf(C::Carry))),
+            (0b11011000, I::ControlFlow(CF::RetIf(C::NotZero))),
+            (0b00100000, I::ControlFlow(CF::JpToOffsetIf(0, C::Carry))),
+            (0b00111000, I::ControlFlow(CF::JpToOffsetIf(0, C::NotZero))),
+            (0b11011100, I::ControlFlow(CF::CallIf(0, C::NotZero))),
+            (0b11000100, I::ControlFlow(CF::CallIf(0, C::Carry))),
+            (0b11000111, I::ControlFlow(CF::Rst(0b11000111))),
+            (0b11111111, I::ControlFlow(CF::Rst(0b11111111))),
+            // Load 8-bit instructions
+            (0b00001010, I::Load8Bit(Load8Bit::LdBCToA())),
+            (0b00011010, I::Load8Bit(Load8Bit::LdDEToA())),
+            (0b00000010, I::Load8Bit(Load8Bit::LdAToBC())),
+            (0b00010010, I::Load8Bit(Load8Bit::LdAToDE())),
+            (0b11111010, I::Load8Bit(Load8Bit::LdToA(0))),
+            (0b11110010, I::Load8Bit(Load8Bit::LdhCToA())),
+            (0b11100010, I::Load8Bit(Load8Bit::LdhAToC())),
+            (0b11110000, I::Load8Bit(Load8Bit::LdhToA(0))),
+            (0b11100000, I::Load8Bit(Load8Bit::LdhFromA(0))),
+            (0b11101010, I::Load8Bit(Load8Bit::LdFromA(0))),
+            (0b00111010, I::Load8Bit(Load8Bit::LdAFromHLDec())),
+            (0b00110010, I::Load8Bit(Load8Bit::LdAToHLDec())),
+            (0b00101010, I::Load8Bit(Load8Bit::LdAFromHLInc())),
+            (0b00100010, I::Load8Bit(Load8Bit::LdAToHLInc())),
+            (0b01000110, I::Load8Bit(Load8Bit::LdFromHL(SR::B))),
+            (0b01111110, I::Load8Bit(Load8Bit::LdFromHL(SR::A))),
+            (0b01110000, I::Load8Bit(Load8Bit::LdToHL(SR::B))),
+            (0b01110111, I::Load8Bit(Load8Bit::LdToHL(SR::A))),
+            (0b01100000, I::Load8Bit(Load8Bit::Ld(SR::H, SR::B))),
+            // Load 16-bit instructions
+            (0b00000001, I::Load16Bit(Load16Bit::Ld(DR::BC, 0))),
+            (0b00010001, I::Load16Bit(Load16Bit::Ld(DR::DE, 0))),
+            (0b00100001, I::Load16Bit(Load16Bit::Ld(DR::HL, 0))),
+            (0b00110001, I::Load16Bit(Load16Bit::Ld(DR::SP, 0))),
+            (0b00001000, I::Load16Bit(Load16Bit::LdFromSP(0))),
+            (0b11111001, I::Load16Bit(Load16Bit::LdHLToSP())),
+            (0b11000101, I::Load16Bit(Load16Bit::Push(DR::BC))),
+            (0b11010101, I::Load16Bit(Load16Bit::Push(DR::DE))),
+            (0b11100101, I::Load16Bit(Load16Bit::Push(DR::HL))),
+            (0b11110101, I::Load16Bit(Load16Bit::Push(DR::AF))),
+            (0b11000001, I::Load16Bit(Load16Bit::Pop(DR::BC))),
+            (0b11010001, I::Load16Bit(Load16Bit::Pop(DR::DE))),
+            (0b11100001, I::Load16Bit(Load16Bit::Pop(DR::HL))),
+            (0b11110001, I::Load16Bit(Load16Bit::Pop(DR::AF))),
+            // ALU 8-bit instructions
+            (0b10000000, I::ALU8Bit(ALU8Bit::AddA(SR::B))),
+            (0b10000001, I::ALU8Bit(ALU8Bit::AddA(SR::C))),
+            (0b10000010, I::ALU8Bit(ALU8Bit::AddA(SR::D))),
+            (0b10000011, I::ALU8Bit(ALU8Bit::AddA(SR::E))),
+            (0b10000100, I::ALU8Bit(ALU8Bit::AddA(SR::H))),
+            (0b10000101, I::ALU8Bit(ALU8Bit::AddA(SR::L))),
+            (0b10000111, I::ALU8Bit(ALU8Bit::AddA(SR::A))),
+            (0b10000110, I::ALU8Bit(ALU8Bit::AddAHL())),
+            (0b11000110, I::ALU8Bit(ALU8Bit::AddAN(0))),
+        ] {
+            assert_eq!(
+                decode(code, pc, &memory).unwrap(),
+                instruction,
+                "Failed to decode 0b{:08b}",
+                code
+            );
+        }
     }
 }
