@@ -575,7 +575,7 @@
             (<span class="number">0b10000101</span>, <span class="ident">I::ALU8Bit</span>(<span class="ident">ALU8Bit::AddA</span>(<span class="ident">SR::L</span>))),
             (<span class="number">0b10000111</span>, <span class="ident">I::ALU8Bit</span>(<span class="ident">ALU8Bit::AddA</span>(<span class="ident">SR::A</span>))),
             (<span class="number">0b10000110</span>, <span class="ident">I::ALU8Bit</span>(<span class="ident">ALU8Bit::AddAHL</span>())),
-            (<span class="number">0b11000110</span>, <span class="ident">I::ALU8Bit</span>(<span class="ident">ALU8Bit::AddAN</span>(<span class="number">1</span>))),
+            (<span class="number">0b11000110</span>, <span class="ident">I::ALU8Bit</span>(<span class="ident">ALU8Bit::AddAN</span>(<span class="number">0</span>))),
         ] {
             <span class="macro">assert_eq!</span>(
                 <span class="ident">decode</span>(<span class="ident">code</span>, <span class="ident">pc</span>, <span class="kw-2">&amp;</span><span class="ident">memory</span>).<span class="ident">unwrap</span>(),
