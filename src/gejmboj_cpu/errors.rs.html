@@ -18,13 +18,22 @@
 <span id="18">18</span>
 <span id="19">19</span>
 <span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Gejmboj CPU related errors</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">error::Error</span>, <span class="ident">fmt::Display</span>};
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::registers::SingleRegister</span>;
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">CpuError</span> {
     <span class="ident">Error</span>(<span class="ident">String</span>),
+    <span class="ident">UnsupportedSingleRegister</span>(<span class="ident">SingleRegister</span>),
     <span class="ident">UnknownInstruction</span>(<span class="ident">u8</span>),
 }
 
@@ -33,6 +42,9 @@
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">CpuError::Error</span>(<span class="ident">msg</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Something went wrong: {}&quot;</span>, <span class="ident">msg</span>),
             <span class="ident">CpuError::UnknownInstruction</span>(<span class="ident">opcode</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Unknown opcode: {:08b}&quot;</span>, <span class="ident">opcode</span>),
+            <span class="ident">CpuError::UnsupportedSingleRegister</span>(<span class="ident">register</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Instruction does not support register {:?}&quot;</span>, <span class="ident">register</span>)
+            }
         }
     }
 }

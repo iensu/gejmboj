@@ -452,16 +452,65 @@
 <span id="452">452</span>
 <span id="453">453</span>
 <span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Sharp SM83 instruction set</span>
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::combine_instructions</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">errors::CpuError</span>, <span class="ident">memory::Memory</span>, <span class="ident">registers::Registers</span>};
 
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">alu_8bit</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">control_flow</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">load_16bit</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">load_8bit</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">misc</span>;
 
+<span class="kw">use</span> <span class="ident">alu_8bit::ALU8Bit</span>;
 <span class="kw">use</span> <span class="ident">control_flow::ControlFlow</span>;
 <span class="kw">use</span> <span class="ident">load_16bit::Load16Bit</span>;
 <span class="kw">use</span> <span class="ident">load_8bit::Load8Bit</span>;
@@ -471,7 +520,7 @@
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">InstructionResult</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u16</span>, <span class="ident">CpuError</span><span class="op">&gt;</span>;
 
 <span class="macro">combine_instructions!</span> {
-    <span class="ident">Instruction</span>(<span class="ident">ControlFlow</span>, <span class="ident">Load8Bit</span>, <span class="ident">Load16Bit</span>, <span class="ident">Misc</span>)
+    <span class="ident">Instruction</span>(<span class="ident">ALU8Bit</span>,<span class="ident">ControlFlow</span>, <span class="ident">Load8Bit</span>, <span class="ident">Load16Bit</span>, <span class="ident">Misc</span>)
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
@@ -583,6 +632,12 @@
         ))),
         (<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Instruction::Load16Bit</span>(<span class="ident">Load16Bit::LdHLToSP</span>())),
 
+        <span class="comment">// ALU 8-bit instructions</span>
+        (<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Instruction::ALU8Bit</span>(<span class="ident">ALU8Bit::AddAHL</span>())),
+        (<span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Instruction::ALU8Bit</span>(<span class="ident">ALU8Bit::AddAN</span>(<span class="ident">get_8bit_operand</span>(
+            <span class="ident">pc</span>, <span class="ident">memory</span>,
+        )))),
+
         <span class="comment">// VARIABLE MATCHES</span>
         <span class="comment">//</span>
         <span class="comment">// control flow</span>
@@ -619,6 +674,9 @@
         (<span class="number">1</span>, <span class="number">1</span>, <span class="ident">a</span>, <span class="ident">b</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Instruction::Load16Bit</span>(<span class="ident">Load16Bit::Push</span>((<span class="number">1</span>, <span class="ident">a</span>, <span class="ident">b</span>).<span class="ident">into</span>()))),
         (<span class="number">1</span>, <span class="number">1</span>, <span class="ident">a</span>, <span class="ident">b</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Instruction::Load16Bit</span>(<span class="ident">Load16Bit::Pop</span>((<span class="number">1</span>, <span class="ident">a</span>, <span class="ident">b</span>).<span class="ident">into</span>()))),
 
+        <span class="comment">// ALU 8-bit instructions</span>
+        (<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="ident">a</span>, <span class="ident">b</span>, <span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Instruction::ALU8Bit</span>(<span class="ident">ALU8Bit::AddA</span>((<span class="ident">a</span>, <span class="ident">b</span>, <span class="ident">c</span>).<span class="ident">into</span>()))),
+
         <span class="comment">// Catch all</span>
         <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">CpuError::UnknownInstruction</span>(<span class="ident">opcode</span>)),
     }
@@ -626,7 +684,7 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::registers::DoubleRegister</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::registers</span>::{<span class="ident">DoubleRegister</span>, <span class="ident">SingleRegister</span>};
 
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
@@ -903,6 +961,42 @@
         <span class="macro">assert_eq!</span>(
             <span class="ident">decode</span>(<span class="number">0b00101111</span>, <span class="ident">pc</span>, <span class="kw-2">&amp;</span><span class="ident">memory</span>).<span class="ident">unwrap</span>(),
             <span class="ident">Instruction::Misc</span>(<span class="ident">Misc::CPL</span>()),
+        );
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">decode</span>(<span class="number">0b10000000</span>, <span class="ident">pc</span>, <span class="kw-2">&amp;</span><span class="ident">memory</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Instruction::ALU8Bit</span>(<span class="ident">ALU8Bit::AddA</span>(<span class="ident">SingleRegister::B</span>)),
+        );
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">decode</span>(<span class="number">0b10000001</span>, <span class="ident">pc</span>, <span class="kw-2">&amp;</span><span class="ident">memory</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Instruction::ALU8Bit</span>(<span class="ident">ALU8Bit::AddA</span>(<span class="ident">SingleRegister::C</span>)),
+        );
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">decode</span>(<span class="number">0b10000010</span>, <span class="ident">pc</span>, <span class="kw-2">&amp;</span><span class="ident">memory</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Instruction::ALU8Bit</span>(<span class="ident">ALU8Bit::AddA</span>(<span class="ident">SingleRegister::D</span>)),
+        );
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">decode</span>(<span class="number">0b10000011</span>, <span class="ident">pc</span>, <span class="kw-2">&amp;</span><span class="ident">memory</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Instruction::ALU8Bit</span>(<span class="ident">ALU8Bit::AddA</span>(<span class="ident">SingleRegister::E</span>)),
+        );
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">decode</span>(<span class="number">0b10000100</span>, <span class="ident">pc</span>, <span class="kw-2">&amp;</span><span class="ident">memory</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Instruction::ALU8Bit</span>(<span class="ident">ALU8Bit::AddA</span>(<span class="ident">SingleRegister::H</span>)),
+        );
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">decode</span>(<span class="number">0b10000101</span>, <span class="ident">pc</span>, <span class="kw-2">&amp;</span><span class="ident">memory</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Instruction::ALU8Bit</span>(<span class="ident">ALU8Bit::AddA</span>(<span class="ident">SingleRegister::L</span>)),
+        );
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">decode</span>(<span class="number">0b10000111</span>, <span class="ident">pc</span>, <span class="kw-2">&amp;</span><span class="ident">memory</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Instruction::ALU8Bit</span>(<span class="ident">ALU8Bit::AddA</span>(<span class="ident">SingleRegister::A</span>)),
+        );
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">decode</span>(<span class="number">0b10000110</span>, <span class="ident">pc</span>, <span class="kw-2">&amp;</span><span class="ident">memory</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Instruction::ALU8Bit</span>(<span class="ident">ALU8Bit::AddAHL</span>()),
+        );
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">decode</span>(<span class="number">0b11000110</span>, <span class="ident">pc</span>, <span class="kw-2">&amp;</span><span class="ident">memory</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Instruction::ALU8Bit</span>(<span class="ident">ALU8Bit::AddAN</span>(<span class="ident">get_8bit_operand</span>(<span class="ident">pc</span>, <span class="kw-2">&amp;</span><span class="ident">memory</span>))),
         );
     }
 }
