@@ -132,12 +132,12 @@ pub fn decode(opcode: u8, pc: u16, memory: &Memory) -> Result<Instruction, CpuEr
         (1, 1, 1, 1, 1, 0, 0, 1) => Ok(Instruction::Load16Bit(Load16Bit::LdHLToSP())),
 
         // ALU 8-bit instructions
-        (1, 0, 0, 0, 0, 1, 1, 0) => Ok(Instruction::ALU8Bit(ALU8Bit::AddAHL())),
-        (1, 1, 0, 0, 0, 1, 1, 0) => Ok(Instruction::ALU8Bit(ALU8Bit::AddAN(get_8bit_operand(
+        (1, 0, 0, 0, 0, 1, 1, 0) => Ok(Instruction::ALU8Bit(ALU8Bit::AddHL())),
+        (1, 1, 0, 0, 0, 1, 1, 0) => Ok(Instruction::ALU8Bit(ALU8Bit::AddN(get_8bit_operand(
             pc, memory,
         )))),
-        (1, 0, 0, 0, 1, 1, 1, 0) => Ok(Instruction::ALU8Bit(ALU8Bit::AdcAHL())),
-        (1, 1, 0, 0, 1, 1, 1, 0) => Ok(Instruction::ALU8Bit(ALU8Bit::AdcAN(get_8bit_operand(
+        (1, 0, 0, 0, 1, 1, 1, 0) => Ok(Instruction::ALU8Bit(ALU8Bit::AdcHL())),
+        (1, 1, 0, 0, 1, 1, 1, 0) => Ok(Instruction::ALU8Bit(ALU8Bit::AdcN(get_8bit_operand(
             pc, memory,
         )))),
 
@@ -178,8 +178,8 @@ pub fn decode(opcode: u8, pc: u16, memory: &Memory) -> Result<Instruction, CpuEr
         (1, 1, a, b, 0, 0, 0, 1) => Ok(Instruction::Load16Bit(Load16Bit::Pop((1, a, b).into()))),
 
         // ALU 8-bit instructions
-        (1, 0, 0, 0, 0, a, b, c) => Ok(Instruction::ALU8Bit(ALU8Bit::AddA((a, b, c).into()))),
-        (1, 0, 0, 0, 1, a, b, c) => Ok(Instruction::ALU8Bit(ALU8Bit::AdcA((a, b, c).into()))),
+        (1, 0, 0, 0, 0, a, b, c) => Ok(Instruction::ALU8Bit(ALU8Bit::Add((a, b, c).into()))),
+        (1, 0, 0, 0, 1, a, b, c) => Ok(Instruction::ALU8Bit(ALU8Bit::Adc((a, b, c).into()))),
 
         // Catch all
         _ => Err(CpuError::UnknownInstruction(opcode)),
@@ -278,24 +278,24 @@ mod tests {
             (0b11100001, I::Load16Bit(Load16Bit::Pop(DR::HL))),
             (0b11110001, I::Load16Bit(Load16Bit::Pop(DR::AF))),
             // ALU 8-bit instructions
-            (0b10000000, I::ALU8Bit(ALU8Bit::AddA(SR::B))),
-            (0b10000001, I::ALU8Bit(ALU8Bit::AddA(SR::C))),
-            (0b10000010, I::ALU8Bit(ALU8Bit::AddA(SR::D))),
-            (0b10000011, I::ALU8Bit(ALU8Bit::AddA(SR::E))),
-            (0b10000100, I::ALU8Bit(ALU8Bit::AddA(SR::H))),
-            (0b10000101, I::ALU8Bit(ALU8Bit::AddA(SR::L))),
-            (0b10000111, I::ALU8Bit(ALU8Bit::AddA(SR::A))),
-            (0b10000110, I::ALU8Bit(ALU8Bit::AddAHL())),
-            (0b11000110, I::ALU8Bit(ALU8Bit::AddAN(0))),
-            (0b10001000, I::ALU8Bit(ALU8Bit::AdcA(SR::B))),
-            (0b10001001, I::ALU8Bit(ALU8Bit::AdcA(SR::C))),
-            (0b10001010, I::ALU8Bit(ALU8Bit::AdcA(SR::D))),
-            (0b10001011, I::ALU8Bit(ALU8Bit::AdcA(SR::E))),
-            (0b10001100, I::ALU8Bit(ALU8Bit::AdcA(SR::H))),
-            (0b10001101, I::ALU8Bit(ALU8Bit::AdcA(SR::L))),
-            (0b10001111, I::ALU8Bit(ALU8Bit::AdcA(SR::A))),
-            (0b10001110, I::ALU8Bit(ALU8Bit::AdcAHL())),
-            (0b11001110, I::ALU8Bit(ALU8Bit::AdcAN(0))),
+            (0b10000000, I::ALU8Bit(ALU8Bit::Add(SR::B))),
+            (0b10000001, I::ALU8Bit(ALU8Bit::Add(SR::C))),
+            (0b10000010, I::ALU8Bit(ALU8Bit::Add(SR::D))),
+            (0b10000011, I::ALU8Bit(ALU8Bit::Add(SR::E))),
+            (0b10000100, I::ALU8Bit(ALU8Bit::Add(SR::H))),
+            (0b10000101, I::ALU8Bit(ALU8Bit::Add(SR::L))),
+            (0b10000111, I::ALU8Bit(ALU8Bit::Add(SR::A))),
+            (0b10000110, I::ALU8Bit(ALU8Bit::AddHL())),
+            (0b11000110, I::ALU8Bit(ALU8Bit::AddN(0))),
+            (0b10001000, I::ALU8Bit(ALU8Bit::Adc(SR::B))),
+            (0b10001001, I::ALU8Bit(ALU8Bit::Adc(SR::C))),
+            (0b10001010, I::ALU8Bit(ALU8Bit::Adc(SR::D))),
+            (0b10001011, I::ALU8Bit(ALU8Bit::Adc(SR::E))),
+            (0b10001100, I::ALU8Bit(ALU8Bit::Adc(SR::H))),
+            (0b10001101, I::ALU8Bit(ALU8Bit::Adc(SR::L))),
+            (0b10001111, I::ALU8Bit(ALU8Bit::Adc(SR::A))),
+            (0b10001110, I::ALU8Bit(ALU8Bit::AdcHL())),
+            (0b11001110, I::ALU8Bit(ALU8Bit::AdcN(0))),
         ] {
             assert_eq!(
                 decode(code, pc, &memory).unwrap(),
