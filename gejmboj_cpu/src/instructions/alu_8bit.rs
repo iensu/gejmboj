@@ -12,17 +12,20 @@ fn is_half_carry(x: u16, y: u16) -> bool {
     (x_lowest_nibble + y_lowest_nibble) & mask == mask
 }
 
-fn calculate_flags(result: u16, x: u16, y: u16) -> u8 {
+fn calculate_flags(result: u16, x: u16, y: u16, is_subtraction: bool) -> u8 {
     let mut flags = 0b0000_0000;
 
     if result == 0 {
         flags = flags | 0b1000_0000; // Set Z
     }
+    if is_subtraction {
+        flags = flags | 0b0100_0000; // Set N
+    }
     if is_half_carry(x, y) {
         flags = flags | 0b0010_0000; // Set H
     }
     if result > 0xFF {
-        flags = flags | 0b0101_0000; // Set N and C
+        flags = flags | 0b0001_0000; // Set C
     }
 
     flags
@@ -32,7 +35,7 @@ fn do_adda(registers: &mut Registers, operand: u16) {
     let a = registers.get_single(&SingleRegister::A);
 
     let mut result: u16 = a as u16 + operand;
-    let flags = calculate_flags(result, a.into(), operand);
+    let flags = calculate_flags(result, a.into(), operand, false);
 
     if flags & MASK_FLAG_CARRY > 0 {
         result = result >> 8;
@@ -99,17 +102,6 @@ crate::instruction_tests! {
         assert_eq!(0b1000_0000, registers.get_single(&SingleRegister::F));
     }
 
-    adda_sets_n_flag_if_reset(registers, memory, cpu_flags) => {
-        registers.set_single(&SingleRegister::A, 0b1111_1111);
-        registers.set_single(&SingleRegister::B, 0b0000_0001);
-
-        ALU8Bit::AddA(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-
-        let n_flag = registers.get_single(&SingleRegister::F) & 0b0100_0000;
-
-        assert_eq!(0b0100_0000, n_flag);
-    }
-
     adda_sets_h_flag_if_carry_from_bit_3(registers, memory, cpu_flags) => {
         registers.set_single(&SingleRegister::A, 0b0000_0111);
         registers.set_single(&SingleRegister::B, 0b0000_1001);
@@ -120,14 +112,12 @@ crate::instruction_tests! {
     }
 
     adda_sets_c_flag_if_carry_from_bit_7(registers, memory, cpu_flags) => {
-        registers.set_single(&SingleRegister::A, 0b1111_1111);
-        registers.set_single(&SingleRegister::B, 0b0000_0001);
+        registers.set_single(&SingleRegister::A, 0b1111_0000);
+        registers.set_single(&SingleRegister::B, 0b0001_0000);
 
         ALU8Bit::AddA(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
-        let c_flag = registers.get_single(&SingleRegister::F) & 0b0001_0000;
-
-        assert_eq!(0b0001_0000, c_flag);
+        assert_eq!(0b0001_0000, registers.get_single(&SingleRegister::F));
     }
 
     adda_handles_overflow(registers, memory, cpu_flags) => {
