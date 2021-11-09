@@ -116,6 +116,116 @@ instruction_group! {
 
             Ok(2)
         }
+
+        /// Subtract value of `SingleRegister` from A
+        Sub(_r: SingleRegister) [1] => {
+            unimplemented!()
+        }
+
+        /// Subtract value of `operand` from A
+        SubN(_operand: u8) [2] => {
+            unimplemented!()
+        }
+
+        /// Subtract value of `HL` from A
+        SubHL() [1] => {
+            unimplemented!()
+        }
+
+        /// Subtract value of `SingleRegister` and Carry from A
+        Sbc(_r: SingleRegister) [1] => {
+            unimplemented!()
+        }
+
+        /// Subtract value of `operand` and Carry from A
+        SbcN(_operand: u8) [2] => {
+            unimplemented!()
+        }
+
+        /// Subtract value of `HL` and Carry from A
+        SbcHL() [1] => {
+            unimplemented!()
+        }
+
+        /// Logical AND between register and `A`
+        And(_r: SingleRegister) [1] => {
+            unimplemented!()
+        }
+
+        /// Logical AND between `operand` and `A`
+        AndN(_operand: u8) [2] => {
+            unimplemented!()
+        }
+
+        /// Logical AND between `HL` and `A`
+        AndHL() [1] => {
+            unimplemented!()
+        }
+
+        /// Logical OR between register and `A`
+        Or(_r: SingleRegister) [1] => {
+            unimplemented!()
+        }
+
+        /// Logical OR between `operand` and `A`
+        OrN(_operand: u8) [2] => {
+            unimplemented!()
+        }
+
+        /// Logical OR between `HL` and `A`
+        OrHL() [1] => {
+            unimplemented!()
+        }
+
+        /// Logical XOR between register and `A`
+        Xor(_r: SingleRegister) [1] => {
+            unimplemented!()
+        }
+
+        /// Logical XOR between `operand` and `A`
+        XorN(_operand: u8) [2] => {
+            unimplemented!()
+        }
+
+        /// Logical XOR between `HL` and `A`
+        XorHL() [1] => {
+            unimplemented!()
+        }
+
+        /// Compare register and `A`
+        Cp(_r: SingleRegister) [1] => {
+            unimplemented!()
+        }
+
+        /// Compare `operand` and `A`
+        CpN(_operand: u8) [2] => {
+            unimplemented!()
+        }
+
+        /// Compare `HL` and `A`
+        CpHL() [1] => {
+            unimplemented!()
+        }
+
+        /// Increment `SingleRegister` by 1
+        Inc(_r: SingleRegister) [1] => {
+            unimplemented!()
+        }
+
+        /// Increment `HL` by 1
+        IncHL() [1] => {
+            unimplemented!()
+        }
+
+        /// Decrement `SingleRegister` by 1
+        Dec(_r: SingleRegister) [1] => {
+            unimplemented!()
+        }
+
+        /// Decrement `HL` by 1
+        DecHL() [1] => {
+            unimplemented!()
+        }
     }
 }
 
