@@ -136,6 +136,10 @@ pub fn decode(opcode: u8, pc: u16, memory: &Memory) -> Result<Instruction, CpuEr
         (1, 1, 0, 0, 0, 1, 1, 0) => Ok(Instruction::ALU8Bit(ALU8Bit::AddAN(get_8bit_operand(
             pc, memory,
         )))),
+        (1, 0, 0, 0, 1, 1, 1, 0) => Ok(Instruction::ALU8Bit(ALU8Bit::AdcAHL())),
+        (1, 1, 0, 0, 1, 1, 1, 0) => Ok(Instruction::ALU8Bit(ALU8Bit::AdcAN(get_8bit_operand(
+            pc, memory,
+        )))),
 
         // VARIABLE MATCHES
         //
@@ -175,6 +179,7 @@ pub fn decode(opcode: u8, pc: u16, memory: &Memory) -> Result<Instruction, CpuEr
 
         // ALU 8-bit instructions
         (1, 0, 0, 0, 0, a, b, c) => Ok(Instruction::ALU8Bit(ALU8Bit::AddA((a, b, c).into()))),
+        (1, 0, 0, 0, 1, a, b, c) => Ok(Instruction::ALU8Bit(ALU8Bit::AdcA((a, b, c).into()))),
 
         // Catch all
         _ => Err(CpuError::UnknownInstruction(opcode)),
@@ -282,6 +287,15 @@ mod tests {
             (0b10000111, I::ALU8Bit(ALU8Bit::AddA(SR::A))),
             (0b10000110, I::ALU8Bit(ALU8Bit::AddAHL())),
             (0b11000110, I::ALU8Bit(ALU8Bit::AddAN(0))),
+            (0b10001000, I::ALU8Bit(ALU8Bit::AdcA(SR::B))),
+            (0b10001001, I::ALU8Bit(ALU8Bit::AdcA(SR::C))),
+            (0b10001010, I::ALU8Bit(ALU8Bit::AdcA(SR::D))),
+            (0b10001011, I::ALU8Bit(ALU8Bit::AdcA(SR::E))),
+            (0b10001100, I::ALU8Bit(ALU8Bit::AdcA(SR::H))),
+            (0b10001101, I::ALU8Bit(ALU8Bit::AdcA(SR::L))),
+            (0b10001111, I::ALU8Bit(ALU8Bit::AdcA(SR::A))),
+            (0b10001110, I::ALU8Bit(ALU8Bit::AdcAHL())),
+            (0b11001110, I::ALU8Bit(ALU8Bit::AdcAN(0))),
         ] {
             assert_eq!(
                 decode(code, pc, &memory).unwrap(),

@@ -60,14 +60,59 @@ instruction_group! {
             Ok(1)
         }
 
+        /// Add value of `operand` to `A`
         AddAN(operand: u8) [2] => {
             do_adda(registers, (*operand).into());
 
             Ok(2)
         }
 
+        /// Add value of `HL` to `A`
         AddAHL() [1] => {
             do_adda(registers, registers.get_double(&crate::registers::DoubleRegister::HL));
+
+            Ok(2)
+        }
+
+        /// Add value of `SingleRegister` and the Carry flag to `A`
+        AdcA(r: SingleRegister) [1] => {
+            if *r == SingleRegister::F {
+                return Err(CpuError::UnsupportedSingleRegister(*r));
+            }
+
+            let mut operand: u16 = registers.get_single(&r).into();
+
+            if registers.is_carry() {
+                operand +=  1;
+            }
+
+            do_adda(registers, operand);
+
+            Ok(1)
+        }
+
+        /// Add value of `operand` and Carry to `A`
+        AdcAN(operand: u8) [2] => {
+            let mut operand: u16 = (*operand).into();
+
+            if registers.is_carry() {
+                operand += 1
+            }
+
+            do_adda(registers, operand);
+
+            Ok(2)
+        }
+
+        /// Add value of `HL` and Carry to `A`
+        AdcAHL() [1] => {
+            let mut operand = registers.get_double(&crate::registers::DoubleRegister::HL);
+
+            if registers.is_carry() {
+                operand += 1;
+            }
+
+            do_adda(registers, operand);
 
             Ok(2)
         }
@@ -161,6 +206,74 @@ crate::instruction_tests! {
         registers.set_double(&DoubleRegister::HL, 2);
 
         ALU8Bit::AddAHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(42, registers.get_single(&SingleRegister::A));
+    }
+
+    adca_takes_1_machine_cycle(registers, memory, cpu_flags) => {
+        let cycles = ALU8Bit::AdcA(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(1, cycles);
+    }
+
+    adca_adds_register_plus_carry_to_a(registers, memory, cpu_flags) => {
+        registers.set_single(&SingleRegister::A, 40);
+        registers.set_single(&SingleRegister::B, 2);
+        registers.set_single(&SingleRegister::F, MASK_FLAG_CARRY);
+
+        ALU8Bit::AdcA(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(43, registers.get_single(&SingleRegister::A));
+
+        registers.set_single(&SingleRegister::A, 40);
+        registers.set_single(&SingleRegister::F, 0);
+
+        ALU8Bit::AdcA(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(42, registers.get_single(&SingleRegister::A));
+    }
+
+    adcan_takes_2_machine_cycles(registers, memory, cpu_flags) => {
+        let cycles = ALU8Bit::AdcAN(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(2, cycles);
+    }
+
+    adcan_adds_register_plus_carry_to_a(registers, memory, cpu_flags) => {
+        registers.set_single(&SingleRegister::A, 40);
+        registers.set_single(&SingleRegister::F, MASK_FLAG_CARRY);
+
+        ALU8Bit::AdcAN(2).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(43, registers.get_single(&SingleRegister::A));
+
+        registers.set_single(&SingleRegister::A, 40);
+        registers.set_single(&SingleRegister::F, 0);
+
+        ALU8Bit::AdcAN(2).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(42, registers.get_single(&SingleRegister::A));
+    }
+
+    adcahl_takes_2_machine_cycles(registers, memory, cpu_flags) => {
+        let cycles = ALU8Bit::AdcAHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(2, cycles);
+    }
+
+    adcahl_adds_register_plus_carry_to_a(registers, memory, cpu_flags) => {
+        registers.set_single(&SingleRegister::A, 40);
+        registers.set_double(&DoubleRegister::HL, 2);
+        registers.set_single(&SingleRegister::F, MASK_FLAG_CARRY);
+
+        ALU8Bit::AdcAHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(43, registers.get_single(&SingleRegister::A));
+
+        registers.set_single(&SingleRegister::A, 40);
+        registers.set_single(&SingleRegister::F, 0);
+
+        ALU8Bit::AdcAHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
         assert_eq!(42, registers.get_single(&SingleRegister::A));
     }
