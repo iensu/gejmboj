@@ -13,3 +13,4 @@ A Game Boy emulator. This project is in progress and will most likely stay that 
 * http://gameboy.mongenel.com/asmschool.html
 * http://marc.rawer.de/Gameboy/Docs/GBCPUman.pdf
 * http://www.emulatronia.com/doctec/consolas/gameboy/gameboy.txt
+* https://files.nekoblog.org/uploads/pdf/39999184-GameBoy-Programming-Manual.pdf
