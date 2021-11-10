@@ -1,10 +1,13 @@
 use crate::{
     errors::CpuError,
     instruction_group,
-    registers::{Registers, SingleRegister, MASK_FLAG_CARRY},
+    registers::{
+        Registers, SingleRegister, MASK_FLAG_CARRY, MASK_FLAG_HALF_CARRY, MASK_FLAG_NEGATIVE,
+        MASK_FLAG_ZERO,
+    },
 };
 
-fn is_half_carry(x: u16, y: u16) -> bool {
+fn add_is_half_carry(x: u8, y: u8) -> bool {
     let x_lowest_nibble = x & 0xF;
     let y_lowest_nibble = y & 0xF;
     let mask = 0x10;
@@ -12,36 +15,64 @@ fn is_half_carry(x: u16, y: u16) -> bool {
     (x_lowest_nibble + y_lowest_nibble) & mask == mask
 }
 
-fn calculate_flags(result: u16, x: u16, y: u16, is_subtraction: bool) -> u8 {
+fn sub_is_half_carry(x: u8, y: u8) -> bool {
+    let x_lowest_nibble = x & 0xF;
+    let y_lowest_nibble = y & 0xF;
+
+    y_lowest_nibble > x_lowest_nibble
+}
+
+fn wrapping_add(x: u8, y: u8) -> (u8, bool) {
+    let is_overflow = x as u16 + y as u16 > u8::MAX as u16;
+    let result = x.wrapping_add(y);
+
+    (result, is_overflow)
+}
+
+fn wrapping_sub(x: u8, y: u8) -> (u8, bool) {
+    let is_overflow = y > x;
+    let result = x.wrapping_sub(y);
+
+    (result, is_overflow)
+}
+
+fn perform_addition(registers: &mut Registers, operand: u8) {
+    let a = registers.get_single(&SingleRegister::A);
+
+    let (result, is_carry) = wrapping_add(a, operand);
     let mut flags = 0b0000_0000;
 
     if result == 0 {
-        flags = flags | 0b1000_0000; // Set Z
+        flags = flags | MASK_FLAG_ZERO; // Set Z
     }
-    if is_subtraction {
-        flags = flags | 0b0100_0000; // Set N
+    if add_is_half_carry(a, operand) {
+        flags = flags | MASK_FLAG_HALF_CARRY; // Set H
     }
-    if is_half_carry(x, y) {
-        flags = flags | 0b0010_0000; // Set H
-    }
-    if result > 0xFF {
-        flags = flags | 0b0001_0000; // Set C
+    if is_carry {
+        flags = flags | MASK_FLAG_CARRY; // Set C
     }
 
-    flags
+    registers.set_single(&SingleRegister::A, result);
+    registers.set_single(&SingleRegister::F, flags);
 }
 
-fn do_adda(registers: &mut Registers, operand: u16) {
+fn perform_subtraction(registers: &mut Registers, operand: u8) {
     let a = registers.get_single(&SingleRegister::A);
 
-    let mut result: u16 = a as u16 + operand;
-    let flags = calculate_flags(result, a.into(), operand, false);
+    let (result, is_carry) = wrapping_sub(a, operand);
+    let mut flags = 0b0000_0000 | MASK_FLAG_NEGATIVE;
 
-    if flags & MASK_FLAG_CARRY > 0 {
-        result = result >> 8;
+    if result == 0 {
+        flags = flags | MASK_FLAG_ZERO; // Set Z
+    }
+    if sub_is_half_carry(a, operand) {
+        flags = flags | MASK_FLAG_HALF_CARRY; // Set H
+    }
+    if is_carry {
+        flags = flags | MASK_FLAG_CARRY; // Set C
     }
 
-    registers.set_single(&SingleRegister::A, result as u8);
+    registers.set_single(&SingleRegister::A, result);
     registers.set_single(&SingleRegister::F, flags);
 }
 
@@ -55,21 +86,21 @@ instruction_group! {
                 return Err(CpuError::UnsupportedSingleRegister(*r));
             }
 
-            do_adda(registers, registers.get_single(&r).into());
+            perform_addition(registers, registers.get_single(&r).into());
 
             Ok(1)
         }
 
         /// Add value of `operand` to `A`
         AddN(operand: u8) [2] => {
-            do_adda(registers, (*operand).into());
+            perform_addition(registers, (*operand).into());
 
             Ok(2)
         }
 
         /// Add value of `HL` to `A`
         AddHL() [1] => {
-            do_adda(registers, registers.get_double(&crate::registers::DoubleRegister::HL));
+            perform_addition(registers, registers.get_double(&crate::registers::DoubleRegister::HL) as u8);
 
             Ok(2)
         }
@@ -80,56 +111,70 @@ instruction_group! {
                 return Err(CpuError::UnsupportedSingleRegister(*r));
             }
 
-            let mut operand: u16 = registers.get_single(&r).into();
+            let mut operand = registers.get_single(&r);
 
             if registers.is_carry() {
-                operand +=  1;
+                operand = wrapping_add(operand, 1).0;
             }
 
-            do_adda(registers, operand);
+            perform_addition(registers, operand);
 
             Ok(1)
         }
 
         /// Add value of `operand` and Carry to `A`
         AdcN(operand: u8) [2] => {
-            let mut operand: u16 = (*operand).into();
+            let mut operand = *operand;
 
             if registers.is_carry() {
-                operand += 1
+                operand = wrapping_add(operand, 1).0;
             }
 
-            do_adda(registers, operand);
+            perform_addition(registers, operand);
 
             Ok(2)
         }
 
         /// Add value of `HL` and Carry to `A`
         AdcHL() [1] => {
-            let mut operand = registers.get_double(&crate::registers::DoubleRegister::HL);
+            let mut operand = registers.get_double(&crate::registers::DoubleRegister::HL) as u8;
 
             if registers.is_carry() {
-                operand += 1;
+                operand = wrapping_add(operand, 1).0;
             }
 
-            do_adda(registers, operand);
+            perform_addition(registers, operand);
 
             Ok(2)
         }
 
         /// Subtract value of `SingleRegister` from A
-        Sub(_r: SingleRegister) [1] => {
-            unimplemented!()
+        Sub(r: SingleRegister) [1] => {
+            if *r == SingleRegister::F {
+                return Err(CpuError::UnsupportedSingleRegister(*r));
+            }
+
+            let operand = registers.get_single(&r);
+
+            perform_subtraction(registers, operand);
+
+            Ok(1)
         }
 
         /// Subtract value of `operand` from A
-        SubN(_operand: u8) [2] => {
-            unimplemented!()
+        SubN(operand: u8) [2] => {
+            perform_subtraction(registers, *operand);
+
+            Ok(2)
         }
 
         /// Subtract value of `HL` from A
         SubHL() [1] => {
-            unimplemented!()
+            let operand = registers.get_double(&crate::registers::DoubleRegister::HL);
+
+            perform_subtraction(registers, operand as u8);
+
+            Ok(2)
         }
 
         /// Subtract value of `SingleRegister` and Carry from A
@@ -268,7 +313,7 @@ crate::instruction_tests! {
 
     add_sets_c_flag_if_carry_from_bit_7(registers, memory, cpu_flags) => {
         registers.set_single(&SingleRegister::A, 0b1111_0000);
-        registers.set_single(&SingleRegister::B, 0b0001_0000);
+        registers.set_single(&SingleRegister::B, 0b0001_0001);
 
         ALU8Bit::Add(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
@@ -276,12 +321,12 @@ crate::instruction_tests! {
     }
 
     add_handles_overflow(registers, memory, cpu_flags) => {
-        registers.set_single(&SingleRegister::A, 0b1111_1111);
-        registers.set_single(&SingleRegister::B, 0b0000_0001);
+        registers.set_single(&SingleRegister::A, 252);
+        registers.set_single(&SingleRegister::B, 8);
 
         ALU8Bit::Add(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
-        assert_eq!(0b0000_0001, registers.get_single(&SingleRegister::A));
+        assert_eq!(4, registers.get_single(&SingleRegister::A));
     }
 
     add_does_support_the_f_register(registers, memory, cpu_flags) => {
@@ -318,6 +363,28 @@ crate::instruction_tests! {
         ALU8Bit::AddHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
         assert_eq!(42, registers.get_single(&SingleRegister::A));
+    }
+
+    add_handles_flags_correctly(registers, memory, cpu_flags) => {
+        registers.set_single(&SingleRegister::A, 0x3A);
+        registers.set_single(&SingleRegister::B, 0xC6);
+
+        ALU8Bit::Add(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0x00, registers.get_single(&SingleRegister::A), "Wrong result");
+        assert_eq!(0b1011_0000, registers.get_single(&SingleRegister::F), "Incorrect flags");
+
+        registers.set_single(&SingleRegister::A, 0x3C);
+
+        ALU8Bit::AddN(0xFF).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0x3B, registers.get_single(&SingleRegister::A), "Wrong result");
+        assert_eq!(0b0011_0000, registers.get_single(&SingleRegister::F), "Incorrect flags");
+
+        registers.set_single(&SingleRegister::A, 0x3C);
+        registers.set_double(&DoubleRegister::HL, 0x12);
+
+        ALU8Bit::AddHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0x4E, registers.get_single(&SingleRegister::A), "Wrong result");
+        assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::F), "Incorrect flags");
     }
 
     adc_takes_1_machine_cycle(registers, memory, cpu_flags) => {
@@ -386,5 +453,78 @@ crate::instruction_tests! {
         ALU8Bit::AdcHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
         assert_eq!(42, registers.get_single(&SingleRegister::A));
+    }
+
+    sub_takes_1_machine_cycle(registers, memory, cpu_flags) => {
+        let cycles = ALU8Bit::Sub(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(1, cycles);
+    }
+
+    sub_subtracts_register_from_a(registers, memory, cpu_flags) => {
+        registers.set_single(&SingleRegister::A, 45);
+        registers.set_single(&SingleRegister::B, 3);
+
+        ALU8Bit::Sub(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(42, registers.get_single(&SingleRegister::A));
+    }
+
+    sub_sets_the_negative_flag(registers, memory, cpu_flags) => {
+        assert_eq!(false, registers.is_negative());
+
+        ALU8Bit::Sub(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(true, registers.is_negative());
+    }
+
+    sub_sets_the_zero_flag_if_result_is_zero(registers, memory, cpu_flags) => {
+        assert_eq!(false, registers.is_zero());
+
+        ALU8Bit::Sub(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(true, registers.is_zero());
+    }
+
+    sub_resets_the_zero_flag_if_result_is_non_zero(registers, memory, cpu_flags) => {
+        registers.set_single(&SingleRegister::A, 45);
+        registers.set_single(&SingleRegister::B, 3);
+
+        assert_eq!(false, registers.is_zero());
+
+        ALU8Bit::Sub(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(false, registers.is_zero());
+    }
+
+    sub_handles_overflow(registers, memory, cpu_flags) => {
+        registers.set_single(&SingleRegister::A, 10);
+        registers.set_single(&SingleRegister::B, 15);
+
+        ALU8Bit::Sub(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(251, registers.get_single(&SingleRegister::A));
+    }
+
+    sub_handles_flags_correctly(registers, memory, cpu_flags) => {
+        registers.set_single(&SingleRegister::A, 0x3E);
+        registers.set_single(&SingleRegister::E, 0x3E);
+        registers.set_double(&DoubleRegister::HL, 0x40);
+
+        ALU8Bit::Sub(SingleRegister::E).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0x00, registers.get_single(&SingleRegister::A), "Sub has wrong result");
+        assert_eq!(0b1100_0000, registers.get_single(&SingleRegister::F), "Sub sets incorrect flags");
+
+        registers.set_single(&SingleRegister::A, 0x3E);
+
+        ALU8Bit::SubN(0x0F).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0x2F, registers.get_single(&SingleRegister::A), "SubN has wrong result");
+        assert_eq!(0b0110_0000, registers.get_single(&SingleRegister::F), "SubN sets incorrect flags");
+
+        registers.set_single(&SingleRegister::A, 0x3E);
+
+        ALU8Bit::SubHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0xFE, registers.get_single(&SingleRegister::A), "SubHL has wrong result");
+        assert_eq!(0b0101_0000, registers.get_single(&SingleRegister::F), "SubN sets incorrect flags");
     }
 }
