@@ -177,18 +177,60 @@ instruction_group! {
         }
 
         /// Logical OR between register and `A`
-        Or(_r: SingleRegister) [1] => {
-            unimplemented!()
+        Or(r: SingleRegister) [1] => {
+            if *r == SingleRegister::F {
+                return Err(CpuError::UnsupportedSingleRegister(*r))
+            }
+
+            let operand = registers.get_single(r);
+            let a = registers.get_single(&SingleRegister::A);
+            let result = a | operand;
+
+            let flags = if result == 0 {
+                MASK_FLAG_ZERO
+            } else {
+                0
+            };
+
+            registers.set_single(&SingleRegister::A, result);
+            registers.set_single(&SingleRegister::F, flags);
+
+            Ok(1)
         }
 
         /// Logical OR between `operand` and `A`
-        OrN(_operand: u8) [2] => {
-            unimplemented!()
+        OrN(operand: u8) [2] => {
+            let a = registers.get_single(&SingleRegister::A);
+            let result = a | *operand;
+
+            let flags = if result == 0 {
+                MASK_FLAG_ZERO
+            } else {
+                0
+            };
+
+            registers.set_single(&SingleRegister::A, result);
+            registers.set_single(&SingleRegister::F, flags);
+
+            Ok(2)
         }
 
         /// Logical OR between `HL` and `A`
         OrHL() [1] => {
-            unimplemented!()
+            let a = registers.get_single(&SingleRegister::A);
+            let operand = registers.get_double(&DoubleRegister::HL) as u8;
+            let result = a | operand;
+
+            let flags = if result == 0 {
+                MASK_FLAG_ZERO
+            } else {
+                0
+            };
+
+            registers.set_single(&SingleRegister::A, result);
+            registers.set_single(&SingleRegister::F, flags);
+
+            Ok(2)
         }
 
         /// Logical XOR between register and `A`
@@ -643,5 +685,47 @@ crate::instruction_tests! {
         ALU8Bit::AndHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0x00, registers.get_single(&SingleRegister::A), "AndHL has wrong result");
         assert_eq!(0b1010_0000, registers.get_single(&SingleRegister::F), "AndHL sets incorrect flags");
+    }
+
+    or_takes_the_correct_amount_of_machine_cycles(registers, memory, cpu_flags) => {
+        let cycles = ALU8Bit::Or(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(1, cycles, "Incorrect machine cycle count for Or");
+
+        let cycles = ALU8Bit::OrN(42).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(2, cycles, "Incorrect machine cycle count for OrN");
+
+        let cycles = ALU8Bit::OrHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(2, cycles, "Incorrect machine cycle count for OrHL");
+    }
+
+    or_does_not_support_the_f_register(registers, memory, cpu_flags) => {
+        let result = ALU8Bit::Or(SingleRegister::F).execute(&mut registers, &mut memory, &mut cpu_flags);
+        let expected = Err(crate::errors::CpuError::UnsupportedSingleRegister(SingleRegister::F));
+
+        assert_eq!(expected, result);
+    }
+
+    or_computes_and_handles_flags_correctly(registers, memory, cpu_flags) => {
+        registers.set_single(&SingleRegister::A, 0x5A);
+
+        ALU8Bit::Or(SingleRegister::A).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0x5A, registers.get_single(&SingleRegister::A), "Or has wrong result");
+        assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::F), "Or sets incorrect flags");
+
+        registers.set_single(&SingleRegister::A, 0x5A);
+
+        ALU8Bit::OrN(0x03).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0x5B, registers.get_single(&SingleRegister::A), "OrN has wrong result");
+        assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::F), "OrN sets incorrect flags");
+
+        registers.set_single(&SingleRegister::A, 0x5A);
+        registers.set_double(&DoubleRegister::HL, 0x0F);
+
+        ALU8Bit::OrHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0x5F, registers.get_single(&SingleRegister::A), "OrHL has wrong result");
+        assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::F), "OrHL sets incorrect flags");
     }
 }
