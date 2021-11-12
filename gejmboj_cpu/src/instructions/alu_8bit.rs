@@ -91,18 +91,32 @@ instruction_group! {
         }
 
         /// Subtract value of `SingleRegister` and Carry from A
-        Sbc(_r: SingleRegister) [1] => {
-            unimplemented!()
+        Sbc(r: SingleRegister) [1] => {
+            if *r == SingleRegister::F {
+                return Err(CpuError::UnsupportedSingleRegister(*r));
+            }
+
+            let operand = registers.get_single(r);
+
+            perform_subtraction(registers, operand, true);
+
+            Ok(1)
         }
 
         /// Subtract value of `operand` and Carry from A
-        SbcN(_operand: u8) [2] => {
-            unimplemented!()
+        SbcN(operand: u8) [2] => {
+            perform_subtraction(registers, *operand, true);
+
+            Ok(2)
         }
 
         /// Subtract value of `HL` and Carry from A
         SbcHL() [1] => {
-            unimplemented!()
+            let operand = registers.get_double(&DoubleRegister::HL);
+
+            perform_subtraction(registers, operand as u8, true);
+
+            Ok(2)
         }
 
         /// Logical AND between register and `A`
@@ -505,5 +519,44 @@ crate::instruction_tests! {
         ALU8Bit::SubHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0xFE, registers.get_single(&SingleRegister::A), "SubHL has wrong result");
         assert_eq!(0b0101_0000, registers.get_single(&SingleRegister::F), "SubN sets incorrect flags");
+    }
+
+    sbc_takes_the_correct_amount_of_machine_cycles(registers, memory, cpu_flags) => {
+        let cycles = ALU8Bit::Sbc(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(1, cycles, "Incorrect machine cycle count for Sbc");
+
+        let cycles = ALU8Bit::SbcN(42).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(2, cycles, "Incorrect machine cycle count for SbcN");
+
+        let cycles = ALU8Bit::SbcHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(2, cycles, "Incorrect machine cycle count for SbcHL");
+    }
+
+    sbc_computes_and_handles_flags_correctly(registers, memory, cpu_flags) => {
+        registers.set_single(&SingleRegister::A, 0x3B);
+        registers.set_single(&SingleRegister::H, 0x2A);
+        registers.set_single(&SingleRegister::F, 0b0001_0000);
+
+        ALU8Bit::Sbc(SingleRegister::H).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0x10, registers.get_single(&SingleRegister::A), "Sbc has wrong result");
+        assert_eq!(0b0100_0000, registers.get_single(&SingleRegister::F), "Sbc sets incorrect flags");
+
+        registers.set_single(&SingleRegister::A, 0x3B);
+        registers.set_single(&SingleRegister::F, 0b0001_0000);
+
+        ALU8Bit::SbcN(0x3A).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0x00, registers.get_single(&SingleRegister::A), "SbcN has wrong result");
+        assert_eq!(0b1100_0000, registers.get_single(&SingleRegister::F), "SbcN sets incorrect flags");
+
+        registers.set_single(&SingleRegister::A, 0x3B);
+        registers.set_double(&DoubleRegister::HL, 0x4F);
+        registers.set_single(&SingleRegister::F, 0b0001_0000);
+
+        ALU8Bit::SbcHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0xEB, registers.get_single(&SingleRegister::A), "SbcHL has wrong result");
+        assert_eq!(0b0111_0000, registers.get_single(&SingleRegister::F), "SbcHL sets incorrect flags");
     }
 }
