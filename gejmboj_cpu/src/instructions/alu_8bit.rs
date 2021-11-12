@@ -2,79 +2,10 @@ use crate::{
     errors::CpuError,
     instruction_group,
     registers::{
-        Registers, SingleRegister, MASK_FLAG_CARRY, MASK_FLAG_HALF_CARRY, MASK_FLAG_NEGATIVE,
-        MASK_FLAG_ZERO,
+        DoubleRegister, Registers, SingleRegister, MASK_FLAG_CARRY, MASK_FLAG_HALF_CARRY,
+        MASK_FLAG_NEGATIVE, MASK_FLAG_ZERO,
     },
 };
-
-fn add_is_half_carry(x: u8, y: u8) -> bool {
-    let x_lowest_nibble = x & 0xF;
-    let y_lowest_nibble = y & 0xF;
-    let mask = 0x10;
-
-    (x_lowest_nibble + y_lowest_nibble) & mask == mask
-}
-
-fn sub_is_half_carry(x: u8, y: u8) -> bool {
-    let x_lowest_nibble = x & 0xF;
-    let y_lowest_nibble = y & 0xF;
-
-    y_lowest_nibble > x_lowest_nibble
-}
-
-fn wrapping_add(x: u8, y: u8) -> (u8, bool) {
-    let is_overflow = x as u16 + y as u16 > u8::MAX as u16;
-    let result = x.wrapping_add(y);
-
-    (result, is_overflow)
-}
-
-fn wrapping_sub(x: u8, y: u8) -> (u8, bool) {
-    let is_overflow = y > x;
-    let result = x.wrapping_sub(y);
-
-    (result, is_overflow)
-}
-
-fn perform_addition(registers: &mut Registers, operand: u8) {
-    let a = registers.get_single(&SingleRegister::A);
-
-    let (result, is_carry) = wrapping_add(a, operand);
-    let mut flags = 0b0000_0000;
-
-    if result == 0 {
-        flags = flags | MASK_FLAG_ZERO; // Set Z
-    }
-    if add_is_half_carry(a, operand) {
-        flags = flags | MASK_FLAG_HALF_CARRY; // Set H
-    }
-    if is_carry {
-        flags = flags | MASK_FLAG_CARRY; // Set C
-    }
-
-    registers.set_single(&SingleRegister::A, result);
-    registers.set_single(&SingleRegister::F, flags);
-}
-
-fn perform_subtraction(registers: &mut Registers, operand: u8) {
-    let a = registers.get_single(&SingleRegister::A);
-
-    let (result, is_carry) = wrapping_sub(a, operand);
-    let mut flags = 0b0000_0000 | MASK_FLAG_NEGATIVE;
-
-    if result == 0 {
-        flags = flags | MASK_FLAG_ZERO; // Set Z
-    }
-    if sub_is_half_carry(a, operand) {
-        flags = flags | MASK_FLAG_HALF_CARRY; // Set H
-    }
-    if is_carry {
-        flags = flags | MASK_FLAG_CARRY; // Set C
-    }
-
-    registers.set_single(&SingleRegister::A, result);
-    registers.set_single(&SingleRegister::F, flags);
-}
 
 instruction_group! {
     /// 8-bit ALU (math) instructions
@@ -86,21 +17,21 @@ instruction_group! {
                 return Err(CpuError::UnsupportedSingleRegister(*r));
             }
 
-            perform_addition(registers, registers.get_single(&r).into());
+            perform_addition(registers, registers.get_single(&r).into(), false);
 
             Ok(1)
         }
 
         /// Add value of `operand` to `A`
         AddN(operand: u8) [2] => {
-            perform_addition(registers, (*operand).into());
+            perform_addition(registers, (*operand).into(), false);
 
             Ok(2)
         }
 
         /// Add value of `HL` to `A`
         AddHL() [1] => {
-            perform_addition(registers, registers.get_double(&crate::registers::DoubleRegister::HL) as u8);
+            perform_addition(registers, registers.get_double(&crate::registers::DoubleRegister::HL) as u8, false);
 
             Ok(2)
         }
@@ -111,39 +42,21 @@ instruction_group! {
                 return Err(CpuError::UnsupportedSingleRegister(*r));
             }
 
-            let mut operand = registers.get_single(&r);
-
-            if registers.is_carry() {
-                operand = wrapping_add(operand, 1).0;
-            }
-
-            perform_addition(registers, operand);
+            perform_addition(registers, registers.get_single(&r), true);
 
             Ok(1)
         }
 
         /// Add value of `operand` and Carry to `A`
         AdcN(operand: u8) [2] => {
-            let mut operand = *operand;
-
-            if registers.is_carry() {
-                operand = wrapping_add(operand, 1).0;
-            }
-
-            perform_addition(registers, operand);
+            perform_addition(registers, *operand, true);
 
             Ok(2)
         }
 
         /// Add value of `HL` and Carry to `A`
         AdcHL() [1] => {
-            let mut operand = registers.get_double(&crate::registers::DoubleRegister::HL) as u8;
-
-            if registers.is_carry() {
-                operand = wrapping_add(operand, 1).0;
-            }
-
-            perform_addition(registers, operand);
+            perform_addition(registers, registers.get_double(&DoubleRegister::HL) as u8, true);
 
             Ok(2)
         }
@@ -156,14 +69,14 @@ instruction_group! {
 
             let operand = registers.get_single(&r);
 
-            perform_subtraction(registers, operand);
+            perform_subtraction(registers, operand, false);
 
             Ok(1)
         }
 
         /// Subtract value of `operand` from A
         SubN(operand: u8) [2] => {
-            perform_subtraction(registers, *operand);
+            perform_subtraction(registers, *operand, false);
 
             Ok(2)
         }
@@ -172,7 +85,7 @@ instruction_group! {
         SubHL() [1] => {
             let operand = registers.get_double(&crate::registers::DoubleRegister::HL);
 
-            perform_subtraction(registers, operand as u8);
+            perform_subtraction(registers, operand as u8, false);
 
             Ok(2)
         }
@@ -274,6 +187,72 @@ instruction_group! {
     }
 }
 
+fn perform_addition(registers: &mut Registers, operand: u8, add_carry: bool) {
+    let a = registers.get_single(&SingleRegister::A);
+    let operand = if add_carry && registers.is_carry() {
+        operand.wrapping_add(1)
+    } else {
+        operand
+    };
+
+    let (result, is_carry) = wrapping_add(a, operand);
+    let mut flags = 0b0000_0000;
+
+    if result == 0 {
+        flags = flags | MASK_FLAG_ZERO; // Set Z
+    }
+    if (a ^ operand ^ result) & 0x10 > 0 {
+        flags = flags | MASK_FLAG_HALF_CARRY; // Set H
+    }
+    if is_carry {
+        flags = flags | MASK_FLAG_CARRY; // Set C
+    }
+
+    registers.set_single(&SingleRegister::A, result);
+    registers.set_single(&SingleRegister::F, flags);
+}
+
+fn perform_subtraction(registers: &mut Registers, operand: u8, add_carry: bool) {
+    let a = registers.get_single(&SingleRegister::A);
+    let operand = if add_carry && registers.is_carry() {
+        operand.wrapping_add(1)
+    } else {
+        operand
+    };
+
+    let (result, is_carry) = wrapping_sub(a, operand);
+
+    let mut flags = 0b0000_0000 | MASK_FLAG_NEGATIVE;
+
+    if result == 0 {
+        flags = flags | MASK_FLAG_ZERO; // Set Z
+    }
+    // Check if the 5th bit has changed in the result
+    if result != 0 && (result & 0x10) != (a & 0x10) {
+        flags = flags | MASK_FLAG_HALF_CARRY; // Set H
+    }
+    if is_carry {
+        flags = flags | MASK_FLAG_CARRY; // Set C
+    }
+
+    registers.set_single(&SingleRegister::A, result);
+    registers.set_single(&SingleRegister::F, flags);
+}
+
+fn wrapping_add(x: u8, y: u8) -> (u8, bool) {
+    let is_overflow = x as u16 + y as u16 > u8::MAX as u16;
+    let result = x.wrapping_add(y);
+
+    (result, is_overflow)
+}
+
+fn wrapping_sub(x: u8, y: u8) -> (u8, bool) {
+    let is_overflow = y > x;
+    let result = x.wrapping_sub(y);
+
+    (result, is_overflow)
+}
+
 #[cfg(test)]
 crate::instruction_tests! {
     add_takes_one_machine_cycle(registers, memory, cpu_flags) => {
@@ -329,7 +308,7 @@ crate::instruction_tests! {
         assert_eq!(4, registers.get_single(&SingleRegister::A));
     }
 
-    add_does_support_the_f_register(registers, memory, cpu_flags) => {
+    add_does_not_support_the_f_register(registers, memory, cpu_flags) => {
         let result = ALU8Bit::Add(SingleRegister::F).execute(&mut registers, &mut memory, &mut cpu_flags);
         let expected = Err(crate::errors::CpuError::UnsupportedSingleRegister(SingleRegister::F));
 
