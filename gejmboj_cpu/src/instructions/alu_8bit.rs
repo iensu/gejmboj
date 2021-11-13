@@ -9,7 +9,7 @@ use crate::{
 
 instruction_group! {
     /// 8-bit ALU (math) instructions
-    ALU8Bit (registers, _memory, _cpu_flags) {
+    ALU8Bit (registers, memory, _cpu_flags) {
 
         /// Add value of `SingleRegister` to `A`
         Add(r: SingleRegister) [1] => {
@@ -31,7 +31,8 @@ instruction_group! {
 
         /// Add value of `HL` to `A`
         AddHL() [1] => {
-            perform_addition(registers, registers.get_double(&crate::registers::DoubleRegister::HL) as u8, false);
+            let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
+            perform_addition(registers, operand, false);
 
             Ok(2)
         }
@@ -56,7 +57,8 @@ instruction_group! {
 
         /// Add value of `HL` and Carry to `A`
         AdcHL() [1] => {
-            perform_addition(registers, registers.get_double(&DoubleRegister::HL) as u8, true);
+            let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
+            perform_addition(registers, operand, true);
 
             Ok(2)
         }
@@ -83,9 +85,9 @@ instruction_group! {
 
         /// Subtract value of `HL` from A
         SubHL() [1] => {
-            let operand = registers.get_double(&crate::registers::DoubleRegister::HL);
+            let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
 
-            perform_subtraction(registers, operand as u8, false);
+            perform_subtraction(registers, operand, false);
 
             Ok(2)
         }
@@ -112,9 +114,8 @@ instruction_group! {
 
         /// Subtract value of `HL` and Carry from A
         SbcHL() [1] => {
-            let operand = registers.get_double(&DoubleRegister::HL);
-
-            perform_subtraction(registers, operand as u8, true);
+            let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
+            perform_subtraction(registers, operand, true);
 
             Ok(2)
         }
@@ -160,7 +161,7 @@ instruction_group! {
 
         /// Logical AND between `HL` and `A`
         AndHL() [1] => {
-            let operand = registers.get_double(&DoubleRegister::HL) as u8;
+            let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
             let a = registers.get_single(&SingleRegister::A);
 
             let result = a & operand;
@@ -218,7 +219,7 @@ instruction_group! {
         /// Logical OR between `HL` and `A`
         OrHL() [1] => {
             let a = registers.get_single(&SingleRegister::A);
-            let operand = registers.get_double(&DoubleRegister::HL) as u8;
+            let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
             let result = a | operand;
 
             let flags = if result == 0 {
@@ -435,7 +436,7 @@ crate::instruction_tests! {
 
     addhl_adds_hl_to_a(registers, memory, cpu_flags) => {
         registers.set_single(&SingleRegister::A, 40);
-        registers.set_double(&DoubleRegister::HL, 2);
+        memory.set(registers.get_double(&DoubleRegister::HL).into(), 2);
 
         ALU8Bit::AddHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
@@ -457,7 +458,7 @@ crate::instruction_tests! {
         assert_eq!(0b0011_0000, registers.get_single(&SingleRegister::F), "Incorrect flags");
 
         registers.set_single(&SingleRegister::A, 0x3C);
-        registers.set_double(&DoubleRegister::HL, 0x12);
+        memory.set(registers.get_double(&DoubleRegister::HL).into(), 0x12);
 
         ALU8Bit::AddHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0x4E, registers.get_single(&SingleRegister::A), "Wrong result");
@@ -517,7 +518,7 @@ crate::instruction_tests! {
 
     adchl_adds_register_plus_carry_to_a(registers, memory, cpu_flags) => {
         registers.set_single(&SingleRegister::A, 40);
-        registers.set_double(&DoubleRegister::HL, 2);
+        memory.set(registers.get_double(&DoubleRegister::HL).into(), 2);
         registers.set_single(&SingleRegister::F, MASK_FLAG_CARRY);
 
         ALU8Bit::AdcHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
@@ -584,9 +585,9 @@ crate::instruction_tests! {
     }
 
     sub_handles_flags_correctly(registers, memory, cpu_flags) => {
-        registers.set_single(&SingleRegister::A, 0x3E);
         registers.set_single(&SingleRegister::E, 0x3E);
-        registers.set_double(&DoubleRegister::HL, 0x40);
+        memory.set(registers.get_double(&DoubleRegister::HL).into(), 0x40);
+        registers.set_single(&SingleRegister::A, 0x3E);
 
         ALU8Bit::Sub(SingleRegister::E).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0x00, registers.get_single(&SingleRegister::A), "Sub has wrong result");
@@ -620,8 +621,9 @@ crate::instruction_tests! {
     }
 
     sbc_computes_and_handles_flags_correctly(registers, memory, cpu_flags) => {
-        registers.set_single(&SingleRegister::A, 0x3B);
         registers.set_single(&SingleRegister::H, 0x2A);
+        memory.set(registers.get_double(&DoubleRegister::HL).into(), 0x4F);
+        registers.set_single(&SingleRegister::A, 0x3B);
         registers.set_single(&SingleRegister::F, 0b0001_0000);
 
         ALU8Bit::Sbc(SingleRegister::H).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
@@ -636,7 +638,7 @@ crate::instruction_tests! {
         assert_eq!(0b1100_0000, registers.get_single(&SingleRegister::F), "SbcN sets incorrect flags");
 
         registers.set_single(&SingleRegister::A, 0x3B);
-        registers.set_double(&DoubleRegister::HL, 0x4F);
+
         registers.set_single(&SingleRegister::F, 0b0001_0000);
 
         ALU8Bit::SbcHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
@@ -709,6 +711,7 @@ crate::instruction_tests! {
     }
 
     or_computes_and_handles_flags_correctly(registers, memory, cpu_flags) => {
+        memory.set(registers.get_double(&DoubleRegister::HL).into(), 0x0F);
         registers.set_single(&SingleRegister::A, 0x5A);
 
         ALU8Bit::Or(SingleRegister::A).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
@@ -722,7 +725,6 @@ crate::instruction_tests! {
         assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::F), "OrN sets incorrect flags");
 
         registers.set_single(&SingleRegister::A, 0x5A);
-        registers.set_double(&DoubleRegister::HL, 0x0F);
 
         ALU8Bit::OrHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0x5F, registers.get_single(&SingleRegister::A), "OrHL has wrong result");
