@@ -235,18 +235,41 @@ instruction_group! {
         }
 
         /// Logical XOR between register and `A`
-        Xor(_r: SingleRegister) [1] => {
-            unimplemented!()
+        Xor(r: SingleRegister) [1] => {
+            if *r == SingleRegister::F {
+                return Err(CpuError::UnsupportedSingleRegister(*r));
+            }
+
+            let result = registers.get_single(&SingleRegister::A) ^ registers.get_single(r);
+            let flags = if result == 0 { 0b1000_0000 } else { 0 };
+
+            registers.set_single(&SingleRegister::A, result);
+            registers.set_single(&SingleRegister::F, flags);
+
+            Ok(1)
         }
 
         /// Logical XOR between `operand` and `A`
-        XorN(_operand: u8) [2] => {
-            unimplemented!()
+        XorN(operand: u8) [2] => {
+            let result = registers.get_single(&SingleRegister::A) ^ operand;
+            let flags = if result == 0 { 0b1000_0000 } else { 0 };
+
+            registers.set_single(&SingleRegister::A, result);
+            registers.set_single(&SingleRegister::F, flags);
+
+            Ok(2)
         }
 
         /// Logical XOR between `HL` and `A`
         XorHL() [1] => {
-            unimplemented!()
+            let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
+            let result = registers.get_single(&SingleRegister::A) ^ operand;
+            let flags = if result == 0 { 0b1000_0000 } else { 0 };
+
+            registers.set_single(&SingleRegister::A, result);
+            registers.set_single(&SingleRegister::F, flags);
+
+            Ok(2)
         }
 
         /// Compare register and `A`
@@ -729,5 +752,47 @@ crate::instruction_tests! {
         ALU8Bit::OrHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0x5F, registers.get_single(&SingleRegister::A), "OrHL has wrong result");
         assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::F), "OrHL sets incorrect flags");
+    }
+
+    xor_takes_the_correct_amount_of_machine_cycles(registers, memory, cpu_flags) => {
+        let cycles = ALU8Bit::Xor(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(1, cycles, "Incorrect machine cycle count for Xor");
+
+        let cycles = ALU8Bit::XorN(42).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(2, cycles, "Incorrect machine cycle count for XorN");
+
+        let cycles = ALU8Bit::XorHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(2, cycles, "Incorrect machine cycle count for XorHL");
+    }
+
+    xor_does_not_support_the_f_register(registers, memory, cpu_flags) => {
+        let result = ALU8Bit::Xor(SingleRegister::F).execute(&mut registers, &mut memory, &mut cpu_flags);
+        let expected = Err(crate::errors::CpuError::UnsupportedSingleRegister(SingleRegister::F));
+
+        assert_eq!(expected, result);
+    }
+
+    xor_computes_and_handles_flags_correctly(registers, memory, cpu_flags) => {
+        memory.set(registers.get_double(&DoubleRegister::HL).into(), 0x8A);
+        registers.set_single(&SingleRegister::A, 0xFF);
+
+        ALU8Bit::Xor(SingleRegister::A).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0x00, registers.get_single(&SingleRegister::A), "Xor has wrong result");
+        assert_eq!(0b1000_0000, registers.get_single(&SingleRegister::F), "Xor sets incorrect flags");
+
+        registers.set_single(&SingleRegister::A, 0xFF);
+
+        ALU8Bit::XorN(0x0F).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0xF0, registers.get_single(&SingleRegister::A), "XorN has wrong result");
+        assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::F), "XorN sets incorrect flags");
+
+        registers.set_single(&SingleRegister::A, 0xFF);
+
+        ALU8Bit::XorHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0x75, registers.get_single(&SingleRegister::A), "XorHL has wrong result");
+        assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::F), "XorHL sets incorrect flags");
     }
 }
