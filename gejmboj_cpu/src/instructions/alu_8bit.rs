@@ -29,7 +29,7 @@ instruction_group! {
             Ok(2)
         }
 
-        /// Add value of `HL` to `A`
+        /// Add value of `(HL)` to `A`
         AddHL() [1] => {
             let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
             perform_addition(registers, operand, false);
@@ -55,7 +55,7 @@ instruction_group! {
             Ok(2)
         }
 
-        /// Add value of `HL` and Carry to `A`
+        /// Add value of `(HL)` and Carry to `A`
         AdcHL() [1] => {
             let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
             perform_addition(registers, operand, true);
@@ -83,7 +83,7 @@ instruction_group! {
             Ok(2)
         }
 
-        /// Subtract value of `HL` from A
+        /// Subtract value of `(HL)` from A
         SubHL() [1] => {
             let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
 
@@ -112,7 +112,7 @@ instruction_group! {
             Ok(2)
         }
 
-        /// Subtract value of `HL` and Carry from A
+        /// Subtract value of `(HL)` and Carry from A
         SbcHL() [1] => {
             let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
             perform_subtraction(registers, operand, true);
@@ -159,7 +159,7 @@ instruction_group! {
             Ok(2)
         }
 
-        /// Logical AND between `HL` and `A`
+        /// Logical AND between `(HL)` and `A`
         AndHL() [1] => {
             let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
             let a = registers.get_single(&SingleRegister::A);
@@ -216,7 +216,7 @@ instruction_group! {
             Ok(2)
         }
 
-        /// Logical OR between `HL` and `A`
+        /// Logical OR between `(HL)` and `A`
         OrHL() [1] => {
             let a = registers.get_single(&SingleRegister::A);
             let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
@@ -260,7 +260,7 @@ instruction_group! {
             Ok(2)
         }
 
-        /// Logical XOR between `HL` and `A`
+        /// Logical XOR between `(HL)` and `A`
         XorHL() [1] => {
             let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
             let result = registers.get_single(&SingleRegister::A) ^ operand;
@@ -282,7 +282,7 @@ instruction_group! {
             unimplemented!()
         }
 
-        /// Compare `HL` and `A`
+        /// Compare `(HL)` and `A`
         CpHL() [1] => {
             unimplemented!()
         }
