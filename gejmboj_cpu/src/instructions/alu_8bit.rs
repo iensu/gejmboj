@@ -17,14 +17,14 @@ instruction_group! {
                 return Err(CpuError::UnsupportedSingleRegister(*r));
             }
 
-            perform_addition(registers, registers.get_single(&r).into(), false);
+            perform_calculation(AluOp::Add, registers, registers.get_single(&r).into(), false);
 
             Ok(1)
         }
 
         /// Add value of `operand` to `A`
         AddN(operand: u8) [2] => {
-            perform_addition(registers, (*operand).into(), false);
+            perform_calculation(AluOp::Add, registers, (*operand).into(), false);
 
             Ok(2)
         }
@@ -32,7 +32,7 @@ instruction_group! {
         /// Add value of `(HL)` to `A`
         AddHL() [1] => {
             let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
-            perform_addition(registers, operand, false);
+            perform_calculation(AluOp::Add, registers, operand, false);
 
             Ok(2)
         }
@@ -43,14 +43,14 @@ instruction_group! {
                 return Err(CpuError::UnsupportedSingleRegister(*r));
             }
 
-            perform_addition(registers, registers.get_single(&r), true);
+            perform_calculation(AluOp::Add, registers, registers.get_single(&r), true);
 
             Ok(1)
         }
 
         /// Add value of `operand` and Carry to `A`
         AdcN(operand: u8) [2] => {
-            perform_addition(registers, *operand, true);
+            perform_calculation(AluOp::Add, registers, *operand, true);
 
             Ok(2)
         }
@@ -58,7 +58,7 @@ instruction_group! {
         /// Add value of `(HL)` and Carry to `A`
         AdcHL() [1] => {
             let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
-            perform_addition(registers, operand, true);
+            perform_calculation(AluOp::Add, registers, operand, true);
 
             Ok(2)
         }
@@ -71,14 +71,14 @@ instruction_group! {
 
             let operand = registers.get_single(&r);
 
-            perform_subtraction(registers, operand, false);
+            perform_calculation(AluOp::Sub, registers, operand, false);
 
             Ok(1)
         }
 
         /// Subtract value of `operand` from A
         SubN(operand: u8) [2] => {
-            perform_subtraction(registers, *operand, false);
+            perform_calculation(AluOp::Sub, registers, *operand, false);
 
             Ok(2)
         }
@@ -87,7 +87,7 @@ instruction_group! {
         SubHL() [1] => {
             let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
 
-            perform_subtraction(registers, operand, false);
+            perform_calculation(AluOp::Sub, registers, operand, false);
 
             Ok(2)
         }
@@ -100,14 +100,14 @@ instruction_group! {
 
             let operand = registers.get_single(r);
 
-            perform_subtraction(registers, operand, true);
+            perform_calculation(AluOp::Sub, registers, operand, true);
 
             Ok(1)
         }
 
         /// Subtract value of `operand` and Carry from A
         SbcN(operand: u8) [2] => {
-            perform_subtraction(registers, *operand, true);
+            perform_calculation(AluOp::Sub, registers, *operand, true);
 
             Ok(2)
         }
@@ -115,7 +115,7 @@ instruction_group! {
         /// Subtract value of `(HL)` and Carry from A
         SbcHL() [1] => {
             let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
-            perform_subtraction(registers, operand, true);
+            perform_calculation(AluOp::Sub, registers, operand, true);
 
             Ok(2)
         }
@@ -126,35 +126,14 @@ instruction_group! {
                 return Err(CpuError::UnsupportedSingleRegister(*r))
             }
 
-            let operand = registers.get_single(r);
-            let a = registers.get_single(&SingleRegister::A);
-
-            let result = a & operand;
-            let mut flags = 0b0010_0000;
-
-            if result == 0 {
-                flags |= 0b1000_0000;
-            }
-
-            registers.set_single(&SingleRegister::A, result);
-            registers.set_single(&SingleRegister::F, flags);
+            perform_calculation(AluOp::And, registers, registers.get_single(r), false);
 
             Ok(1)
         }
 
         /// Logical AND between `operand` and `A`
         AndN(operand: u8) [2] => {
-            let a = registers.get_single(&SingleRegister::A);
-
-            let result = a & *operand;
-            let mut flags = 0b0010_0000;
-
-            if result == 0 {
-                flags |= 0b1000_0000;
-            }
-
-            registers.set_single(&SingleRegister::A, result);
-            registers.set_single(&SingleRegister::F, flags);
+            perform_calculation(AluOp::And, registers, *operand, false);
 
             Ok(2)
         }
@@ -162,17 +141,7 @@ instruction_group! {
         /// Logical AND between `(HL)` and `A`
         AndHL() [1] => {
             let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
-            let a = registers.get_single(&SingleRegister::A);
-
-            let result = a & operand;
-            let mut flags = 0b0010_0000;
-
-            if result == 0 {
-                flags |= 0b1000_0000;
-            }
-
-            registers.set_single(&SingleRegister::A, result);
-            registers.set_single(&SingleRegister::F, flags);
+            perform_calculation(AluOp::And, registers, operand, false);
 
             Ok(2)
         }
@@ -184,52 +153,22 @@ instruction_group! {
             }
 
             let operand = registers.get_single(r);
-            let a = registers.get_single(&SingleRegister::A);
-            let result = a | operand;
-
-            let flags = if result == 0 {
-                MASK_FLAG_ZERO
-            } else {
-                0
-            };
-
-            registers.set_single(&SingleRegister::A, result);
-            registers.set_single(&SingleRegister::F, flags);
+            perform_calculation(AluOp::Or, registers, operand, false);
 
             Ok(1)
         }
 
         /// Logical OR between `operand` and `A`
         OrN(operand: u8) [2] => {
-            let a = registers.get_single(&SingleRegister::A);
-            let result = a | *operand;
-
-            let flags = if result == 0 {
-                MASK_FLAG_ZERO
-            } else {
-                0
-            };
-
-            registers.set_single(&SingleRegister::A, result);
-            registers.set_single(&SingleRegister::F, flags);
+            perform_calculation(AluOp::Or, registers, *operand, false);
 
             Ok(2)
         }
 
         /// Logical OR between `(HL)` and `A`
         OrHL() [1] => {
-            let a = registers.get_single(&SingleRegister::A);
             let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
-            let result = a | operand;
-
-            let flags = if result == 0 {
-                MASK_FLAG_ZERO
-            } else {
-                0
-            };
-
-            registers.set_single(&SingleRegister::A, result);
-            registers.set_single(&SingleRegister::F, flags);
+            perform_calculation(AluOp::Or, registers, operand, false);
 
             Ok(2)
         }
@@ -240,22 +179,15 @@ instruction_group! {
                 return Err(CpuError::UnsupportedSingleRegister(*r));
             }
 
-            let result = registers.get_single(&SingleRegister::A) ^ registers.get_single(r);
-            let flags = if result == 0 { 0b1000_0000 } else { 0 };
-
-            registers.set_single(&SingleRegister::A, result);
-            registers.set_single(&SingleRegister::F, flags);
+            let operand = registers.get_single(r);
+            perform_calculation(AluOp::Xor, registers, operand, false);
 
             Ok(1)
         }
 
         /// Logical XOR between `operand` and `A`
         XorN(operand: u8) [2] => {
-            let result = registers.get_single(&SingleRegister::A) ^ operand;
-            let flags = if result == 0 { 0b1000_0000 } else { 0 };
-
-            registers.set_single(&SingleRegister::A, result);
-            registers.set_single(&SingleRegister::F, flags);
+            perform_calculation(AluOp::Xor, registers, *operand, false);
 
             Ok(2)
         }
@@ -263,11 +195,7 @@ instruction_group! {
         /// Logical XOR between `(HL)` and `A`
         XorHL() [1] => {
             let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
-            let result = registers.get_single(&SingleRegister::A) ^ operand;
-            let flags = if result == 0 { 0b1000_0000 } else { 0 };
-
-            registers.set_single(&SingleRegister::A, result);
-            registers.set_single(&SingleRegister::F, flags);
+            perform_calculation(AluOp::Xor, registers, operand, false);
 
             Ok(2)
         }
@@ -309,7 +237,7 @@ instruction_group! {
     }
 }
 
-fn perform_addition(registers: &mut Registers, operand: u8, add_carry: bool) {
+fn perform_calculation(op: AluOp, registers: &mut Registers, operand: u8, add_carry: bool) {
     let a = registers.get_single(&SingleRegister::A);
     let operand = if add_carry && registers.is_carry() {
         operand.wrapping_add(1)
@@ -317,48 +245,83 @@ fn perform_addition(registers: &mut Registers, operand: u8, add_carry: bool) {
         operand
     };
 
-    let (result, is_carry) = wrapping_add(a, operand);
-    let mut flags = 0b0000_0000;
-
-    if result == 0 {
-        flags = flags | MASK_FLAG_ZERO; // Set Z
-    }
-    if (a ^ operand ^ result) & 0x10 > 0 {
-        flags = flags | MASK_FLAG_HALF_CARRY; // Set H
-    }
-    if is_carry {
-        flags = flags | MASK_FLAG_CARRY; // Set C
-    }
+    let (result, flags) = op.calculate(a, operand);
 
     registers.set_single(&SingleRegister::A, result);
     registers.set_single(&SingleRegister::F, flags);
 }
 
-fn perform_subtraction(registers: &mut Registers, operand: u8, add_carry: bool) {
-    let a = registers.get_single(&SingleRegister::A);
-    let operand = if add_carry && registers.is_carry() {
-        operand.wrapping_add(1)
-    } else {
-        operand
-    };
+enum AluOp {
+    Sub,
+    Add,
+    And,
+    Or,
+    Xor,
+    Cp,
+}
 
-    let (result, is_carry) = wrapping_sub(a, operand);
+impl AluOp {
+    pub fn calculate(&self, a: u8, operand: u8) -> (u8, u8) {
+        match &self {
+            AluOp::Sub | AluOp::Cp => {
+                let (result, is_carry) = wrapping_sub(a, operand);
 
-    let mut flags = 0b0000_0000 | MASK_FLAG_NEGATIVE;
+                let mut flags = 0b0000_0000 | MASK_FLAG_NEGATIVE;
 
-    if result == 0 {
-        flags = flags | MASK_FLAG_ZERO; // Set Z
+                if result == 0 {
+                    flags = flags | MASK_FLAG_ZERO; // Set Z
+                }
+                // Check if the 5th bit has changed in the result
+                if result != 0 && (result & 0x10) != (a & 0x10) {
+                    flags = flags | MASK_FLAG_HALF_CARRY; // Set H
+                }
+                if is_carry {
+                    flags = flags | MASK_FLAG_CARRY; // Set C
+                }
+
+                (result, flags)
+            }
+            AluOp::Add => {
+                let (result, is_carry) = wrapping_add(a, operand);
+                let mut flags = 0b0000_0000;
+
+                if result == 0 {
+                    flags = flags | MASK_FLAG_ZERO; // Set Z
+                }
+                if (a ^ operand ^ result) & 0x10 > 0 {
+                    flags = flags | MASK_FLAG_HALF_CARRY; // Set H
+                }
+                if is_carry {
+                    flags = flags | MASK_FLAG_CARRY; // Set C
+                }
+
+                (result, flags)
+            }
+            AluOp::And => {
+                let result = a & operand;
+                let mut flags = 0b0010_0000;
+
+                if result == 0 {
+                    flags |= 0b1000_0000;
+                }
+
+                (result, flags)
+            }
+            AluOp::Or => {
+                let result = a | operand;
+
+                let flags = if result == 0 { MASK_FLAG_ZERO } else { 0 };
+
+                (result, flags)
+            }
+            AluOp::Xor => {
+                let result = a ^ operand;
+                let flags = if result == 0 { 0b1000_0000 } else { 0 };
+
+                (result, flags)
+            }
+        }
     }
-    // Check if the 5th bit has changed in the result
-    if result != 0 && (result & 0x10) != (a & 0x10) {
-        flags = flags | MASK_FLAG_HALF_CARRY; // Set H
-    }
-    if is_carry {
-        flags = flags | MASK_FLAG_CARRY; // Set C
-    }
-
-    registers.set_single(&SingleRegister::A, result);
-    registers.set_single(&SingleRegister::F, flags);
 }
 
 fn wrapping_add(x: u8, y: u8) -> (u8, bool) {
