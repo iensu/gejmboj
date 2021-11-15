@@ -201,18 +201,43 @@ instruction_group! {
         }
 
         /// Compare register and `A`
-        Cp(_r: SingleRegister) [1] => {
-            unimplemented!()
+        ///
+        /// Basically an A - n subtraction but with the result being thrown away,
+        /// so the same flag rules as `Sub` apply.
+        Cp(r: SingleRegister) [1] => {
+            if *r == SingleRegister::F {
+                return Err(CpuError::UnsupportedSingleRegister(*r));
+            }
+            let operand = registers.get_single(r);
+            let a = registers.get_single(&SingleRegister::A);
+
+            let (_, flags) = AluOp::Cp.calculate(a, operand);
+
+            registers.set_single(&SingleRegister::F, flags);
+            Ok(1)
         }
 
         /// Compare `operand` and `A`
-        CpN(_operand: u8) [2] => {
-            unimplemented!()
+        CpN(operand: u8) [2] => {
+            let a = registers.get_single(&SingleRegister::A);
+
+            let (_, flags) = AluOp::Cp.calculate(a, *operand);
+
+            registers.set_single(&SingleRegister::F, flags);
+
+            Ok(2)
         }
 
         /// Compare `(HL)` and `A`
         CpHL() [1] => {
-            unimplemented!()
+            let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
+            let a = registers.get_single(&SingleRegister::A);
+
+            let (_, flags) = AluOp::Cp.calculate(a, operand);
+
+            registers.set_single(&SingleRegister::F, flags);
+
+            Ok(2)
         }
 
         /// Increment `SingleRegister` by 1
@@ -302,7 +327,7 @@ impl AluOp {
                 let mut flags = 0b0010_0000;
 
                 if result == 0 {
-                    flags |= 0b1000_0000;
+                    flags |= MASK_FLAG_ZERO;
                 }
 
                 (result, flags)
@@ -316,7 +341,7 @@ impl AluOp {
             }
             AluOp::Xor => {
                 let result = a ^ operand;
-                let flags = if result == 0 { 0b1000_0000 } else { 0 };
+                let flags = if result == 0 { MASK_FLAG_ZERO } else { 0 };
 
                 (result, flags)
             }
@@ -757,5 +782,43 @@ crate::instruction_tests! {
         ALU8Bit::XorHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0x75, registers.get_single(&SingleRegister::A), "XorHL has wrong result");
         assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::F), "XorHL sets incorrect flags");
+    }
+
+    cp_takes_the_correct_amount_of_machine_cycles(registers, memory, cpu_flags) => {
+        let cycles = ALU8Bit::Cp(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(1, cycles, "Incorrect machine cycle count for Cp");
+
+        let cycles = ALU8Bit::CpN(42).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(2, cycles, "Incorrect machine cycle count for CpN");
+
+        let cycles = ALU8Bit::CpHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(2, cycles, "Incorrect machine cycle count for CpHL");
+    }
+
+    cp_does_not_support_the_f_register(registers, memory, cpu_flags) => {
+        let result = ALU8Bit::Cp(SingleRegister::F).execute(&mut registers, &mut memory, &mut cpu_flags);
+        let expected = Err(crate::errors::CpuError::UnsupportedSingleRegister(SingleRegister::F));
+
+        assert_eq!(expected, result);
+    }
+
+    cp_handles_flags_correctly(registers, memory, cpu_flags) => {
+        memory.set(registers.get_double(&DoubleRegister::HL).into(), 0x40);
+        registers.set_single(&SingleRegister::B, 0x2F);
+        registers.set_single(&SingleRegister::A, 0x3C);
+
+        ALU8Bit::Cp(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0b0110_0000, registers.get_single(&SingleRegister::F), "Cp sets incorrect flags");
+
+        ALU8Bit::CpN(0x3C).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0b1100_0000, registers.get_single(&SingleRegister::F), "CpN sets incorrect flags");
+
+        registers.set_single(&SingleRegister::A, 0x3C);
+
+        ALU8Bit::CpHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0b0101_0000, registers.get_single(&SingleRegister::F), "CpHL sets incorrect flags");
     }
 }
