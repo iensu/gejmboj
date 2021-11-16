@@ -862,6 +862,14 @@
 <span id="862">862</span>
 <span id="863">863</span>
 <span id="864">864</span>
+<span id="865">865</span>
+<span id="866">866</span>
+<span id="867">867</span>
+<span id="868">868</span>
+<span id="869">869</span>
+<span id="870">870</span>
+<span id="871">871</span>
+<span id="872">872</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">errors::CpuError</span>,
     <span class="ident">instruction_group</span>,
@@ -1724,6 +1732,14 @@
         <span class="ident">ALU8Bit::IncHL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0x51</span>, <span class="ident">memory</span>.<span class="ident">get</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>()), <span class="string">&quot;IncHL sets wrong result&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="number">0b0000_0000</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::F</span>), <span class="string">&quot;IncHL sets incorrect flags&quot;</span>);
+
+        <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::F</span>, <span class="ident">MASK_FLAG_CARRY</span>);
+        <span class="ident">ALU8Bit::Inc</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq!</span>(<span class="number">0b0001_0000</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::F</span>), <span class="string">&quot;Inc did not maintain Carry flag&quot;</span>);
+
+        <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::F</span>, <span class="ident">MASK_FLAG_CARRY</span>);
+        <span class="ident">ALU8Bit::IncHL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq!</span>(<span class="number">0b0001_0000</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::F</span>), <span class="string">&quot;IncHL did not maintain Carry flag&quot;</span>);
     }
 }
 </code></pre></div>
