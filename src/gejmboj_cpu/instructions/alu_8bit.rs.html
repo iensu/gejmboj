@@ -870,6 +870,69 @@
 <span id="870">870</span>
 <span id="871">871</span>
 <span id="872">872</span>
+<span id="873">873</span>
+<span id="874">874</span>
+<span id="875">875</span>
+<span id="876">876</span>
+<span id="877">877</span>
+<span id="878">878</span>
+<span id="879">879</span>
+<span id="880">880</span>
+<span id="881">881</span>
+<span id="882">882</span>
+<span id="883">883</span>
+<span id="884">884</span>
+<span id="885">885</span>
+<span id="886">886</span>
+<span id="887">887</span>
+<span id="888">888</span>
+<span id="889">889</span>
+<span id="890">890</span>
+<span id="891">891</span>
+<span id="892">892</span>
+<span id="893">893</span>
+<span id="894">894</span>
+<span id="895">895</span>
+<span id="896">896</span>
+<span id="897">897</span>
+<span id="898">898</span>
+<span id="899">899</span>
+<span id="900">900</span>
+<span id="901">901</span>
+<span id="902">902</span>
+<span id="903">903</span>
+<span id="904">904</span>
+<span id="905">905</span>
+<span id="906">906</span>
+<span id="907">907</span>
+<span id="908">908</span>
+<span id="909">909</span>
+<span id="910">910</span>
+<span id="911">911</span>
+<span id="912">912</span>
+<span id="913">913</span>
+<span id="914">914</span>
+<span id="915">915</span>
+<span id="916">916</span>
+<span id="917">917</span>
+<span id="918">918</span>
+<span id="919">919</span>
+<span id="920">920</span>
+<span id="921">921</span>
+<span id="922">922</span>
+<span id="923">923</span>
+<span id="924">924</span>
+<span id="925">925</span>
+<span id="926">926</span>
+<span id="927">927</span>
+<span id="928">928</span>
+<span id="929">929</span>
+<span id="930">930</span>
+<span id="931">931</span>
+<span id="932">932</span>
+<span id="933">933</span>
+<span id="934">934</span>
+<span id="935">935</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">errors::CpuError</span>,
     <span class="ident">instruction_group</span>,
@@ -1147,13 +1210,37 @@
         }
 
         <span class="doccomment">/// Decrement `SingleRegister` by 1</span>
-        <span class="ident">Dec</span>(<span class="ident">_r</span>: <span class="ident">SingleRegister</span>) [<span class="number">1</span>] <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="macro">unimplemented!</span>()
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// The Carry flag is unaffected by this instruction.</span>
+        <span class="ident">Dec</span>(<span class="ident">r</span>: <span class="ident">SingleRegister</span>) [<span class="number">1</span>] <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">r</span> <span class="op">=</span><span class="op">=</span> <span class="ident">SingleRegister::F</span> {
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CpuError::UnsupportedSingleRegister</span>(<span class="kw-2">*</span><span class="ident">r</span>));
+            }
+
+            <span class="kw">let</span> <span class="ident">operand</span> <span class="op">=</span> <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="ident">r</span>);
+            <span class="kw">let</span> (<span class="ident">result</span>, <span class="ident">flags</span>) <span class="op">=</span> <span class="ident">AluOp::Sub</span>.<span class="ident">calculate</span>(<span class="ident">operand</span>, <span class="number">1</span>);
+            <span class="comment">// Set Carry if already set, otherwise reset</span>
+            <span class="kw">let</span> <span class="ident">flags</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">registers</span>.<span class="ident">is_carry</span>() { <span class="ident">flags</span> <span class="op">|</span> <span class="ident">MASK_FLAG_CARRY</span> } <span class="kw">else</span> { <span class="ident">flags</span> <span class="op">&amp;</span> <span class="number">0b1110_0000</span> };
+
+            <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="ident">r</span>, <span class="ident">result</span>);
+            <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::F</span>, <span class="ident">flags</span>);
+
+            <span class="prelude-val">Ok</span>(<span class="number">1</span>)
         }
 
         <span class="doccomment">/// Decrement `HL` by 1</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// The Carry flag is unaffected by this instruction.</span>
         <span class="ident">DecHL</span>() [<span class="number">1</span>] <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="macro">unimplemented!</span>()
+            <span class="kw">let</span> <span class="ident">operand</span> <span class="op">=</span> <span class="ident">memory</span>.<span class="ident">get</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>());
+            <span class="kw">let</span> (<span class="ident">result</span>, <span class="ident">flags</span>) <span class="op">=</span> <span class="ident">AluOp::Sub</span>.<span class="ident">calculate</span>(<span class="ident">operand</span>, <span class="number">1</span>);
+            <span class="comment">// Set Carry if already set, otherwise reset</span>
+            <span class="kw">let</span> <span class="ident">flags</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">registers</span>.<span class="ident">is_carry</span>() { <span class="ident">flags</span> <span class="op">|</span> <span class="ident">MASK_FLAG_CARRY</span> } <span class="kw">else</span> { <span class="ident">flags</span> <span class="op">&amp;</span> <span class="number">0b1110_0000</span> };
+
+            <span class="ident">memory</span>.<span class="ident">set</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>(), <span class="ident">result</span>);
+            <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::F</span>, <span class="ident">flags</span>);
+
+            <span class="prelude-val">Ok</span>(<span class="number">3</span>)
         }
     }
 }
@@ -1740,6 +1827,45 @@
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::F</span>, <span class="ident">MASK_FLAG_CARRY</span>);
         <span class="ident">ALU8Bit::IncHL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b0001_0000</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::F</span>), <span class="string">&quot;IncHL did not maintain Carry flag&quot;</span>);
+    }
+
+    <span class="ident">dec_takes_the_correct_amount_of_machine_cycles</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::Dec</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+
+        <span class="macro">assert_eq!</span>(<span class="number">1</span>, <span class="ident">cycles</span>, <span class="string">&quot;Incorrect machine cycle count for Dec&quot;</span>);
+
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::DecHL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+
+        <span class="macro">assert_eq!</span>(<span class="number">3</span>, <span class="ident">cycles</span>, <span class="string">&quot;Incorrect machine cycle count for DecHL&quot;</span>);
+    }
+
+    <span class="ident">dec_does_not_support_the_f_register</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">ALU8Bit::Dec</span>(<span class="ident">SingleRegister::F</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">cpu_flags</span>);
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::errors::CpuError::UnsupportedSingleRegister</span>(<span class="ident">SingleRegister::F</span>));
+
+        <span class="macro">assert_eq!</span>(<span class="ident">expected</span>, <span class="ident">result</span>);
+    }
+
+    <span class="ident">dec_handles_flags_correctly</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">memory</span>.<span class="ident">set</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>(), <span class="number">0x00</span>);
+        <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0x01</span>);
+        <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::C</span>, <span class="number">0x02</span>);
+
+        <span class="ident">ALU8Bit::Dec</span>(<span class="ident">SingleRegister::A</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq!</span>(<span class="number">0</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>), <span class="string">&quot;Dec sets wrong result&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="number">0b1100_0000</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::F</span>), <span class="string">&quot;Dec sets incorrect flags&quot;</span>);
+
+        <span class="ident">ALU8Bit::DecHL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq!</span>(<span class="number">0xFF</span>, <span class="ident">memory</span>.<span class="ident">get</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>()), <span class="string">&quot;DecHL sets wrong result&quot;</span>);
+        <span class="macro">assert_eq!</span>(<span class="number">0b0110_0000</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::F</span>), <span class="string">&quot;DecHL sets incorrect flags&quot;</span>);
+
+        <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::F</span>, <span class="ident">MASK_FLAG_CARRY</span>);
+        <span class="ident">ALU8Bit::Dec</span>(<span class="ident">SingleRegister::C</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq!</span>(<span class="number">0b0101_0000</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::F</span>), <span class="string">&quot;Dec did not maintain Carry flag&quot;</span>);
+
+        <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::F</span>, <span class="ident">MASK_FLAG_CARRY</span>);
+        <span class="ident">ALU8Bit::DecHL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq!</span>(<span class="number">0b0101_0000</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::F</span>), <span class="string">&quot;DecHL did not maintain Carry flag&quot;</span>);
     }
 }
 </code></pre></div>
