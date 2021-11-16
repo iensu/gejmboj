@@ -275,13 +275,37 @@ instruction_group! {
         }
 
         /// Decrement `SingleRegister` by 1
-        Dec(_r: SingleRegister) [1] => {
-            unimplemented!()
+        ///
+        /// The Carry flag is unaffected by this instruction.
+        Dec(r: SingleRegister) [1] => {
+            if *r == SingleRegister::F {
+                return Err(CpuError::UnsupportedSingleRegister(*r));
+            }
+
+            let operand = registers.get_single(r);
+            let (result, flags) = AluOp::Sub.calculate(operand, 1);
+            // Set Carry if already set, otherwise reset
+            let flags = if registers.is_carry() { flags | MASK_FLAG_CARRY } else { flags & 0b1110_0000 };
+
+            registers.set_single(r, result);
+            registers.set_single(&SingleRegister::F, flags);
+
+            Ok(1)
         }
 
         /// Decrement `HL` by 1
+        ///
+        /// The Carry flag is unaffected by this instruction.
         DecHL() [1] => {
-            unimplemented!()
+            let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
+            let (result, flags) = AluOp::Sub.calculate(operand, 1);
+            // Set Carry if already set, otherwise reset
+            let flags = if registers.is_carry() { flags | MASK_FLAG_CARRY } else { flags & 0b1110_0000 };
+
+            memory.set(registers.get_double(&DoubleRegister::HL).into(), result);
+            registers.set_single(&SingleRegister::F, flags);
+
+            Ok(3)
         }
     }
 }
@@ -868,5 +892,44 @@ crate::instruction_tests! {
         registers.set_single(&SingleRegister::F, MASK_FLAG_CARRY);
         ALU8Bit::IncHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0b0001_0000, registers.get_single(&SingleRegister::F), "IncHL did not maintain Carry flag");
+    }
+
+    dec_takes_the_correct_amount_of_machine_cycles(registers, memory, cpu_flags) => {
+        let cycles = ALU8Bit::Dec(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(1, cycles, "Incorrect machine cycle count for Dec");
+
+        let cycles = ALU8Bit::DecHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(3, cycles, "Incorrect machine cycle count for DecHL");
+    }
+
+    dec_does_not_support_the_f_register(registers, memory, cpu_flags) => {
+        let result = ALU8Bit::Dec(SingleRegister::F).execute(&mut registers, &mut memory, &mut cpu_flags);
+        let expected = Err(crate::errors::CpuError::UnsupportedSingleRegister(SingleRegister::F));
+
+        assert_eq!(expected, result);
+    }
+
+    dec_handles_flags_correctly(registers, memory, cpu_flags) => {
+        memory.set(registers.get_double(&DoubleRegister::HL).into(), 0x00);
+        registers.set_single(&SingleRegister::A, 0x01);
+        registers.set_single(&SingleRegister::C, 0x02);
+
+        ALU8Bit::Dec(SingleRegister::A).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0, registers.get_single(&SingleRegister::A), "Dec sets wrong result");
+        assert_eq!(0b1100_0000, registers.get_single(&SingleRegister::F), "Dec sets incorrect flags");
+
+        ALU8Bit::DecHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0xFF, memory.get(registers.get_double(&DoubleRegister::HL).into()), "DecHL sets wrong result");
+        assert_eq!(0b0110_0000, registers.get_single(&SingleRegister::F), "DecHL sets incorrect flags");
+
+        registers.set_single(&SingleRegister::F, MASK_FLAG_CARRY);
+        ALU8Bit::Dec(SingleRegister::C).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0b0101_0000, registers.get_single(&SingleRegister::F), "Dec did not maintain Carry flag");
+
+        registers.set_single(&SingleRegister::F, MASK_FLAG_CARRY);
+        ALU8Bit::DecHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0b0101_0000, registers.get_single(&SingleRegister::F), "DecHL did not maintain Carry flag");
     }
 }
