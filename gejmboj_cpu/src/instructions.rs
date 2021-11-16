@@ -3,12 +3,14 @@
 use crate::combine_instructions;
 use crate::{errors::CpuError, memory::Memory, registers::Registers};
 
+pub mod alu_16bit;
 pub mod alu_8bit;
 pub mod control_flow;
 pub mod load_16bit;
 pub mod load_8bit;
 pub mod misc;
 
+use alu_16bit::ALU16Bit;
 use alu_8bit::ALU8Bit;
 use control_flow::ControlFlow;
 use load_16bit::Load16Bit;
@@ -19,7 +21,7 @@ use misc::Misc;
 pub type InstructionResult = Result<u16, CpuError>;
 
 combine_instructions! {
-    Instruction(ALU8Bit,ControlFlow, Load8Bit, Load16Bit, Misc)
+    Instruction(ALU16Bit, ALU8Bit,ControlFlow, Load8Bit, Load16Bit, Misc)
 }
 
 #[derive(Debug, PartialEq)]
@@ -167,6 +169,11 @@ pub fn decode(opcode: u8, pc: u16, memory: &Memory) -> Result<Instruction, CpuEr
         (0, 0, 1, 1, 0, 1, 0, 0) => Ok(Instruction::ALU8Bit(ALU8Bit::IncHL())),
         (0, 0, 1, 1, 0, 1, 0, 1) => Ok(Instruction::ALU8Bit(ALU8Bit::DecHL())),
 
+        // ALU 16-bit instructions
+        (1, 1, 1, 0, 1, 0, 0, 0) => Ok(Instruction::ALU16Bit(ALU16Bit::AddSP(get_8bit_operand(
+            pc, memory,
+        )))),
+
         // VARIABLE MATCHES
         //
         // control flow
@@ -214,6 +221,11 @@ pub fn decode(opcode: u8, pc: u16, memory: &Memory) -> Result<Instruction, CpuEr
         (1, 0, 1, 1, 1, a, b, c) => Ok(Instruction::ALU8Bit(ALU8Bit::Cp((a, b, c).into()))),
         (0, 0, a, b, c, 1, 0, 0) => Ok(Instruction::ALU8Bit(ALU8Bit::Inc((a, b, c).into()))),
         (0, 0, a, b, c, 1, 0, 1) => Ok(Instruction::ALU8Bit(ALU8Bit::Dec((a, b, c).into()))),
+
+        // ALU 16-bit instructions
+        (0, 0, b, c, 1, 0, 0, 1) => Ok(Instruction::ALU16Bit(ALU16Bit::AddHL((0, b, c).into()))),
+        (0, 0, b, c, 0, 0, 1, 1) => Ok(Instruction::ALU16Bit(ALU16Bit::Inc((0, b, c).into()))),
+        (0, 0, b, c, 1, 0, 1, 1) => Ok(Instruction::ALU16Bit(ALU16Bit::Dec((0, b, c).into()))),
 
         // Catch all
         _ => Err(CpuError::UnknownInstruction(opcode)),
@@ -400,6 +412,20 @@ mod tests {
             (0b00101101, I::ALU8Bit(ALU8Bit::Dec(SR::L))),
             (0b00110101, I::ALU8Bit(ALU8Bit::DecHL())),
             (0b00111101, I::ALU8Bit(ALU8Bit::Dec(SR::A))),
+            // ALU 16-bit instructions
+            (0b00001001, I::ALU16Bit(ALU16Bit::AddHL(DR::BC))),
+            (0b00011001, I::ALU16Bit(ALU16Bit::AddHL(DR::DE))),
+            (0b00101001, I::ALU16Bit(ALU16Bit::AddHL(DR::HL))),
+            (0b00111001, I::ALU16Bit(ALU16Bit::AddHL(DR::SP))),
+            (0b11101000, I::ALU16Bit(ALU16Bit::AddSP(0))),
+            (0b00000011, I::ALU16Bit(ALU16Bit::Inc(DR::BC))),
+            (0b00010011, I::ALU16Bit(ALU16Bit::Inc(DR::DE))),
+            (0b00100011, I::ALU16Bit(ALU16Bit::Inc(DR::HL))),
+            (0b00110011, I::ALU16Bit(ALU16Bit::Inc(DR::SP))),
+            (0b00001011, I::ALU16Bit(ALU16Bit::Dec(DR::BC))),
+            (0b00011011, I::ALU16Bit(ALU16Bit::Dec(DR::DE))),
+            (0b00101011, I::ALU16Bit(ALU16Bit::Dec(DR::HL))),
+            (0b00111011, I::ALU16Bit(ALU16Bit::Dec(DR::SP))),
         ] {
             assert_eq!(
                 decode(code, pc, &memory).unwrap(),
