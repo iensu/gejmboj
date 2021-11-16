@@ -11,10 +11,13 @@ instruction_group! {
         /// Add contents of `DoubleRegister` to `HL`
         ///
         /// **Flags**
-        /// Z: No change
-        /// N: 0
-        /// H: Set if carry from bit 11, else reset
-        /// C: Set if carry from bit 15, else reset
+        ///
+        /// | Flag | Effect                               |
+        /// |------|--------------------------------------|
+        /// | `Z`  | No change                            |
+        /// | `N`  | `0`                                  |
+        /// | `H`  | Set if carry from bit 11, else reset |
+        /// | `C`  | Set if carry from bit 15, else reset |
         AddHL(r: DoubleRegister) [1] => {
             let hl = registers.get_double(&DoubleRegister::HL);
             let operand = registers.get_double(&r);
@@ -34,11 +37,12 @@ instruction_group! {
 
         /// Add contents of `u8` operand to `SP`
         ///
-        /// **Flags**
-        /// Z: 0
-        /// N: 0
-        /// H: Set if carry from bit 11, else reset
-        /// C: Set if carry from bit 15, else reset
+        /// | Flag | Effect                               |
+        /// |------|--------------------------------------|
+        /// | `Z`  | `0`                                  |
+        /// | `N`  | `0`                                  |
+        /// | `H`  | Set if carry from bit 11, else reset |
+        /// | `C`  | Set if carry from bit 15, else reset |
         AddSP(operand: u8) [2] => {
             let sp = registers.get_double(&DoubleRegister::SP);
             let operand: u16 = *operand as u16;
