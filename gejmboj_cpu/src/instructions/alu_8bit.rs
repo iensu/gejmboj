@@ -241,13 +241,37 @@ instruction_group! {
         }
 
         /// Increment `SingleRegister` by 1
-        Inc(_r: SingleRegister) [1] => {
-            unimplemented!()
+        ///
+        /// The Carry flag is unaffected by this instruction.
+        Inc(r: SingleRegister) [1] => {
+            if *r == SingleRegister::F {
+                return Err(CpuError::UnsupportedSingleRegister(*r));
+            }
+
+            let operand = registers.get_single(r);
+            let (result, flags) = AluOp::Add.calculate(operand, 1);
+            // Set Carry if already set, otherwise reset
+            let flags = if registers.is_carry() { flags | MASK_FLAG_CARRY } else { flags & 0b1110_0000 };
+
+            registers.set_single(r, result);
+            registers.set_single(&SingleRegister::F, flags);
+
+            Ok(1)
         }
 
         /// Increment `HL` by 1
+        ///
+        /// The Carry flag is unaffected by this instruction.
         IncHL() [1] => {
-            unimplemented!()
+            let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
+            let (result, flags) = AluOp::Add.calculate(operand, 1);
+            // Set Carry if already set, otherwise reset
+            let flags = if registers.is_carry() { flags | MASK_FLAG_CARRY } else { flags & 0b1110_0000 };
+
+            memory.set(registers.get_double(&DoubleRegister::HL).into(), result);
+            registers.set_single(&SingleRegister::F, flags);
+
+            Ok(3)
         }
 
         /// Decrement `SingleRegister` by 1
@@ -289,7 +313,7 @@ impl AluOp {
     pub fn calculate(&self, a: u8, operand: u8) -> (u8, u8) {
         match &self {
             AluOp::Sub | AluOp::Cp => {
-                let (result, is_carry) = wrapping_sub(a, operand);
+                let (result, is_carry) = a.overflowing_sub(operand);
 
                 let mut flags = 0b0000_0000 | MASK_FLAG_NEGATIVE;
 
@@ -307,7 +331,7 @@ impl AluOp {
                 (result, flags)
             }
             AluOp::Add => {
-                let (result, is_carry) = wrapping_add(a, operand);
+                let (result, is_carry) = a.overflowing_add(operand);
                 let mut flags = 0b0000_0000;
 
                 if result == 0 {
@@ -347,20 +371,6 @@ impl AluOp {
             }
         }
     }
-}
-
-fn wrapping_add(x: u8, y: u8) -> (u8, bool) {
-    let is_overflow = x as u16 + y as u16 > u8::MAX as u16;
-    let result = x.wrapping_add(y);
-
-    (result, is_overflow)
-}
-
-fn wrapping_sub(x: u8, y: u8) -> (u8, bool) {
-    let is_overflow = y > x;
-    let result = x.wrapping_sub(y);
-
-    (result, is_overflow)
 }
 
 #[cfg(test)]
@@ -820,5 +830,43 @@ crate::instruction_tests! {
 
         ALU8Bit::CpHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0b0101_0000, registers.get_single(&SingleRegister::F), "CpHL sets incorrect flags");
+    }
+
+    inc_takes_the_correct_amount_of_machine_cycles(registers, memory, cpu_flags) => {
+        let cycles = ALU8Bit::Inc(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(1, cycles, "Incorrect machine cycle count for Inc");
+
+        let cycles = ALU8Bit::IncHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(3, cycles, "Incorrect machine cycle count for IncHL");
+    }
+
+    inc_does_not_support_the_f_register(registers, memory, cpu_flags) => {
+        let result = ALU8Bit::Inc(SingleRegister::F).execute(&mut registers, &mut memory, &mut cpu_flags);
+        let expected = Err(crate::errors::CpuError::UnsupportedSingleRegister(SingleRegister::F));
+
+        assert_eq!(expected, result);
+    }
+
+    inc_handles_flags_correctly(registers, memory, cpu_flags) => {
+        memory.set(registers.get_double(&DoubleRegister::HL).into(), 0x50);
+        registers.set_single(&SingleRegister::A, 0xFF);
+
+        ALU8Bit::Inc(SingleRegister::A).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0, registers.get_single(&SingleRegister::A), "Inc sets wrong result");
+        assert_eq!(0b1010_0000, registers.get_single(&SingleRegister::F), "Inc sets incorrect flags");
+
+        ALU8Bit::IncHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0x51, memory.get(registers.get_double(&DoubleRegister::HL).into()), "IncHL sets wrong result");
+        assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::F), "IncHL sets incorrect flags");
+
+        registers.set_single(&SingleRegister::F, MASK_FLAG_CARRY);
+        ALU8Bit::Inc(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0b0001_0000, registers.get_single(&SingleRegister::F), "Inc did not maintain Carry flag");
+
+        registers.set_single(&SingleRegister::F, MASK_FLAG_CARRY);
+        ALU8Bit::IncHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0b0001_0000, registers.get_single(&SingleRegister::F), "IncHL did not maintain Carry flag");
     }
 }
