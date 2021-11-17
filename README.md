@@ -14,3 +14,4 @@ A Game Boy emulator. This project is in progress and will most likely stay that 
 * http://marc.rawer.de/Gameboy/Docs/GBCPUman.pdf
 * http://www.emulatronia.com/doctec/consolas/gameboy/gameboy.txt
 * https://files.nekoblog.org/uploads/pdf/39999184-GameBoy-Programming-Manual.pdf
+* https://ia803208.us.archive.org/9/items/GameBoyProgManVer1.1/GameBoyProgManVer1.1.pdf

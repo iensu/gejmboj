@@ -9,6 +9,7 @@ pub mod control_flow;
 pub mod load_16bit;
 pub mod load_8bit;
 pub mod misc;
+pub mod rotate_shift;
 
 use alu_16bit::ALU16Bit;
 use alu_8bit::ALU8Bit;
