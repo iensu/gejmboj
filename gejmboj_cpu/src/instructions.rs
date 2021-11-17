@@ -10,6 +10,7 @@ pub mod load_16bit;
 pub mod load_8bit;
 pub mod misc;
 pub mod rotate_shift;
+mod utils;
 
 use alu_16bit::ALU16Bit;
 use alu_8bit::ALU8Bit;
@@ -17,12 +18,14 @@ use control_flow::ControlFlow;
 use load_16bit::Load16Bit;
 use load_8bit::Load8Bit;
 use misc::Misc;
+use rotate_shift::RotateShift;
+use utils::into_bits;
 
 /// Return either the number of consumed machine cycles, or a `CpuError`.
 pub type InstructionResult = Result<u16, CpuError>;
 
 combine_instructions! {
-    Instruction(ALU16Bit, ALU8Bit,ControlFlow, Load8Bit, Load16Bit, Misc)
+    Instruction(ALU16Bit, ALU8Bit,ControlFlow, Load8Bit, Load16Bit, Misc, RotateShift)
 }
 
 #[derive(Debug, PartialEq)]
@@ -63,19 +66,6 @@ fn get_8bit_operand(pc: u16, memory: &Memory) -> u8 {
 
 fn get_16bit_operand(pc: u16, memory: &Memory) -> u16 {
     memory.get_u16((pc as usize) + 1)
-}
-
-fn into_bits(x: u8) -> (u8, u8, u8, u8, u8, u8, u8, u8) {
-    (
-        (x & 0b1000_0000) >> 7,
-        (x & 0b0100_0000) >> 6,
-        (x & 0b0010_0000) >> 5,
-        (x & 0b0001_0000) >> 4,
-        (x & 0b0000_1000) >> 3,
-        (x & 0b0000_0100) >> 2,
-        (x & 0b0000_0010) >> 1,
-        x & 0b0000_0001,
-    )
 }
 
 /// Decode an operation code into an `Instruction`.
@@ -242,21 +232,6 @@ mod tests {
     use super::Instruction as I;
 
     use super::*;
-
-    #[test]
-    fn into_bits_works() {
-        assert_eq!(into_bits(0b1000_0000), (1, 0, 0, 0, 0, 0, 0, 0));
-        assert_eq!(into_bits(0b0100_0000), (0, 1, 0, 0, 0, 0, 0, 0));
-        assert_eq!(into_bits(0b0010_0000), (0, 0, 1, 0, 0, 0, 0, 0));
-        assert_eq!(into_bits(0b0001_0000), (0, 0, 0, 1, 0, 0, 0, 0));
-        assert_eq!(into_bits(0b0000_1000), (0, 0, 0, 0, 1, 0, 0, 0));
-        assert_eq!(into_bits(0b0000_0100), (0, 0, 0, 0, 0, 1, 0, 0));
-        assert_eq!(into_bits(0b0000_0010), (0, 0, 0, 0, 0, 0, 1, 0));
-        assert_eq!(into_bits(0b0000_0001), (0, 0, 0, 0, 0, 0, 0, 1));
-        assert_eq!(into_bits(0b0000_0000), (0, 0, 0, 0, 0, 0, 0, 0));
-        assert_eq!(into_bits(0b1111_1111), (1, 1, 1, 1, 1, 1, 1, 1));
-        assert_eq!(into_bits(0b1000_1000), (1, 0, 0, 0, 1, 0, 0, 0));
-    }
 
     #[test]
     fn decode_works() {
