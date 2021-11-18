@@ -32,20 +32,31 @@ use crate::{
     errors::CpuError,
     instruction_group,
     memory::Memory,
-    registers::{DoubleRegister, Registers, SingleRegister},
+    registers::{DoubleRegister, Registers, SingleRegister, MASK_FLAG_ZERO},
 };
 
 /// Decodes the `operand` into a `RotateShift` instruction.
+///
+/// | Operand      | Instruction |
+/// |--------------|-------------|
+/// | `00_000_rrr` | `RlC`       |
+/// | `00_001_rrr` | `RrC`       |
+/// | `00_010_rrr` | `Rl`        |
+/// | `00_011_rrr` | `Rr`        |
+/// | `00_100_rrr` | `Sla`       |
+/// | `00_101_rrr` | `Sra`       |
+/// | `00_110_rrr` | `Swap`      |
+/// | `00_111_rrr` | `Srl`       |
 pub fn decode(operand: u8) -> Result<RotateShift, CpuError> {
     match utils::into_bits(operand) {
         (0, 0, 0, 0, 0, _, _, _) => Ok(RotateShift::RlC(operand)),
         (0, 0, 0, 0, 1, _, _, _) => Ok(RotateShift::RrC(operand)),
         (0, 0, 0, 1, 0, _, _, _) => Ok(RotateShift::Rl(operand)),
         (0, 0, 0, 1, 1, _, _, _) => Ok(RotateShift::Rr(operand)),
-        (0, 0, 1, 0, 0, _, _, _) => Ok(RotateShift::SlA(operand)),
-        (0, 0, 1, 0, 1, _, _, _) => Ok(RotateShift::SrA(operand)),
+        (0, 0, 1, 0, 0, _, _, _) => Ok(RotateShift::Sla(operand)),
+        (0, 0, 1, 0, 1, _, _, _) => Ok(RotateShift::Sra(operand)),
         (0, 0, 1, 1, 0, _, _, _) => Ok(RotateShift::Swap(operand)),
-        (0, 0, 1, 1, 1, _, _, _) => Ok(RotateShift::SrL(operand)),
+        (0, 0, 1, 1, 1, _, _, _) => Ok(RotateShift::Srl(operand)),
         _ => Err(CpuError::UnknownInstruction(operand)),
     }
 }
@@ -158,8 +169,12 @@ instruction_group! {
         RlC(operand: u8) [2] => {
             let (value, register) = get_register_value(registers, memory, *operand);
             let bit7 = value & 0b1000_0000;
-            let flags = 0b0000_0000 | (bit7 >> 3);
+            let mut flags = 0b0000_0000 | (bit7 >> 3);
             let result = value.rotate_left(1);
+
+            if result == 0 {
+                flags |= MASK_FLAG_ZERO;
+            }
 
             registers.set_single(&SingleRegister::F, flags);
 
@@ -235,7 +250,7 @@ instruction_group! {
         /// | N    | `0`           |
         /// | H    | `0`           |
         /// | C    | m<sup>7</sup> |
-        SlA(_operand: u8) [2] => {
+        Sla(_operand: u8) [2] => {
             unimplemented!()
         }
 
@@ -251,7 +266,7 @@ instruction_group! {
         /// | N    | `0`           |
         /// | H    | `0`           |
         /// | C    | m<sup>0</sup> |
-        SrA(_operand: u8) [2] => {
+        Sra(_operand: u8) [2] => {
             unimplemented!()
         }
 
@@ -267,7 +282,7 @@ instruction_group! {
         /// | N    | `0`           |
         /// | H    | `0`           |
         /// | C    | m<sup>0</sup> |
-        SrL(_operand: u8) [2] => {
+        Srl(_operand: u8) [2] => {
             unimplemented!()
         }
 
@@ -284,5 +299,56 @@ instruction_group! {
         Swap(_operand: u8) [2] => {
             unimplemented!()
         }
+    }
+}
+
+#[cfg(test)]
+crate::instruction_tests! {
+    rlc_returns_the_correct_machine_cycles(registers, memory, cpu_flags) => {
+        for operand in 0..8 {
+            let cycles = RotateShift::RlC(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+            if operand == 0b110 {
+                assert_eq!(4, cycles, "Incorrect number of machine cycles for HL");
+            } else {
+                assert_eq!(2, cycles, "Incorrect number of machine cycles for single register ({:08b})", operand);
+            }
+        }
+    }
+
+    rlc_rotates_the_correct_register(registers, memory, cpu_flags) => {
+        use std::convert::TryInto;
+
+        let value: u8 = 0b0101_0101;
+        let expected: u8 = 0b1010_1010;
+
+        for operand in 0..8 {
+            if operand == 0b110 {
+                memory.set(registers.get_double(&DoubleRegister::HL).into(), value);
+            } else {
+                registers.set_single(&operand.try_into().unwrap(), value);
+            }
+
+            RotateShift::RlC(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+            if operand == 0b110 {
+                assert_eq!(expected, memory.get(registers.get_double(&DoubleRegister::HL).into()), "Incorrect result for (HL)");
+            } else {
+                let r: SingleRegister = operand.try_into().unwrap();
+                assert_eq!(expected, registers.get_single(&r), "Incorrect result for register {:?}", r);
+            }
+
+            registers.clear();
+        }
+    }
+
+    rlc_handles_flags_correctly(registers, memory, cpu_flags) => {
+        registers.set_single(&SingleRegister::B, 0b0);
+        RotateShift::RlC(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0b1000_0000, registers.get_single(&SingleRegister::F), "Z flag not set");
+
+        registers.set_single(&SingleRegister::B, 0b1000_0000);
+        RotateShift::RlC(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0b0001_0000, registers.get_single(&SingleRegister::F), "C flag not set");
     }
 }

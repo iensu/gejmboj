@@ -9,6 +9,7 @@ pub enum CpuError {
     Error(String),
     UnsupportedSingleRegister(SingleRegister),
     UnknownInstruction(u8),
+    SingleRegisterParseError(u8),
 }
 
 impl Display for CpuError {
@@ -18,6 +19,9 @@ impl Display for CpuError {
             CpuError::UnknownInstruction(opcode) => write!(f, "Unknown opcode: {:08b}", opcode),
             CpuError::UnsupportedSingleRegister(register) => {
                 write!(f, "Instruction does not support register {:?}", register)
+            }
+            CpuError::SingleRegisterParseError(x) => {
+                write!(f, "No single register matching {:08b}", x)
             }
         }
     }

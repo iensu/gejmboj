@@ -46,7 +46,9 @@
 //!
 //! The stack pointer register is initialized to `0xFFFE` and grows top-down, which means it is decremented.
 
-use std::fmt::Display;
+use std::{convert::TryFrom, fmt::Display};
+
+use crate::errors::CpuError;
 
 pub const MASK_FLAG_CARRY: u8 = 0b0001_0000;
 pub const MASK_FLAG_HALF_CARRY: u8 = 0b0010_0000;
@@ -334,6 +336,21 @@ impl Registers {
     pub fn is_zero(&self) -> bool {
         self.F & MASK_FLAG_ZERO > 0
     }
+
+    #[cfg(test)]
+    pub fn clear(&mut self) {
+        self.A = 0;
+        self.B = 0;
+        self.C = 0;
+        self.D = 0;
+        self.E = 0;
+        self.H = 0;
+        self.L = 0;
+        self.F = 0;
+
+        self.PC = 0;
+        self.SP = 0xFFFE
+    }
 }
 
 impl Display for Registers {
@@ -377,6 +394,24 @@ impl From<(u8, u8, u8)> for SingleRegister {
             (true, false, true) => SingleRegister::L,
             (true, true, false) => SingleRegister::F,
             (true, true, true) => SingleRegister::A,
+        }
+    }
+}
+
+impl TryFrom<u8> for SingleRegister {
+    type Error = CpuError;
+
+    fn try_from(value: u8) -> Result<Self, Self::Error> {
+        match value & 0b111 {
+            0b000 => Ok(SingleRegister::B),
+            0b001 => Ok(SingleRegister::C),
+            0b010 => Ok(SingleRegister::D),
+            0b011 => Ok(SingleRegister::E),
+            0b100 => Ok(SingleRegister::H),
+            0b101 => Ok(SingleRegister::L),
+            0b110 => Ok(SingleRegister::F),
+            0b111 => Ok(SingleRegister::A),
+            _ => Err(CpuError::SingleRegisterParseError(value)),
         }
     }
 }
