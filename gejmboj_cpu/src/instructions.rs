@@ -165,6 +165,14 @@ pub fn decode(opcode: u8, pc: u16, memory: &Memory) -> Result<Instruction, CpuEr
             pc, memory,
         )))),
 
+        // Rotate Shift instructions
+        (0, 0, 0, 0, 0, 1, 1, 1) => Ok(Instruction::RotateShift(RotateShift::RlcA())),
+        (0, 0, 0, 0, 1, 1, 1, 1) => Ok(Instruction::RotateShift(RotateShift::RrcA())),
+        (0, 0, 0, 1, 0, 1, 1, 1) => Ok(Instruction::RotateShift(RotateShift::RlA())),
+        (0, 0, 0, 1, 1, 1, 1, 1) => Ok(Instruction::RotateShift(RotateShift::RrA())),
+        (1, 1, 0, 0, 1, 0, 1, 1) => rotate_shift::decode(get_8bit_operand(pc, memory))
+            .map(|op| Instruction::RotateShift(op)),
+
         // VARIABLE MATCHES
         //
         // control flow
@@ -230,8 +238,36 @@ mod tests {
     use super::Condition as C;
     use super::ControlFlow as CF;
     use super::Instruction as I;
+    use super::RotateShift as RS;
 
     use super::*;
+
+    #[test]
+    fn decode_with_operand_rotate_shift_instructions_works() {
+        let code = 0b11001011;
+        let pc = 0;
+        let mut memory = Memory::new();
+
+        for (operand, instruction) in vec![
+            (0b0000_0111, I::RotateShift(RS::RlC(0b0000_0111))),
+            (0b0000_1111, I::RotateShift(RS::RrC(0b0000_1111))),
+            (0b0001_0111, I::RotateShift(RS::Rl(0b0001_0111))),
+            (0b0001_1111, I::RotateShift(RS::Rr(0b0001_1111))),
+            (0b0010_0111, I::RotateShift(RS::Sla(0b0010_0111))),
+            (0b0010_1111, I::RotateShift(RS::Sra(0b0010_1111))),
+            (0b0011_0111, I::RotateShift(RS::Swap(0b0011_0111))),
+            (0b0011_1111, I::RotateShift(RS::Srl(0b0011_1111))),
+        ] {
+            memory.set((pc as usize) + 1, operand);
+
+            assert_eq!(
+                instruction,
+                decode(code, pc, &memory).unwrap(),
+                "Failed to decode with operand 0b{:08b}",
+                operand
+            );
+        }
+    }
 
     #[test]
     fn decode_works() {
@@ -402,10 +438,15 @@ mod tests {
             (0b00011011, I::ALU16Bit(ALU16Bit::Dec(DR::DE))),
             (0b00101011, I::ALU16Bit(ALU16Bit::Dec(DR::HL))),
             (0b00111011, I::ALU16Bit(ALU16Bit::Dec(DR::SP))),
+            // Rotate Shift instructions
+            (0b00000111, I::RotateShift(RS::RlcA())),
+            (0b00001111, I::RotateShift(RS::RrcA())),
+            (0b00010111, I::RotateShift(RS::RlA())),
+            (0b00011111, I::RotateShift(RS::RrA())),
         ] {
             assert_eq!(
-                decode(code, pc, &memory).unwrap(),
                 instruction,
+                decode(code, pc, &memory).unwrap(),
                 "Failed to decode 0b{:08b}",
                 code
             );
