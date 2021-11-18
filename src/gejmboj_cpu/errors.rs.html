@@ -24,6 +24,10 @@
 <span id="24">24</span>
 <span id="25">25</span>
 <span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Gejmboj CPU related errors</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">error::Error</span>, <span class="ident">fmt::Display</span>};
@@ -35,6 +39,7 @@
     <span class="ident">Error</span>(<span class="ident">String</span>),
     <span class="ident">UnsupportedSingleRegister</span>(<span class="ident">SingleRegister</span>),
     <span class="ident">UnknownInstruction</span>(<span class="ident">u8</span>),
+    <span class="ident">SingleRegisterParseError</span>(<span class="ident">u8</span>),
 }
 
 <span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">CpuError</span> {
@@ -44,6 +49,9 @@
             <span class="ident">CpuError::UnknownInstruction</span>(<span class="ident">opcode</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Unknown opcode: {:08b}&quot;</span>, <span class="ident">opcode</span>),
             <span class="ident">CpuError::UnsupportedSingleRegister</span>(<span class="ident">register</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Instruction does not support register {:?}&quot;</span>, <span class="ident">register</span>)
+            }
+            <span class="ident">CpuError::SingleRegisterParseError</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;No single register matching {:08b}&quot;</span>, <span class="ident">x</span>)
             }
         }
     }
