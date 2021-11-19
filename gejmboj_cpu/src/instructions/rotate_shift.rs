@@ -32,7 +32,7 @@ use crate::{
     errors::CpuError,
     instruction_group,
     memory::Memory,
-    registers::{DoubleRegister, Registers, SingleRegister, MASK_FLAG_ZERO},
+    registers::{DoubleRegister, Registers, SingleRegister, MASK_FLAG_CARRY, MASK_FLAG_ZERO},
 };
 
 /// Decodes the `operand` into a `RotateShift` instruction.
@@ -106,7 +106,17 @@ instruction_group! {
         /// | H    | `0`           |
         /// | C    | A<sup>7</sup> |
         RlcA() [1] => {
-            unimplemented!()
+            let value = registers.get_single(&SingleRegister::A);
+            let result = value.rotate_left(1);
+
+            let mut flags = 0;
+            if (value & 0b1000_0000) > 0 {
+                flags |= MASK_FLAG_CARRY;
+            }
+
+            registers.set_single(&SingleRegister::A, result);
+            registers.set_single(&SingleRegister::F, flags);
+            Ok(1)
         }
 
         /// Rotates contents of register A to the left.
@@ -136,7 +146,17 @@ instruction_group! {
         /// | H    | `0`           |
         /// | C    | A<sup>0</sup> |
         RrcA() [1] => {
-            unimplemented!()
+            let value = registers.get_single(&SingleRegister::A);
+            let result = value.rotate_right(1);
+
+            let mut flags = 0;
+            if (value & 1) > 0 {
+                flags |= MASK_FLAG_CARRY;
+            }
+
+            registers.set_single(&SingleRegister::A, result);
+            registers.set_single(&SingleRegister::F, flags);
+            Ok(1)
         }
 
         /// Rotates contents of register A to the right.
@@ -168,10 +188,12 @@ instruction_group! {
         /// | C    | m<sup>7</sup> |
         RlC(operand: u8) [2] => {
             let (value, register) = get_register_value(registers, memory, *operand);
-            let bit7 = value & 0b1000_0000;
-            let mut flags = 0b0000_0000 | (bit7 >> 3);
             let result = value.rotate_left(1);
+            let mut flags = 0;
 
+            if value & 0b1000_0000 > 0 {
+                flags |= MASK_FLAG_CARRY;
+            }
             if result == 0 {
                 flags |= MASK_FLAG_ZERO;
             }
@@ -304,6 +326,60 @@ instruction_group! {
 
 #[cfg(test)]
 crate::instruction_tests! {
+    rlca_takes_1_machine_cycle(registers, memory, cpu_flags) => {
+        let cycles = RotateShift::RlcA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(1, cycles);
+    }
+
+    rlca_rotates_the_a_register_left(registers, memory, cpu_flags) => {
+        registers.set_single(&SingleRegister::A, 0b0101_0101);
+        RotateShift::RlcA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0b1010_1010, registers.get_single(&SingleRegister::A));
+    }
+
+    rlca_sets_flags_correctly(registers, memory, cpu_flags) => {
+        registers.set_single(&SingleRegister::F, 0b1110_0000);
+        RotateShift::RlcA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::F), "Did not clear Z, N and H");
+        registers.clear();
+
+        registers.set_single(&SingleRegister::A, 0b0101_0101);
+        RotateShift::RlcA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::F), "C should NOT be set");
+        registers.clear();
+
+        registers.set_single(&SingleRegister::A, 0b1010_1010);
+        RotateShift::RlcA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0b0001_0000, registers.get_single(&SingleRegister::F), "C should be set");
+    }
+
+    rrca_takes_1_machine_cycle(registers, memory, cpu_flags) => {
+        let cycles = RotateShift::RrcA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(1, cycles);
+    }
+
+    rrca_rotates_the_a_register_right(registers, memory, cpu_flags) => {
+        registers.set_single(&SingleRegister::A, 0b1010_1010);
+        RotateShift::RrcA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0b0101_0101, registers.get_single(&SingleRegister::A));
+    }
+
+    rrca_sets_flags_correctly(registers, memory, cpu_flags) => {
+        registers.set_single(&SingleRegister::F, 0b1110_0000);
+        RotateShift::RrcA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::F), "Did not clear Z, N and H");
+        registers.clear();
+
+        registers.set_single(&SingleRegister::A, 0b0101_0101);
+        RotateShift::RrcA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0b0001_0000, registers.get_single(&SingleRegister::F), "C should be set");
+        registers.clear();
+
+        registers.set_single(&SingleRegister::A, 0b1010_1010);
+        RotateShift::RrcA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::F), "C should NOT be set");
+    }
+
     rlc_returns_the_correct_machine_cycles(registers, memory, cpu_flags) => {
         for operand in 0..8 {
             let cycles = RotateShift::RlC(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
