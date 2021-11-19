@@ -24,6 +24,7 @@ A GameBoy emulator.
           name = cargoConfig.package.name;
           pkgs = nixpkgs.legacyPackages.${system};
           additionalBuildInputs = with pkgs; [];
+          enabledFeatures = [];
         in
         {
           checks.format = pkgs.runCommand "check-format"
@@ -50,8 +51,11 @@ A GameBoy emulator.
               lockFile = ./Cargo.lock;
             };
 
-            buildFeatures = [];
+            buildFeatures = enabledFeatures;
             buildInputs = additionalBuildInputs;
+
+            doCheck = true;
+            cargoTestFlags = "--workspace";
 
             cargoSha256 = "sha256-fw/zUbYynrpeLGQ/uhs3LEq7tnECvatNAuDCJuCQGms=";
           };
