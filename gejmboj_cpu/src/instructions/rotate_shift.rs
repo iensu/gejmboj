@@ -131,7 +131,21 @@ instruction_group! {
         /// | H    | `0`           |
         /// | C    | A<sup>7</sup> |
         RlA() [1] => {
-            unimplemented!()
+            let value = registers.get_single(&SingleRegister::A);
+            let mut result = value.rotate_left(1);
+            if registers.is_carry() {
+                result += 1;
+            }
+
+
+            let mut flags = 0;
+            if (value & 0b1000_0000) > 0 {
+                flags |= MASK_FLAG_CARRY;
+            }
+
+            registers.set_single(&SingleRegister::A, result);
+            registers.set_single(&SingleRegister::F, flags);
+            Ok(1)
         }
 
         /// Rotate contents of register A to the right.
@@ -171,7 +185,20 @@ instruction_group! {
         /// | H    | `0`           |
         /// | C    | A<sup>0</sup> |
         RrA() [1] => {
-            unimplemented!()
+            let value = registers.get_single(&SingleRegister::A);
+            let mut result = value.rotate_right(1);
+            if registers.is_carry() {
+                result |= 0b1000_0000;
+            }
+
+            let mut flags = 0;
+            if (value & 1) > 0 {
+                flags |= MASK_FLAG_CARRY;
+            }
+
+            registers.set_single(&SingleRegister::A, result);
+            registers.set_single(&SingleRegister::F, flags);
+            Ok(1)
         }
 
         /// Rotates contents of `m` to the left.
@@ -332,9 +359,9 @@ crate::instruction_tests! {
     }
 
     rlca_rotates_the_a_register_left(registers, memory, cpu_flags) => {
-        registers.set_single(&SingleRegister::A, 0b0101_0101);
+        registers.set_single(&SingleRegister::A, 0b0001_0100);
         RotateShift::RlcA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        assert_eq!(0b1010_1010, registers.get_single(&SingleRegister::A));
+        assert_eq!(0b0010_1000, registers.get_single(&SingleRegister::A));
     }
 
     rlca_sets_flags_correctly(registers, memory, cpu_flags) => {
@@ -353,15 +380,49 @@ crate::instruction_tests! {
         assert_eq!(0b0001_0000, registers.get_single(&SingleRegister::F), "C should be set");
     }
 
+    rla_takes_1_machine_cycle(registers, memory, cpu_flags) => {
+        let cycles = RotateShift::RlA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(1, cycles);
+    }
+
+    rla_rotates_the_a_register_left(registers, memory, cpu_flags) => {
+        registers.set_single(&SingleRegister::A, 0b0001_0100);
+        RotateShift::RlA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0b0010_1000, registers.get_single(&SingleRegister::A));
+    }
+
+    rla_sets_bit0_to_c(registers, memory, cpu_flags) => {
+        registers.set_single(&SingleRegister::F, MASK_FLAG_CARRY);
+        registers.set_single(&SingleRegister::A, 0b0000_0000);
+        RotateShift::RlA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0b0000_0001, registers.get_single(&SingleRegister::A));
+    }
+
+    rla_sets_flags_correctly(registers, memory, cpu_flags) => {
+        registers.set_single(&SingleRegister::F, 0b1110_0000);
+        RotateShift::RlA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::F), "Did not clear Z, N and H");
+        registers.clear();
+
+        registers.set_single(&SingleRegister::A, 0b0101_0101);
+        RotateShift::RlA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::F), "C should NOT be set");
+        registers.clear();
+
+        registers.set_single(&SingleRegister::A, 0b1010_1010);
+        RotateShift::RlA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0b0001_0000, registers.get_single(&SingleRegister::F), "C should be set");
+    }
+
     rrca_takes_1_machine_cycle(registers, memory, cpu_flags) => {
         let cycles = RotateShift::RrcA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(1, cycles);
     }
 
     rrca_rotates_the_a_register_right(registers, memory, cpu_flags) => {
-        registers.set_single(&SingleRegister::A, 0b1010_1010);
+        registers.set_single(&SingleRegister::A, 0b0010_1000);
         RotateShift::RrcA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        assert_eq!(0b0101_0101, registers.get_single(&SingleRegister::A));
+        assert_eq!(0b0001_0100, registers.get_single(&SingleRegister::A));
     }
 
     rrca_sets_flags_correctly(registers, memory, cpu_flags) => {
@@ -377,6 +438,40 @@ crate::instruction_tests! {
 
         registers.set_single(&SingleRegister::A, 0b1010_1010);
         RotateShift::RrcA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::F), "C should NOT be set");
+    }
+
+    rra_takes_1_machine_cycle(registers, memory, cpu_flags) => {
+        let cycles = RotateShift::RrA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(1, cycles);
+    }
+
+    rra_rotates_the_a_register_left(registers, memory, cpu_flags) => {
+        registers.set_single(&SingleRegister::A, 0b001_01000);
+        RotateShift::RrA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0b0001_0100, registers.get_single(&SingleRegister::A));
+    }
+
+    rra_sets_bit7_to_c(registers, memory, cpu_flags) => {
+        registers.set_single(&SingleRegister::F, MASK_FLAG_CARRY);
+        registers.set_single(&SingleRegister::A, 0b0000_0000);
+        RotateShift::RrA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0b1000_0000, registers.get_single(&SingleRegister::A));
+    }
+
+    rra_sets_flags_correctly(registers, memory, cpu_flags) => {
+        registers.set_single(&SingleRegister::F, 0b1110_0000);
+        RotateShift::RrA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::F), "Did not clear Z, N and H");
+        registers.clear();
+
+        registers.set_single(&SingleRegister::A, 0b0101_0101);
+        RotateShift::RrA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0b0001_0000, registers.get_single(&SingleRegister::F), "C should be set");
+        registers.clear();
+
+        registers.set_single(&SingleRegister::A, 0b1010_1010);
+        RotateShift::RrA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::F), "C should NOT be set");
     }
 
