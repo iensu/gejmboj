@@ -83,6 +83,45 @@ fn get_register_value(
     }
 }
 
+enum Op {
+    RotateLeft(u8),
+    RotateRight(u8),
+}
+
+impl Op {
+    /// Run the designated function and return a tuple of (result, flags).
+    ///
+    /// `flags` is the desired default configuration of the register flags.
+    ///
+    /// If `add_carry` is `true` the carry bit is set on the result on either the
+    /// first or last bit depending on direction.
+    ///
+    /// If `set_z` is `true` the Z flag will be set if the result is 0.
+    pub fn execute(&self, flags: u8, add_carry: bool, set_z: bool) -> (u8, u8) {
+        let mut result = match self {
+            Op::RotateLeft(x) => x.rotate_left(1),
+            Op::RotateRight(x) => x.rotate_right(1),
+        };
+        let (value, carry_bit, add_bit) = match self {
+            Op::RotateLeft(x) => (x, 0b1000_0000, 0b1),
+            Op::RotateRight(x) => (x, 0b1, 0b1000_0000),
+        };
+        if add_carry && flags & MASK_FLAG_CARRY > 0 {
+            result |= add_bit;
+        }
+
+        let mut flags = flags;
+        if value & carry_bit > 0 {
+            flags |= MASK_FLAG_CARRY;
+        }
+        if set_z && result == 0 {
+            flags |= MASK_FLAG_ZERO;
+        }
+
+        (result, flags)
+    }
+}
+
 instruction_group! {
     /// Bit rotate and shift instructions.
     ///
@@ -107,13 +146,7 @@ instruction_group! {
         /// | C    | A<sup>7</sup> |
         RlcA() [1] => {
             let value = registers.get_single(&SingleRegister::A);
-            let result = value.rotate_left(1);
-
-            let mut flags = 0;
-            if (value & 0b1000_0000) > 0 {
-                flags |= MASK_FLAG_CARRY;
-            }
-
+            let (result, flags) = Op::RotateLeft(value).execute(0, false, false);
             registers.set_single(&SingleRegister::A, result);
             registers.set_single(&SingleRegister::F, flags);
             Ok(1)
@@ -132,17 +165,11 @@ instruction_group! {
         /// | C    | A<sup>7</sup> |
         RlA() [1] => {
             let value = registers.get_single(&SingleRegister::A);
-            let mut result = value.rotate_left(1);
-            if registers.is_carry() {
-                result += 1;
-            }
-
-
-            let mut flags = 0;
-            if (value & 0b1000_0000) > 0 {
-                flags |= MASK_FLAG_CARRY;
-            }
-
+            let (result, flags) = Op::RotateLeft(value).execute(
+                registers.get_single(&SingleRegister::F) & MASK_FLAG_CARRY,
+                true,
+                false,
+            );
             registers.set_single(&SingleRegister::A, result);
             registers.set_single(&SingleRegister::F, flags);
             Ok(1)
@@ -161,13 +188,7 @@ instruction_group! {
         /// | C    | A<sup>0</sup> |
         RrcA() [1] => {
             let value = registers.get_single(&SingleRegister::A);
-            let result = value.rotate_right(1);
-
-            let mut flags = 0;
-            if (value & 1) > 0 {
-                flags |= MASK_FLAG_CARRY;
-            }
-
+            let (result, flags) = Op::RotateRight(value).execute(0, false, false);
             registers.set_single(&SingleRegister::A, result);
             registers.set_single(&SingleRegister::F, flags);
             Ok(1)
@@ -186,16 +207,11 @@ instruction_group! {
         /// | C    | A<sup>0</sup> |
         RrA() [1] => {
             let value = registers.get_single(&SingleRegister::A);
-            let mut result = value.rotate_right(1);
-            if registers.is_carry() {
-                result |= 0b1000_0000;
-            }
-
-            let mut flags = 0;
-            if (value & 1) > 0 {
-                flags |= MASK_FLAG_CARRY;
-            }
-
+            let (result, flags) = Op::RotateRight(value).execute(
+                registers.get_single(&SingleRegister::F) & MASK_FLAG_CARRY,
+                true,
+                false,
+            );
             registers.set_single(&SingleRegister::A, result);
             registers.set_single(&SingleRegister::F, flags);
             Ok(1)
@@ -215,15 +231,7 @@ instruction_group! {
         /// | C    | m<sup>7</sup> |
         RlC(operand: u8) [2] => {
             let (value, register) = get_register_value(registers, memory, *operand);
-            let result = value.rotate_left(1);
-            let mut flags = 0;
-
-            if value & 0b1000_0000 > 0 {
-                flags |= MASK_FLAG_CARRY;
-            }
-            if result == 0 {
-                flags |= MASK_FLAG_ZERO;
-            }
+            let (result, flags) = Op::RotateLeft(value).execute(0, false, true);
 
             registers.set_single(&SingleRegister::F, flags);
 
@@ -267,8 +275,22 @@ instruction_group! {
         /// | N    | `0`           |
         /// | H    | `0`           |
         /// | C    | m<sup>0</sup> |
-        RrC(_operand: u8) [2] => {
-            unimplemented!()
+        RrC(operand: u8) [2] => {
+            let (value, register) = get_register_value(registers, memory, *operand);
+            let (result, flags) = Op::RotateRight(value).execute(0, false, true);
+
+            registers.set_single(&SingleRegister::F, flags);
+
+            match register {
+                Some(r) => {
+                    registers.set_single(&r, result);
+                    Ok(2)
+                }
+                None => {
+                    memory.set(registers.get_double(&DoubleRegister::HL).into(), result);
+                    Ok(4)
+                }
+            }
         }
 
         /// Rotates contents of `m` to the right.
@@ -520,6 +542,54 @@ crate::instruction_tests! {
 
         registers.set_single(&SingleRegister::B, 0b1000_0000);
         RotateShift::RlC(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0b0001_0000, registers.get_single(&SingleRegister::F), "C flag not set");
+    }
+
+    rrc_returns_the_correct_machine_cycles(registers, memory, cpu_flags) => {
+        for operand in 0..8 {
+            let cycles = RotateShift::RrC(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+            if operand == 0b110 {
+                assert_eq!(4, cycles, "Incorrect number of machine cycles for HL");
+            } else {
+                assert_eq!(2, cycles, "Incorrect number of machine cycles for single register ({:08b})", operand);
+            }
+        }
+    }
+
+    rrc_rotates_the_correct_register(registers, memory, cpu_flags) => {
+        use std::convert::TryInto;
+
+        let value: u8 = 0b0010_1000;
+        let expected: u8 = 0b0001_0100;
+
+        for operand in 0..8 {
+            if operand == 0b110 {
+                memory.set(registers.get_double(&DoubleRegister::HL).into(), value);
+            } else {
+                registers.set_single(&operand.try_into().unwrap(), value);
+            }
+
+            RotateShift::RrC(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+            if operand == 0b110 {
+                assert_eq!(expected, memory.get(registers.get_double(&DoubleRegister::HL).into()), "Incorrect result for (HL)");
+            } else {
+                let r: SingleRegister = operand.try_into().unwrap();
+                assert_eq!(expected, registers.get_single(&r), "Incorrect result for register {:?}", r);
+            }
+
+            registers.clear();
+        }
+    }
+
+    rrc_handles_flags_correctly(registers, memory, cpu_flags) => {
+        registers.set_single(&SingleRegister::B, 0b0);
+        RotateShift::RrC(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0b1000_0000, registers.get_single(&SingleRegister::F), "Z flag not set");
+
+        registers.set_single(&SingleRegister::B, 0b0000_0001);
+        RotateShift::RrC(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0b0001_0000, registers.get_single(&SingleRegister::F), "C flag not set");
     }
 }
