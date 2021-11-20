@@ -337,6 +337,20 @@ impl Registers {
         self.F & MASK_FLAG_ZERO > 0
     }
 
+    /// Returns the value of the flag register `F`.
+    ///
+    /// Convenience method to get the flag register value.
+    pub fn get_flags(&self) -> u8 {
+        self.F
+    }
+
+    /// Sets the value of the flag register `F`.
+    ///
+    /// Convenience method to set the flag register value.
+    pub fn set_flags(&mut self, flags: u8) {
+        self.F = flags;
+    }
+
     #[cfg(test)]
     pub fn clear(&mut self) {
         self.A = 0;
