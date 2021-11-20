@@ -7,13 +7,14 @@ A GameBoy emulator.
     # Requires unstable in order to build as of 2021-11-19
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
-    fenix = {
-      url = "github:nix-community/fenix";
+    rust-overlay = {
+      url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-utils.follows = "flake-utils";
     };
   };
 
-  outputs = { self, fenix, flake-utils, nixpkgs }:
+  outputs = { self, flake-utils, rust-overlay, nixpkgs }:
     flake-utils.lib.eachSystem [
       "x86_64-darwin"
       "x86_64-linux"
@@ -22,7 +23,8 @@ A GameBoy emulator.
         let
           cargoConfig = builtins.fromTOML(builtins.readFile(./Cargo.toml));
           name = cargoConfig.package.name;
-          pkgs = nixpkgs.legacyPackages.${system};
+          overlays = [ (import rust-overlay) ];
+          pkgs = import nixpkgs { inherit system overlays; };
           additionalBuildInputs = with pkgs; [];
           enabledFeatures = [];
         in
@@ -41,7 +43,8 @@ A GameBoy emulator.
           };
 
           packages.${name} = (pkgs.makeRustPlatform {
-            inherit (fenix.packages.${system}.minimal) cargo rustc;
+            cargo = pkgs.rust-bin.stable.latest.minimal;
+            rustc = pkgs.rust-bin.stable.latest.minimal;
           }).buildRustPackage {
             pname = cargoConfig.package.name;
             version = cargoConfig.package.version;
@@ -63,10 +66,20 @@ A GameBoy emulator.
           defaultPackage = self.packages.${system}.${name};
 
           devShell = pkgs.mkShell {
-            buildInputs = with pkgs; [ cargo rustc rust-analyzer bat ] ++ additionalBuildInputs;
+            buildInputs = with pkgs; [
+              openssl
+              pkgconfig
+              exa
+              fd
+              bat
+              rust-bin.stable.latest.default
+              rust-analyzer
+            ] ++ additionalBuildInputs;
 
             shellHook = ''
               alias cat=bat
+              alias ls=exa
+              alias find=fd
               export RUST_LOG=debug
             '';
           };
