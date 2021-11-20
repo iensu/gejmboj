@@ -113,9 +113,13 @@ impl Op {
         let mut flags = flags;
         if value & carry_bit > 0 {
             flags |= MASK_FLAG_CARRY;
+        } else {
+            flags &= 0b1110_0000;
         }
         if set_z && result == 0 {
             flags |= MASK_FLAG_ZERO;
+        } else if set_z {
+            flags &= 0b0111_0000;
         }
 
         (result, flags)
@@ -259,8 +263,22 @@ instruction_group! {
         /// | N    | `0`           |
         /// | H    | `0`           |
         /// | C    | m<sup>7</sup> |
-        Rl(_operand: u8) [2] => {
-            unimplemented!()
+        Rl(operand: u8) [2] => {
+            let (value, register) = get_register_value(registers, memory, *operand);
+            let (result, flags) = Op::RotateLeft(value).execute(registers.get_flags() & MASK_FLAG_CARRY, true, true);
+
+            registers.set_flags(flags);
+
+            match register {
+                Some(r) => {
+                    registers.set_single(&r, result);
+                    Ok(2)
+                },
+                None => {
+                    memory.set(registers.get_double(&DoubleRegister::HL).into(), result);
+                    Ok(4)
+                }
+            }
         }
 
         /// Rotates contents of `m` to the right.
@@ -305,8 +323,22 @@ instruction_group! {
         /// | N    | `0`           |
         /// | H    | `0`           |
         /// | C    | m<sup>0</sup> |
-        Rr(_operand: u8) [2] => {
-            unimplemented!()
+        Rr(operand: u8) [2] => {
+            let (value, register) = get_register_value(registers, memory, *operand);
+            let (result, flags) = Op::RotateRight(value).execute(registers.get_flags() & MASK_FLAG_CARRY, true, true);
+
+            registers.set_flags(flags);
+
+            match register {
+                Some(r) => {
+                    registers.set_single(&r, result);
+                    Ok(2)
+                },
+                None => {
+                    memory.set(registers.get_double(&DoubleRegister::HL).into(), result);
+                    Ok(4)
+                }
+            }
         }
 
         /// Shifts the contents of `m` to the left.
@@ -461,6 +493,7 @@ crate::instruction_tests! {
         registers.set_single(&SingleRegister::A, 0b1010_1010);
         RotateShift::RrcA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::F), "C should NOT be set");
+        registers.clear();
     }
 
     rra_takes_1_machine_cycle(registers, memory, cpu_flags) => {
@@ -495,6 +528,7 @@ crate::instruction_tests! {
         registers.set_single(&SingleRegister::A, 0b1010_1010);
         RotateShift::RrA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::F), "C should NOT be set");
+        registers.clear();
     }
 
     rlc_returns_the_correct_machine_cycles(registers, memory, cpu_flags) => {
@@ -539,10 +573,12 @@ crate::instruction_tests! {
         registers.set_single(&SingleRegister::B, 0b0);
         RotateShift::RlC(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0b1000_0000, registers.get_single(&SingleRegister::F), "Z flag not set");
+        registers.clear();
 
         registers.set_single(&SingleRegister::B, 0b1000_0000);
         RotateShift::RlC(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0b0001_0000, registers.get_single(&SingleRegister::F), "C flag not set");
+        registers.clear();
     }
 
     rrc_returns_the_correct_machine_cycles(registers, memory, cpu_flags) => {
@@ -587,9 +623,124 @@ crate::instruction_tests! {
         registers.set_single(&SingleRegister::B, 0b0);
         RotateShift::RrC(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0b1000_0000, registers.get_single(&SingleRegister::F), "Z flag not set");
+        registers.clear();
 
         registers.set_single(&SingleRegister::B, 0b0000_0001);
         RotateShift::RrC(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0b0001_0000, registers.get_single(&SingleRegister::F), "C flag not set");
+        registers.clear();
+    }
+
+    rl_returns_the_correct_machine_cycles(registers, memory, cpu_flags) => {
+        for operand in 0..8 {
+            let cycles = RotateShift::Rl(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+            if operand == 0b110 {
+                assert_eq!(4, cycles, "Incorrect number of machine cycles for HL");
+            } else {
+                assert_eq!(2, cycles, "Incorrect number of machine cycles for single register ({:08b})", operand);
+            }
+        }
+    }
+
+    rl_rotates_the_correct_register_to_the_left(registers, memory, cpu_flags) => {
+        use std::convert::TryInto;
+
+        let value: u8 = 0b0001_0100;
+        let expected: u8 = 0b0010_1000;
+
+        for operand in 0..8 {
+            if operand == 0b110 {
+                memory.set(registers.get_double(&DoubleRegister::HL).into(), value);
+            } else {
+                registers.set_single(&operand.try_into().unwrap(), value);
+            }
+
+            RotateShift::Rl(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+            if operand == 0b110 {
+                assert_eq!(expected, memory.get(registers.get_double(&DoubleRegister::HL).into()), "Incorrect result for (HL)");
+            } else {
+                let r: SingleRegister = operand.try_into().unwrap();
+                assert_eq!(expected, registers.get_single(&r), "Incorrect result for register {:?}", r);
+            }
+
+            registers.clear();
+        }
+    }
+
+    rl_handles_flags_correctly(registers, memory, cpu_flags) => {
+        registers.set_single(&SingleRegister::B, 0b0);
+        RotateShift::Rl(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0b1000_0000, registers.get_single(&SingleRegister::F), "Z flag not set");
+        registers.clear();
+
+        registers.set_single(&SingleRegister::B, 0b1000_0000);
+        RotateShift::Rl(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0b0001_0000, registers.get_single(&SingleRegister::F), "C flag not set");
+        registers.clear();
+
+        registers.set_single(&SingleRegister::F, MASK_FLAG_CARRY);
+        RotateShift::Rl(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0b0000_0001, registers.get_single(&SingleRegister::B), "C flag not moved to m0");
+        println!("Flags: {:08b}", registers.get_flags());
+        assert_eq!(false, registers.is_carry(), "C flag was still set");
+        registers.clear();
+    }
+
+    rr_returns_the_correct_machine_cycles(registers, memory, cpu_flags) => {
+        for operand in 0..8 {
+            let cycles = RotateShift::Rr(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+            if operand == 0b110 {
+                assert_eq!(4, cycles, "Incorrect number of machine cycles for HL");
+            } else {
+                assert_eq!(2, cycles, "Incorrect number of machine cycles for single register ({:08b})", operand);
+            }
+        }
+    }
+
+    rr_rotates_the_correct_register_to_the_right(registers, memory, cpu_flags) => {
+        use std::convert::TryInto;
+
+        let value: u8 = 0b0010_1000;
+        let expected: u8 = 0b0001_0100;
+
+        for operand in 0..8 {
+            if operand == 0b110 {
+                memory.set(registers.get_double(&DoubleRegister::HL).into(), value);
+            } else {
+                registers.set_single(&operand.try_into().unwrap(), value);
+            }
+
+            RotateShift::Rr(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+            if operand == 0b110 {
+                assert_eq!(expected, memory.get(registers.get_double(&DoubleRegister::HL).into()), "Incorrect result for (HL)");
+            } else {
+                let r: SingleRegister = operand.try_into().unwrap();
+                assert_eq!(expected, registers.get_single(&r), "Incorrect result for register {:?}", r);
+            }
+
+            registers.clear();
+        }
+    }
+
+    rr_handles_flags_correctly(registers, memory, cpu_flags) => {
+        registers.set_single(&SingleRegister::B, 0b0);
+        RotateShift::Rr(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0b1000_0000, registers.get_single(&SingleRegister::F), "Z flag not set");
+        registers.clear();
+
+        registers.set_single(&SingleRegister::B, 0b0000_0001);
+        RotateShift::Rr(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0b0001_0000, registers.get_single(&SingleRegister::F), "C flag not set");
+        registers.clear();
+
+        registers.set_single(&SingleRegister::F, MASK_FLAG_CARRY);
+        RotateShift::Rr(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0b1000_0000, registers.get_single(&SingleRegister::B), "C flag not moved to m7");
+        assert_eq!(false, registers.is_carry(), "C flag was still set");
+        registers.clear();
     }
 }
