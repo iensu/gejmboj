@@ -236,6 +236,7 @@ impl Registers {
     ///
     /// ## Examples
     ///
+    /// ```
     /// # use gejmboj_cpu::registers::*;
     /// let mut registers = Registers::new();
     ///
@@ -244,6 +245,7 @@ impl Registers {
     /// registers.decrement_sp();
     /// registers.increment_sp();
     /// assert_eq!(0xFFFE, registers.get_double(&DoubleRegister::SP));
+    /// ```
     pub fn increment_sp(&mut self) -> u16 {
         self.SP = self.SP + 2;
         self.SP
@@ -253,6 +255,7 @@ impl Registers {
     ///
     /// ## Examples
     ///
+    /// ```
     /// # use gejmboj_cpu::registers::*;
     /// let mut registers = Registers::new();
     ///
@@ -260,6 +263,7 @@ impl Registers {
     ///
     /// registers.decrement_sp();
     /// assert_eq!(0xFFFC, registers.get_double(&DoubleRegister::SP));
+    /// ```
     pub fn decrement_sp(&mut self) -> u16 {
         self.SP = self.SP - 2;
         self.SP
