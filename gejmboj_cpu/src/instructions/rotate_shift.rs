@@ -152,7 +152,7 @@ instruction_group! {
             let value = registers.get_single(&SingleRegister::A);
             let (result, flags) = Op::RotateLeft(value).execute(0, false, false);
             registers.set_single(&SingleRegister::A, result);
-            registers.set_single(&SingleRegister::F, flags);
+            registers.set_flags(flags);
             Ok(1)
         }
 
@@ -170,12 +170,12 @@ instruction_group! {
         RlA() [1] => {
             let value = registers.get_single(&SingleRegister::A);
             let (result, flags) = Op::RotateLeft(value).execute(
-                registers.get_single(&SingleRegister::F) & MASK_FLAG_CARRY,
+                registers.get_flags() & MASK_FLAG_CARRY,
                 true,
                 false,
             );
             registers.set_single(&SingleRegister::A, result);
-            registers.set_single(&SingleRegister::F, flags);
+            registers.set_flags(flags);
             Ok(1)
         }
 
@@ -194,7 +194,7 @@ instruction_group! {
             let value = registers.get_single(&SingleRegister::A);
             let (result, flags) = Op::RotateRight(value).execute(0, false, false);
             registers.set_single(&SingleRegister::A, result);
-            registers.set_single(&SingleRegister::F, flags);
+            registers.set_flags(flags);
             Ok(1)
         }
 
@@ -212,12 +212,12 @@ instruction_group! {
         RrA() [1] => {
             let value = registers.get_single(&SingleRegister::A);
             let (result, flags) = Op::RotateRight(value).execute(
-                registers.get_single(&SingleRegister::F) & MASK_FLAG_CARRY,
+                registers.get_flags() & MASK_FLAG_CARRY,
                 true,
                 false,
             );
             registers.set_single(&SingleRegister::A, result);
-            registers.set_single(&SingleRegister::F, flags);
+            registers.set_flags(flags);
             Ok(1)
         }
 
@@ -237,7 +237,7 @@ instruction_group! {
             let (value, register) = get_register_value(registers, memory, *operand);
             let (result, flags) = Op::RotateLeft(value).execute(0, false, true);
 
-            registers.set_single(&SingleRegister::F, flags);
+            registers.set_flags(flags);
 
             match register {
                 Some(r) => {
@@ -297,7 +297,7 @@ instruction_group! {
             let (value, register) = get_register_value(registers, memory, *operand);
             let (result, flags) = Op::RotateRight(value).execute(0, false, true);
 
-            registers.set_single(&SingleRegister::F, flags);
+            registers.set_flags(flags);
 
             match register {
                 Some(r) => {
@@ -419,19 +419,19 @@ crate::instruction_tests! {
     }
 
     rlca_sets_flags_correctly(registers, memory, cpu_flags) => {
-        registers.set_single(&SingleRegister::F, 0b1110_0000);
+        registers.set_flags(0b1110_0000);
         RotateShift::RlcA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::F), "Did not clear Z, N and H");
+        assert_eq!(0b0000_0000, registers.get_flags(), "Did not clear Z, N and H");
         registers.clear();
 
         registers.set_single(&SingleRegister::A, 0b0101_0101);
         RotateShift::RlcA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::F), "C should NOT be set");
+        assert_eq!(0b0000_0000, registers.get_flags(), "C should NOT be set");
         registers.clear();
 
         registers.set_single(&SingleRegister::A, 0b1010_1010);
         RotateShift::RlcA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        assert_eq!(0b0001_0000, registers.get_single(&SingleRegister::F), "C should be set");
+        assert_eq!(0b0001_0000, registers.get_flags(), "C should be set");
     }
 
     rla_takes_1_machine_cycle(registers, memory, cpu_flags) => {
@@ -446,26 +446,26 @@ crate::instruction_tests! {
     }
 
     rla_sets_bit0_to_c(registers, memory, cpu_flags) => {
-        registers.set_single(&SingleRegister::F, MASK_FLAG_CARRY);
+        registers.set_flags(MASK_FLAG_CARRY);
         registers.set_single(&SingleRegister::A, 0b0000_0000);
         RotateShift::RlA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0b0000_0001, registers.get_single(&SingleRegister::A));
     }
 
     rla_sets_flags_correctly(registers, memory, cpu_flags) => {
-        registers.set_single(&SingleRegister::F, 0b1110_0000);
+        registers.set_flags(0b1110_0000);
         RotateShift::RlA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::F), "Did not clear Z, N and H");
+        assert_eq!(0b0000_0000, registers.get_flags(), "Did not clear Z, N and H");
         registers.clear();
 
         registers.set_single(&SingleRegister::A, 0b0101_0101);
         RotateShift::RlA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::F), "C should NOT be set");
+        assert_eq!(0b0000_0000, registers.get_flags(), "C should NOT be set");
         registers.clear();
 
         registers.set_single(&SingleRegister::A, 0b1010_1010);
         RotateShift::RlA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        assert_eq!(0b0001_0000, registers.get_single(&SingleRegister::F), "C should be set");
+        assert_eq!(0b0001_0000, registers.get_flags(), "C should be set");
     }
 
     rrca_takes_1_machine_cycle(registers, memory, cpu_flags) => {
@@ -480,19 +480,19 @@ crate::instruction_tests! {
     }
 
     rrca_sets_flags_correctly(registers, memory, cpu_flags) => {
-        registers.set_single(&SingleRegister::F, 0b1110_0000);
+        registers.set_flags(0b1110_0000);
         RotateShift::RrcA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::F), "Did not clear Z, N and H");
+        assert_eq!(0b0000_0000, registers.get_flags(), "Did not clear Z, N and H");
         registers.clear();
 
         registers.set_single(&SingleRegister::A, 0b0101_0101);
         RotateShift::RrcA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        assert_eq!(0b0001_0000, registers.get_single(&SingleRegister::F), "C should be set");
+        assert_eq!(0b0001_0000, registers.get_flags(), "C should be set");
         registers.clear();
 
         registers.set_single(&SingleRegister::A, 0b1010_1010);
         RotateShift::RrcA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::F), "C should NOT be set");
+        assert_eq!(0b0000_0000, registers.get_flags(), "C should NOT be set");
         registers.clear();
     }
 
@@ -508,26 +508,26 @@ crate::instruction_tests! {
     }
 
     rra_sets_bit7_to_c(registers, memory, cpu_flags) => {
-        registers.set_single(&SingleRegister::F, MASK_FLAG_CARRY);
+        registers.set_flags(MASK_FLAG_CARRY);
         registers.set_single(&SingleRegister::A, 0b0000_0000);
         RotateShift::RrA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0b1000_0000, registers.get_single(&SingleRegister::A));
     }
 
     rra_sets_flags_correctly(registers, memory, cpu_flags) => {
-        registers.set_single(&SingleRegister::F, 0b1110_0000);
+        registers.set_flags(0b1110_0000);
         RotateShift::RrA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::F), "Did not clear Z, N and H");
+        assert_eq!(0b0000_0000, registers.get_flags(), "Did not clear Z, N and H");
         registers.clear();
 
         registers.set_single(&SingleRegister::A, 0b0101_0101);
         RotateShift::RrA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        assert_eq!(0b0001_0000, registers.get_single(&SingleRegister::F), "C should be set");
+        assert_eq!(0b0001_0000, registers.get_flags(), "C should be set");
         registers.clear();
 
         registers.set_single(&SingleRegister::A, 0b1010_1010);
         RotateShift::RrA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::F), "C should NOT be set");
+        assert_eq!(0b0000_0000, registers.get_flags(), "C should NOT be set");
         registers.clear();
     }
 
@@ -572,12 +572,12 @@ crate::instruction_tests! {
     rlc_handles_flags_correctly(registers, memory, cpu_flags) => {
         registers.set_single(&SingleRegister::B, 0b0);
         RotateShift::RlC(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        assert_eq!(0b1000_0000, registers.get_single(&SingleRegister::F), "Z flag not set");
+        assert_eq!(0b1000_0000, registers.get_flags(), "Z flag not set");
         registers.clear();
 
         registers.set_single(&SingleRegister::B, 0b1000_0000);
         RotateShift::RlC(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        assert_eq!(0b0001_0000, registers.get_single(&SingleRegister::F), "C flag not set");
+        assert_eq!(0b0001_0000, registers.get_flags(), "C flag not set");
         registers.clear();
     }
 
@@ -622,12 +622,12 @@ crate::instruction_tests! {
     rrc_handles_flags_correctly(registers, memory, cpu_flags) => {
         registers.set_single(&SingleRegister::B, 0b0);
         RotateShift::RrC(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        assert_eq!(0b1000_0000, registers.get_single(&SingleRegister::F), "Z flag not set");
+        assert_eq!(0b1000_0000, registers.get_flags(), "Z flag not set");
         registers.clear();
 
         registers.set_single(&SingleRegister::B, 0b0000_0001);
         RotateShift::RrC(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        assert_eq!(0b0001_0000, registers.get_single(&SingleRegister::F), "C flag not set");
+        assert_eq!(0b0001_0000, registers.get_flags(), "C flag not set");
         registers.clear();
     }
 
@@ -672,15 +672,15 @@ crate::instruction_tests! {
     rl_handles_flags_correctly(registers, memory, cpu_flags) => {
         registers.set_single(&SingleRegister::B, 0b0);
         RotateShift::Rl(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        assert_eq!(0b1000_0000, registers.get_single(&SingleRegister::F), "Z flag not set");
+        assert_eq!(0b1000_0000, registers.get_flags(), "Z flag not set");
         registers.clear();
 
         registers.set_single(&SingleRegister::B, 0b1000_0000);
         RotateShift::Rl(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        assert_eq!(0b0001_0000, registers.get_single(&SingleRegister::F), "C flag not set");
+        assert_eq!(0b0001_0000, registers.get_flags(), "C flag not set");
         registers.clear();
 
-        registers.set_single(&SingleRegister::F, MASK_FLAG_CARRY);
+        registers.set_flags(MASK_FLAG_CARRY);
         RotateShift::Rl(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0b0000_0001, registers.get_single(&SingleRegister::B), "C flag not moved to m0");
         println!("Flags: {:08b}", registers.get_flags());
@@ -729,15 +729,15 @@ crate::instruction_tests! {
     rr_handles_flags_correctly(registers, memory, cpu_flags) => {
         registers.set_single(&SingleRegister::B, 0b0);
         RotateShift::Rr(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        assert_eq!(0b1000_0000, registers.get_single(&SingleRegister::F), "Z flag not set");
+        assert_eq!(0b1000_0000, registers.get_flags(), "Z flag not set");
         registers.clear();
 
         registers.set_single(&SingleRegister::B, 0b0000_0001);
         RotateShift::Rr(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        assert_eq!(0b0001_0000, registers.get_single(&SingleRegister::F), "C flag not set");
+        assert_eq!(0b0001_0000, registers.get_flags(), "C flag not set");
         registers.clear();
 
-        registers.set_single(&SingleRegister::F, MASK_FLAG_CARRY);
+        registers.set_flags(MASK_FLAG_CARRY);
         RotateShift::Rr(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0b1000_0000, registers.get_single(&SingleRegister::B), "C flag not moved to m7");
         assert_eq!(false, registers.is_carry(), "C flag was still set");

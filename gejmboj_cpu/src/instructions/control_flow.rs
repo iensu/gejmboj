@@ -133,7 +133,7 @@ crate::instruction_tests! {
         assert_eq!(0, registers.PC);
         assert_eq!(3, cycles);
 
-        registers.set_single(&SingleRegister::F, 0b0001_0000);
+        registers.set_flags(MASK_FLAG_CARRY);
         cycles = instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0xBADA, registers.PC);
         assert_eq!(4, cycles);
@@ -163,7 +163,7 @@ crate::instruction_tests! {
         assert_eq!(0x0200, registers.PC);
         assert_eq!(2, cycles);
 
-        registers.set_single(&SingleRegister::F, 0b1000_0000);
+        registers.set_flags(MASK_FLAG_ZERO);
 
         let cycles = instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0x0242, registers.PC);
@@ -194,7 +194,7 @@ crate::instruction_tests! {
     callif_calls_function_if_condition_is_unfulfilled(registers, memory, cpu_flags) => {
         let instruction = ControlFlow::CallIf(0xABCD, Condition::Carry);
         registers.PC = 0xAAAA;
-        registers.set_single(&SingleRegister::F, 0b0001_0000);
+        registers.set_flags(MASK_FLAG_CARRY);
 
         let cycles = instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
@@ -228,7 +228,7 @@ crate::instruction_tests! {
         assert_eq!(0xFFFC, registers.SP);
         assert_eq!(2, cycles);
 
-        registers.set_single(&SingleRegister::F, 0b0001_0000);
+        registers.set_flags(MASK_FLAG_CARRY);
         let cycles = ret.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
         assert_eq!(0xAAAA, registers.PC);

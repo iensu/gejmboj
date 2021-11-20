@@ -36,40 +36,40 @@ instruction_group! {
 
         /// Flips the carry flag (C) and clears the negative (N) and half-carry (H) flags
         CCF() [1] => {
-            let value = registers.get_single(&SingleRegister::F);
+            let value = registers.get_flags();
             let value = value & 0b1001_0000; // Clear N and H flags
             let value = value ^ 0b0001_0000; // Flip C
-            registers.set_single(&SingleRegister::F, value);
+            registers.set_flags(value);
             Ok(1)
         }
 
         /// Sets the carry flag (C) and clears the negative (N) and half-carry (H) flags
         SCF() [1] => {
-            let value = registers.get_single(&SingleRegister::F);
+            let value = registers.get_flags();
             let value = value & 0b1001_0000; // Clear N and H flags
             let value = value | 0b0001_0000; // Set C
-            registers.set_single(&SingleRegister::F, value);
+            registers.set_flags(value);
             Ok(1)
         }
 
         /// Flips the zero (Z) and carry (C) flags and clears the half-carry (H) flag
         DAA() [1] => {
-            let value = registers.get_single(&SingleRegister::F);
+            let value = registers.get_flags();
             let value = value & 0b1101_0000; // Clear H
             let value = value ^ 0b1001_0000; // Flip Z and C
-            registers.set_single(&SingleRegister::F, value);
+            registers.set_flags(value);
             Ok(1)
         }
 
         /// Flips all bits in the A register and sets the negative (N) and half-carry (H) flags
         CPL() [1] => {
-            let flags = registers.get_single(&SingleRegister::F);
+            let flags = registers.get_flags();
             let flags = flags | 0b0110_0000; // Set N and H
 
             let value = registers.get_single(&SingleRegister::A);
             let value = value ^ 0b1111_1111; // Flip all bits
 
-            registers.set_single(&SingleRegister::F, flags);
+            registers.set_flags(flags);
             registers.set_single(&SingleRegister::A, value);
             Ok(1)
         }
@@ -102,23 +102,23 @@ crate::instruction_tests! {
     }
 
     ccf_clears_the_negative_and_half_carry_flags(registers, memory, cpu_flags) => {
-        registers.set_single(&SingleRegister::F, 0b1111_0000);
+        registers.set_flags(0b1111_0000);
 
         Misc::CCF().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
-        assert_eq!(0b1000_0000, registers.get_single(&SingleRegister::F));
+        assert_eq!(0b1000_0000, registers.get_flags());
     }
 
     ccf_flips_the_carry_flag(registers, memory, cpu_flags) => {
-        registers.set_single(&SingleRegister::F, 0b0001_0000);
+        registers.set_flags(MASK_FLAG_CARRY);
 
         Misc::CCF().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
-        assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::F));
+        assert_eq!(0b0000_0000, registers.get_flags());
 
         Misc::CCF().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
-        assert_eq!(0b0001_0000, registers.get_single(&SingleRegister::F));
+        assert_eq!(0b0001_0000, registers.get_flags());
     }
 
     scf_takes_one_machine_cycle(registers, memory, cpu_flags) => {
@@ -128,27 +128,27 @@ crate::instruction_tests! {
     }
 
     scf_clears_the_negative_and_half_carry_flags(registers, memory, cpu_flags) => {
-        registers.set_single(&SingleRegister::F, 0b1111_0000);
+        registers.set_flags(0b1111_0000);
 
         Misc::SCF().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
-        assert_eq!(0b1001_0000, registers.get_single(&SingleRegister::F));
+        assert_eq!(0b1001_0000, registers.get_flags());
 
         Misc::SCF().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
-        assert_eq!(0b1001_0000, registers.get_single(&SingleRegister::F));
+        assert_eq!(0b1001_0000, registers.get_flags());
     }
 
     scf_sets_the_carry_flag(registers, memory, cpu_flags) => {
-        registers.set_single(&SingleRegister::F, 0b0000_0000);
+        registers.set_flags(0b0000_0000);
 
         Misc::SCF().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
-        assert_eq!(0b0001_0000, registers.get_single(&SingleRegister::F));
+        assert_eq!(0b0001_0000, registers.get_flags());
 
         Misc::SCF().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
-        assert_eq!(0b0001_0000, registers.get_single(&SingleRegister::F));
+        assert_eq!(0b0001_0000, registers.get_flags());
     }
 
 
@@ -159,29 +159,29 @@ crate::instruction_tests! {
     }
 
     daa_clears_the_half_carry_flag(registers, memory, cpu_flags) => {
-        registers.set_single(&SingleRegister::F, 0b0010_0000);
+        registers.set_flags(MASK_FLAG_HALF_CARRY);
 
         Misc::DAA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        let h_flag = registers.get_single(&SingleRegister::F) & 0b0010_0000;
+        let h_flag = registers.get_flags() & MASK_FLAG_HALF_CARRY;
 
         assert_eq!(0, h_flag);
 
         Misc::DAA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        let h_flag = registers.get_single(&SingleRegister::F) & 0b0010_0000;
+        let h_flag = registers.get_flags() & MASK_FLAG_HALF_CARRY;
 
         assert_eq!(0, h_flag);
     }
 
     daa_flips_the_zero_and_carry_flags(registers, memory, cpu_flags) => {
-        registers.set_single(&SingleRegister::F, 0b0000_0000);
+        registers.set_flags(0b0000_0000);
 
         Misc::DAA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
-        assert_eq!(0b1001_0000, registers.get_single(&SingleRegister::F));
+        assert_eq!(0b1001_0000, registers.get_flags());
 
         Misc::DAA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
-        assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::F));
+        assert_eq!(0b0000_0000, registers.get_flags());
     }
 
     cpl_takes_one_machine_cycle(registers, memory, cpu_flags) => {
@@ -191,15 +191,15 @@ crate::instruction_tests! {
     }
 
     cpl_sets_the_negative_and_half_carry_flags(registers, memory, cpu_flags) => {
-        registers.set_single(&SingleRegister::F, 0b0000_0000);
+        registers.set_flags(0b0000_0000);
 
         Misc::CPL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
-        assert_eq!(0b0110_0000, registers.get_single(&SingleRegister::F));
+        assert_eq!(0b0110_0000, registers.get_flags());
 
         Misc::CPL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
-        assert_eq!(0b0110_0000, registers.get_single(&SingleRegister::F));
+        assert_eq!(0b0110_0000, registers.get_flags());
     }
 
     cpl_flips_all_bits_in_the_a_register(registers, memory, cpu_flags) => {

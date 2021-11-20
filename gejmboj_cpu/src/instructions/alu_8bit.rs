@@ -213,7 +213,7 @@ instruction_group! {
 
             let (_, flags) = AluOp::Cp.calculate(a, operand);
 
-            registers.set_single(&SingleRegister::F, flags);
+            registers.set_flags(flags);
             Ok(1)
         }
 
@@ -223,7 +223,7 @@ instruction_group! {
 
             let (_, flags) = AluOp::Cp.calculate(a, *operand);
 
-            registers.set_single(&SingleRegister::F, flags);
+            registers.set_flags(flags);
 
             Ok(2)
         }
@@ -235,7 +235,7 @@ instruction_group! {
 
             let (_, flags) = AluOp::Cp.calculate(a, operand);
 
-            registers.set_single(&SingleRegister::F, flags);
+            registers.set_flags(flags);
 
             Ok(2)
         }
@@ -254,7 +254,7 @@ instruction_group! {
             let flags = if registers.is_carry() { flags | MASK_FLAG_CARRY } else { flags & 0b1110_0000 };
 
             registers.set_single(r, result);
-            registers.set_single(&SingleRegister::F, flags);
+            registers.set_flags(flags);
 
             Ok(1)
         }
@@ -269,7 +269,7 @@ instruction_group! {
             let flags = if registers.is_carry() { flags | MASK_FLAG_CARRY } else { flags & 0b1110_0000 };
 
             memory.set(registers.get_double(&DoubleRegister::HL).into(), result);
-            registers.set_single(&SingleRegister::F, flags);
+            registers.set_flags(flags);
 
             Ok(3)
         }
@@ -288,7 +288,7 @@ instruction_group! {
             let flags = if registers.is_carry() { flags | MASK_FLAG_CARRY } else { flags & 0b1110_0000 };
 
             registers.set_single(r, result);
-            registers.set_single(&SingleRegister::F, flags);
+            registers.set_flags(flags);
 
             Ok(1)
         }
@@ -303,7 +303,7 @@ instruction_group! {
             let flags = if registers.is_carry() { flags | MASK_FLAG_CARRY } else { flags & 0b1110_0000 };
 
             memory.set(registers.get_double(&DoubleRegister::HL).into(), result);
-            registers.set_single(&SingleRegister::F, flags);
+            registers.set_flags(flags);
 
             Ok(3)
         }
@@ -321,7 +321,7 @@ fn perform_calculation(op: AluOp, registers: &mut Registers, operand: u8, add_ca
     let (result, flags) = op.calculate(a, operand);
 
     registers.set_single(&SingleRegister::A, result);
-    registers.set_single(&SingleRegister::F, flags);
+    registers.set_flags(flags);
 }
 
 enum AluOp {
@@ -415,14 +415,14 @@ crate::instruction_tests! {
     }
 
     add_sets_z_flag_if_result_is_zero(registers, memory, cpu_flags) => {
-        assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::F));
+        assert_eq!(0b0000_0000, registers.get_flags());
 
         registers.set_single(&SingleRegister::A, 0);
         registers.set_single(&SingleRegister::B, 0);
 
         ALU8Bit::Add(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
-        assert_eq!(0b1000_0000, registers.get_single(&SingleRegister::F));
+        assert_eq!(0b1000_0000, registers.get_flags());
     }
 
     add_sets_h_flag_if_carry_from_bit_3(registers, memory, cpu_flags) => {
@@ -431,7 +431,7 @@ crate::instruction_tests! {
 
         ALU8Bit::Add(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
-        assert_eq!(0b0010_0000, registers.get_single(&SingleRegister::F));
+        assert_eq!(0b0010_0000, registers.get_flags());
     }
 
     add_sets_c_flag_if_carry_from_bit_7(registers, memory, cpu_flags) => {
@@ -440,7 +440,7 @@ crate::instruction_tests! {
 
         ALU8Bit::Add(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
-        assert_eq!(0b0001_0000, registers.get_single(&SingleRegister::F));
+        assert_eq!(0b0001_0000, registers.get_flags());
     }
 
     add_handles_overflow(registers, memory, cpu_flags) => {
@@ -494,20 +494,20 @@ crate::instruction_tests! {
 
         ALU8Bit::Add(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0x00, registers.get_single(&SingleRegister::A), "Wrong result");
-        assert_eq!(0b1011_0000, registers.get_single(&SingleRegister::F), "Incorrect flags");
+        assert_eq!(0b1011_0000, registers.get_flags(), "Incorrect flags");
 
         registers.set_single(&SingleRegister::A, 0x3C);
 
         ALU8Bit::AddN(0xFF).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0x3B, registers.get_single(&SingleRegister::A), "Wrong result");
-        assert_eq!(0b0011_0000, registers.get_single(&SingleRegister::F), "Incorrect flags");
+        assert_eq!(0b0011_0000, registers.get_flags(), "Incorrect flags");
 
         registers.set_single(&SingleRegister::A, 0x3C);
         memory.set(registers.get_double(&DoubleRegister::HL).into(), 0x12);
 
         ALU8Bit::AddHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0x4E, registers.get_single(&SingleRegister::A), "Wrong result");
-        assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::F), "Incorrect flags");
+        assert_eq!(0b0000_0000, registers.get_flags(), "Incorrect flags");
     }
 
     adc_takes_1_machine_cycle(registers, memory, cpu_flags) => {
@@ -519,14 +519,14 @@ crate::instruction_tests! {
     adc_adds_register_plus_carry_to_a(registers, memory, cpu_flags) => {
         registers.set_single(&SingleRegister::A, 40);
         registers.set_single(&SingleRegister::B, 2);
-        registers.set_single(&SingleRegister::F, MASK_FLAG_CARRY);
+        registers.set_flags(MASK_FLAG_CARRY);
 
         ALU8Bit::Adc(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
         assert_eq!(43, registers.get_single(&SingleRegister::A));
 
         registers.set_single(&SingleRegister::A, 40);
-        registers.set_single(&SingleRegister::F, 0);
+        registers.set_flags(0);
 
         ALU8Bit::Adc(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
@@ -541,14 +541,14 @@ crate::instruction_tests! {
 
     adcn_adds_register_plus_carry_to_a(registers, memory, cpu_flags) => {
         registers.set_single(&SingleRegister::A, 40);
-        registers.set_single(&SingleRegister::F, MASK_FLAG_CARRY);
+        registers.set_flags(MASK_FLAG_CARRY);
 
         ALU8Bit::AdcN(2).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
         assert_eq!(43, registers.get_single(&SingleRegister::A));
 
         registers.set_single(&SingleRegister::A, 40);
-        registers.set_single(&SingleRegister::F, 0);
+        registers.set_flags(0);
 
         ALU8Bit::AdcN(2).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
@@ -564,14 +564,14 @@ crate::instruction_tests! {
     adchl_adds_register_plus_carry_to_a(registers, memory, cpu_flags) => {
         registers.set_single(&SingleRegister::A, 40);
         memory.set(registers.get_double(&DoubleRegister::HL).into(), 2);
-        registers.set_single(&SingleRegister::F, MASK_FLAG_CARRY);
+        registers.set_flags(MASK_FLAG_CARRY);
 
         ALU8Bit::AdcHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
         assert_eq!(43, registers.get_single(&SingleRegister::A));
 
         registers.set_single(&SingleRegister::A, 40);
-        registers.set_single(&SingleRegister::F, 0);
+        registers.set_flags(0);
 
         ALU8Bit::AdcHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
@@ -636,19 +636,19 @@ crate::instruction_tests! {
 
         ALU8Bit::Sub(SingleRegister::E).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0x00, registers.get_single(&SingleRegister::A), "Sub has wrong result");
-        assert_eq!(0b1100_0000, registers.get_single(&SingleRegister::F), "Sub sets incorrect flags");
+        assert_eq!(0b1100_0000, registers.get_flags(), "Sub sets incorrect flags");
 
         registers.set_single(&SingleRegister::A, 0x3E);
 
         ALU8Bit::SubN(0x0F).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0x2F, registers.get_single(&SingleRegister::A), "SubN has wrong result");
-        assert_eq!(0b0110_0000, registers.get_single(&SingleRegister::F), "SubN sets incorrect flags");
+        assert_eq!(0b0110_0000, registers.get_flags(), "SubN sets incorrect flags");
 
         registers.set_single(&SingleRegister::A, 0x3E);
 
         ALU8Bit::SubHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0xFE, registers.get_single(&SingleRegister::A), "SubHL has wrong result");
-        assert_eq!(0b0101_0000, registers.get_single(&SingleRegister::F), "SubN sets incorrect flags");
+        assert_eq!(0b0101_0000, registers.get_flags(), "SubN sets incorrect flags");
     }
 
     sbc_takes_the_correct_amount_of_machine_cycles(registers, memory, cpu_flags) => {
@@ -669,26 +669,26 @@ crate::instruction_tests! {
         registers.set_single(&SingleRegister::H, 0x2A);
         memory.set(registers.get_double(&DoubleRegister::HL).into(), 0x4F);
         registers.set_single(&SingleRegister::A, 0x3B);
-        registers.set_single(&SingleRegister::F, 0b0001_0000);
+        registers.set_flags(0b0001_0000);
 
         ALU8Bit::Sbc(SingleRegister::H).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0x10, registers.get_single(&SingleRegister::A), "Sbc has wrong result");
-        assert_eq!(0b0100_0000, registers.get_single(&SingleRegister::F), "Sbc sets incorrect flags");
+        assert_eq!(0b0100_0000, registers.get_flags(), "Sbc sets incorrect flags");
 
         registers.set_single(&SingleRegister::A, 0x3B);
-        registers.set_single(&SingleRegister::F, 0b0001_0000);
+        registers.set_flags(0b0001_0000);
 
         ALU8Bit::SbcN(0x3A).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0x00, registers.get_single(&SingleRegister::A), "SbcN has wrong result");
-        assert_eq!(0b1100_0000, registers.get_single(&SingleRegister::F), "SbcN sets incorrect flags");
+        assert_eq!(0b1100_0000, registers.get_flags(), "SbcN sets incorrect flags");
 
         registers.set_single(&SingleRegister::A, 0x3B);
 
-        registers.set_single(&SingleRegister::F, 0b0001_0000);
+        registers.set_flags(0b0001_0000);
 
         ALU8Bit::SbcHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0xEB, registers.get_single(&SingleRegister::A), "SbcHL has wrong result");
-        assert_eq!(0b0111_0000, registers.get_single(&SingleRegister::F), "SbcHL sets incorrect flags");
+        assert_eq!(0b0111_0000, registers.get_flags(), "SbcHL sets incorrect flags");
     }
 
     and_takes_the_correct_amount_of_machine_cycles(registers, memory, cpu_flags) => {
@@ -718,20 +718,20 @@ crate::instruction_tests! {
 
         ALU8Bit::And(SingleRegister::L).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0x1A, registers.get_single(&SingleRegister::A), "And has wrong result");
-        assert_eq!(0b0010_0000, registers.get_single(&SingleRegister::F), "And sets incorrect flags");
+        assert_eq!(0b0010_0000, registers.get_flags(), "And sets incorrect flags");
 
         registers.set_single(&SingleRegister::A, 0x5A);
 
         ALU8Bit::AndN(0x38).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0x18, registers.get_single(&SingleRegister::A), "AndN has wrong result");
-        assert_eq!(0b0010_0000, registers.get_single(&SingleRegister::F), "AndN sets incorrect flags");
+        assert_eq!(0b0010_0000, registers.get_flags(), "AndN sets incorrect flags");
 
         registers.set_single(&SingleRegister::A, 0x5A);
         registers.set_double(&DoubleRegister::HL, 0x00);
 
         ALU8Bit::AndHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0x00, registers.get_single(&SingleRegister::A), "AndHL has wrong result");
-        assert_eq!(0b1010_0000, registers.get_single(&SingleRegister::F), "AndHL sets incorrect flags");
+        assert_eq!(0b1010_0000, registers.get_flags(), "AndHL sets incorrect flags");
     }
 
     or_takes_the_correct_amount_of_machine_cycles(registers, memory, cpu_flags) => {
@@ -761,19 +761,19 @@ crate::instruction_tests! {
 
         ALU8Bit::Or(SingleRegister::A).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0x5A, registers.get_single(&SingleRegister::A), "Or has wrong result");
-        assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::F), "Or sets incorrect flags");
+        assert_eq!(0b0000_0000, registers.get_flags(), "Or sets incorrect flags");
 
         registers.set_single(&SingleRegister::A, 0x5A);
 
         ALU8Bit::OrN(0x03).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0x5B, registers.get_single(&SingleRegister::A), "OrN has wrong result");
-        assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::F), "OrN sets incorrect flags");
+        assert_eq!(0b0000_0000, registers.get_flags(), "OrN sets incorrect flags");
 
         registers.set_single(&SingleRegister::A, 0x5A);
 
         ALU8Bit::OrHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0x5F, registers.get_single(&SingleRegister::A), "OrHL has wrong result");
-        assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::F), "OrHL sets incorrect flags");
+        assert_eq!(0b0000_0000, registers.get_flags(), "OrHL sets incorrect flags");
     }
 
     xor_takes_the_correct_amount_of_machine_cycles(registers, memory, cpu_flags) => {
@@ -803,19 +803,19 @@ crate::instruction_tests! {
 
         ALU8Bit::Xor(SingleRegister::A).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0x00, registers.get_single(&SingleRegister::A), "Xor has wrong result");
-        assert_eq!(0b1000_0000, registers.get_single(&SingleRegister::F), "Xor sets incorrect flags");
+        assert_eq!(0b1000_0000, registers.get_flags(), "Xor sets incorrect flags");
 
         registers.set_single(&SingleRegister::A, 0xFF);
 
         ALU8Bit::XorN(0x0F).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0xF0, registers.get_single(&SingleRegister::A), "XorN has wrong result");
-        assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::F), "XorN sets incorrect flags");
+        assert_eq!(0b0000_0000, registers.get_flags(), "XorN sets incorrect flags");
 
         registers.set_single(&SingleRegister::A, 0xFF);
 
         ALU8Bit::XorHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0x75, registers.get_single(&SingleRegister::A), "XorHL has wrong result");
-        assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::F), "XorHL sets incorrect flags");
+        assert_eq!(0b0000_0000, registers.get_flags(), "XorHL sets incorrect flags");
     }
 
     cp_takes_the_correct_amount_of_machine_cycles(registers, memory, cpu_flags) => {
@@ -845,15 +845,15 @@ crate::instruction_tests! {
         registers.set_single(&SingleRegister::A, 0x3C);
 
         ALU8Bit::Cp(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        assert_eq!(0b0110_0000, registers.get_single(&SingleRegister::F), "Cp sets incorrect flags");
+        assert_eq!(0b0110_0000, registers.get_flags(), "Cp sets incorrect flags");
 
         ALU8Bit::CpN(0x3C).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        assert_eq!(0b1100_0000, registers.get_single(&SingleRegister::F), "CpN sets incorrect flags");
+        assert_eq!(0b1100_0000, registers.get_flags(), "CpN sets incorrect flags");
 
         registers.set_single(&SingleRegister::A, 0x3C);
 
         ALU8Bit::CpHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        assert_eq!(0b0101_0000, registers.get_single(&SingleRegister::F), "CpHL sets incorrect flags");
+        assert_eq!(0b0101_0000, registers.get_flags(), "CpHL sets incorrect flags");
     }
 
     inc_takes_the_correct_amount_of_machine_cycles(registers, memory, cpu_flags) => {
@@ -879,19 +879,19 @@ crate::instruction_tests! {
 
         ALU8Bit::Inc(SingleRegister::A).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0, registers.get_single(&SingleRegister::A), "Inc sets wrong result");
-        assert_eq!(0b1010_0000, registers.get_single(&SingleRegister::F), "Inc sets incorrect flags");
+        assert_eq!(0b1010_0000, registers.get_flags(), "Inc sets incorrect flags");
 
         ALU8Bit::IncHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0x51, memory.get(registers.get_double(&DoubleRegister::HL).into()), "IncHL sets wrong result");
-        assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::F), "IncHL sets incorrect flags");
+        assert_eq!(0b0000_0000, registers.get_flags(), "IncHL sets incorrect flags");
 
-        registers.set_single(&SingleRegister::F, MASK_FLAG_CARRY);
+        registers.set_flags(MASK_FLAG_CARRY);
         ALU8Bit::Inc(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        assert_eq!(0b0001_0000, registers.get_single(&SingleRegister::F), "Inc did not maintain Carry flag");
+        assert_eq!(0b0001_0000, registers.get_flags(), "Inc did not maintain Carry flag");
 
-        registers.set_single(&SingleRegister::F, MASK_FLAG_CARRY);
+        registers.set_flags(MASK_FLAG_CARRY);
         ALU8Bit::IncHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        assert_eq!(0b0001_0000, registers.get_single(&SingleRegister::F), "IncHL did not maintain Carry flag");
+        assert_eq!(0b0001_0000, registers.get_flags(), "IncHL did not maintain Carry flag");
     }
 
     dec_takes_the_correct_amount_of_machine_cycles(registers, memory, cpu_flags) => {
@@ -918,18 +918,18 @@ crate::instruction_tests! {
 
         ALU8Bit::Dec(SingleRegister::A).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0, registers.get_single(&SingleRegister::A), "Dec sets wrong result");
-        assert_eq!(0b1100_0000, registers.get_single(&SingleRegister::F), "Dec sets incorrect flags");
+        assert_eq!(0b1100_0000, registers.get_flags(), "Dec sets incorrect flags");
 
         ALU8Bit::DecHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0xFF, memory.get(registers.get_double(&DoubleRegister::HL).into()), "DecHL sets wrong result");
-        assert_eq!(0b0110_0000, registers.get_single(&SingleRegister::F), "DecHL sets incorrect flags");
+        assert_eq!(0b0110_0000, registers.get_flags(), "DecHL sets incorrect flags");
 
-        registers.set_single(&SingleRegister::F, MASK_FLAG_CARRY);
+        registers.set_flags(MASK_FLAG_CARRY);
         ALU8Bit::Dec(SingleRegister::C).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        assert_eq!(0b0101_0000, registers.get_single(&SingleRegister::F), "Dec did not maintain Carry flag");
+        assert_eq!(0b0101_0000, registers.get_flags(), "Dec did not maintain Carry flag");
 
-        registers.set_single(&SingleRegister::F, MASK_FLAG_CARRY);
+        registers.set_flags(MASK_FLAG_CARRY);
         ALU8Bit::DecHL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        assert_eq!(0b0101_0000, registers.get_single(&SingleRegister::F), "DecHL did not maintain Carry flag");
+        assert_eq!(0b0101_0000, registers.get_flags(), "DecHL did not maintain Carry flag");
     }
 }

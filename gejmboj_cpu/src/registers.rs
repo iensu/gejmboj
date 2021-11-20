@@ -273,10 +273,10 @@ impl Registers {
     /// # use gejmboj_cpu::registers::*;
     /// let mut registers = Registers::new();
     ///
-    /// registers.set_single(&SingleRegister::F, 0b0000_0000);
+    /// registers.set_flags(0b0000_0000);
     /// assert_eq!(false, registers.is_carry());
     ///
-    /// registers.set_single(&SingleRegister::F, 0b0001_0000);
+    /// registers.set_flags(0b0001_0000);
     /// assert_eq!(true, registers.is_carry());
     /// ```
     pub fn is_carry(&self) -> bool {
@@ -291,10 +291,10 @@ impl Registers {
     /// # use gejmboj_cpu::registers::*;
     /// let mut registers = Registers::new();
     ///
-    /// registers.set_single(&SingleRegister::F, 0b0000_0000);
+    /// registers.set_flags(0b0000_0000);
     /// assert_eq!(false, registers.is_half_carry());
     ///
-    /// registers.set_single(&SingleRegister::F, 0b0010_0000);
+    /// registers.set_flags(0b0010_0000);
     /// assert_eq!(true, registers.is_half_carry());
     /// ```
     pub fn is_half_carry(&self) -> bool {
@@ -309,10 +309,10 @@ impl Registers {
     /// # use gejmboj_cpu::registers::*;
     /// let mut registers = Registers::new();
     ///
-    /// registers.set_single(&SingleRegister::F, 0b0000_0000);
+    /// registers.set_flags(0b0000_0000);
     /// assert_eq!(false, registers.is_negative());
     ///
-    /// registers.set_single(&SingleRegister::F, 0b0100_0000);
+    /// registers.set_flags(0b0100_0000);
     /// assert_eq!(true, registers.is_negative());
     /// ```
     pub fn is_negative(&self) -> bool {
@@ -327,10 +327,10 @@ impl Registers {
     /// # use gejmboj_cpu::registers::*;
     /// let mut registers = Registers::new();
     ///
-    /// registers.set_single(&SingleRegister::F, 0b0000_0000);
+    /// registers.set_flags(0b0000_0000);
     /// assert_eq!(false, registers.is_zero());
     ///
-    /// registers.set_single(&SingleRegister::F, 0b1000_0000);
+    /// registers.set_flags(0b1000_0000);
     /// assert_eq!(true, registers.is_zero());
     /// ```
     pub fn is_zero(&self) -> bool {
@@ -347,8 +347,22 @@ impl Registers {
     /// Sets the value of the flag register `F`.
     ///
     /// Convenience method to set the flag register value.
+    /// The lower nibble (4 bits) are always 0 and cannot be overwritten.
+    ///
+    /// ## Examples
+    ///
+    /// ```rust
+    /// # use gejmboj_cpu::registers::*;
+    /// let mut registers = Registers::new();
+    ///
+    /// registers.set_flags(0b1101_0000);
+    /// assert_eq!(0b1101_0000, registers.get_flags());
+    ///
+    /// registers.set_flags(0b1111_1111);
+    /// assert_eq!(0b1111_0000, registers.get_flags());
+    /// ```
     pub fn set_flags(&mut self, flags: u8) {
-        self.F = flags;
+        self.F = flags & 0xF0;
     }
 
     #[cfg(test)]
