@@ -86,6 +86,7 @@ fn get_register_value(
 enum Op {
     RotateLeft(u8),
     RotateRight(u8),
+    ShiftLeft(u8),
 }
 
 #[derive(Default)]
@@ -146,10 +147,11 @@ impl Op {
         let mut result = match self {
             Op::RotateLeft(x) => x.rotate_left(1),
             Op::RotateRight(x) => x.rotate_right(1),
+            Op::ShiftLeft(x) => x << 1,
         };
         let (value, carry_bit, add_bit) = match self {
-            Op::RotateLeft(x) => (x, 0b1000_0000, 0b1),
             Op::RotateRight(x) => (x, 0b1, 0b1000_0000),
+            Op::RotateLeft(x) | Op::ShiftLeft(x) => (x, 0b1000_0000, 0b1),
         };
         if config.add_carry && flags & MASK_FLAG_CARRY > 0 {
             result |= add_bit;
@@ -402,8 +404,22 @@ instruction_group! {
         /// | N    | `0`           |
         /// | H    | `0`           |
         /// | C    | m<sup>7</sup> |
-        Sla(_operand: u8) [2] => {
-            unimplemented!()
+        Sla(operand: u8) [2] => {
+            let (value, register) = get_register_value(registers, memory, *operand);
+            let (result, flags) = Op::ShiftLeft(value).execute(0, &OpConfig::builder().set_z().build());
+
+            registers.set_flags(flags);
+
+            match register {
+                Some(r) => {
+                    registers.set_single(&r, result);
+                    Ok(2)
+                },
+                None => {
+                    memory.set(registers.get_double(&DoubleRegister::HL).into(), result);
+                    Ok(4)
+                }
+            }
         }
 
         /// Shifts the contents of `m` to the right.
@@ -790,6 +806,61 @@ crate::instruction_tests! {
         RotateShift::Rr(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0b1000_0000, registers.get_single(&SingleRegister::B), "C flag not moved to m7");
         assert_eq!(false, registers.is_carry(), "C flag was still set");
+        registers.clear();
+    }
+
+    sla_returns_the_correct_machine_cycles(registers, memory, cpu_flags) => {
+        for operand in 0..8 {
+            let cycles = RotateShift::Sla(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+            if operand == 0b110 {
+                assert_eq!(4, cycles, "Incorrect number of machine cycles for HL");
+            } else {
+                assert_eq!(2, cycles, "Incorrect number of machine cycles for single register ({:08b})", operand);
+            }
+        }
+    }
+
+    sla_shifts_the_correct_register_to_the_left(registers, memory, cpu_flags) => {
+        use std::convert::TryInto;
+
+        let value: u8 = 0b1001_0100;
+        let expected: u8 = 0b0010_1000;
+
+        for operand in 0..8 {
+            if operand == 0b110 {
+                memory.set(registers.get_double(&DoubleRegister::HL).into(), value);
+            } else {
+                registers.set_single(&operand.try_into().unwrap(), value);
+            }
+
+            RotateShift::Sla(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+            if operand == 0b110 {
+                assert_eq!(expected, memory.get(registers.get_double(&DoubleRegister::HL).into()), "Incorrect result for (HL)");
+            } else {
+                let r: SingleRegister = operand.try_into().unwrap();
+                assert_eq!(expected, registers.get_single(&r), "Incorrect result for register {:?}", r);
+            }
+
+            registers.clear();
+        }
+    }
+
+    sla_handles_flags_correctly(registers, memory, cpu_flags) => {
+        registers.set_single(&SingleRegister::B, 0b0);
+        RotateShift::Sla(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0b1000_0000, registers.get_flags(), "Z flag not set");
+        registers.clear();
+
+        registers.set_single(&SingleRegister::B, 0b1000_0001);
+        RotateShift::Sla(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0b0001_0000, registers.get_flags(), "C flag not set");
+        registers.clear();
+
+        registers.set_single(&SingleRegister::B, 0b1000_0000);
+        RotateShift::Sla(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0b1001_0000, registers.get_flags(), "C and Z flags not set");
         registers.clear();
     }
 }
