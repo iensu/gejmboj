@@ -88,6 +88,51 @@ enum Op {
     RotateRight(u8),
 }
 
+#[derive(Default)]
+struct OpConfig {
+    add_carry: bool,
+    set_z: bool,
+    repeat_tail: bool,
+}
+
+impl OpConfig {
+    pub fn builder() -> OpConfigBuilder {
+        OpConfigBuilder::default()
+    }
+}
+
+#[derive(Default)]
+struct OpConfigBuilder {
+    add_carry: bool,
+    set_z: bool,
+    repeat_tail: bool,
+}
+
+impl OpConfigBuilder {
+    pub fn set_z(mut self) -> OpConfigBuilder {
+        self.set_z = true;
+        self
+    }
+
+    pub fn add_carry(mut self) -> OpConfigBuilder {
+        self.add_carry = true;
+        self
+    }
+
+    pub fn repeat_tail(mut self) -> OpConfigBuilder {
+        self.repeat_tail = true;
+        self
+    }
+
+    pub fn build(&self) -> OpConfig {
+        OpConfig {
+            add_carry: self.add_carry,
+            set_z: self.set_z,
+            repeat_tail: self.repeat_tail,
+        }
+    }
+}
+
 impl Op {
     /// Run the designated function and return a tuple of (result, flags).
     ///
@@ -97,7 +142,7 @@ impl Op {
     /// first or last bit depending on direction.
     ///
     /// If `set_z` is `true` the Z flag will be set if the result is 0.
-    pub fn execute(&self, flags: u8, add_carry: bool, set_z: bool) -> (u8, u8) {
+    pub fn execute(&self, flags: u8, config: &OpConfig) -> (u8, u8) {
         let mut result = match self {
             Op::RotateLeft(x) => x.rotate_left(1),
             Op::RotateRight(x) => x.rotate_right(1),
@@ -106,7 +151,7 @@ impl Op {
             Op::RotateLeft(x) => (x, 0b1000_0000, 0b1),
             Op::RotateRight(x) => (x, 0b1, 0b1000_0000),
         };
-        if add_carry && flags & MASK_FLAG_CARRY > 0 {
+        if config.add_carry && flags & MASK_FLAG_CARRY > 0 {
             result |= add_bit;
         }
 
@@ -116,9 +161,9 @@ impl Op {
         } else {
             flags &= 0b1110_0000;
         }
-        if set_z && result == 0 {
+        if config.set_z && result == 0 {
             flags |= MASK_FLAG_ZERO;
-        } else if set_z {
+        } else if config.set_z {
             flags &= 0b0111_0000;
         }
 
@@ -150,7 +195,7 @@ instruction_group! {
         /// | C    | A<sup>7</sup> |
         RlcA() [1] => {
             let value = registers.get_single(&SingleRegister::A);
-            let (result, flags) = Op::RotateLeft(value).execute(0, false, false);
+            let (result, flags) = Op::RotateLeft(value).execute(0, &OpConfig::default());
             registers.set_single(&SingleRegister::A, result);
             registers.set_flags(flags);
             Ok(1)
@@ -171,8 +216,7 @@ instruction_group! {
             let value = registers.get_single(&SingleRegister::A);
             let (result, flags) = Op::RotateLeft(value).execute(
                 registers.get_flags() & MASK_FLAG_CARRY,
-                true,
-                false,
+                &OpConfig::builder().add_carry().build(),
             );
             registers.set_single(&SingleRegister::A, result);
             registers.set_flags(flags);
@@ -192,7 +236,7 @@ instruction_group! {
         /// | C    | A<sup>0</sup> |
         RrcA() [1] => {
             let value = registers.get_single(&SingleRegister::A);
-            let (result, flags) = Op::RotateRight(value).execute(0, false, false);
+            let (result, flags) = Op::RotateRight(value).execute(0, &OpConfig::default());
             registers.set_single(&SingleRegister::A, result);
             registers.set_flags(flags);
             Ok(1)
@@ -213,8 +257,7 @@ instruction_group! {
             let value = registers.get_single(&SingleRegister::A);
             let (result, flags) = Op::RotateRight(value).execute(
                 registers.get_flags() & MASK_FLAG_CARRY,
-                true,
-                false,
+                &OpConfig::builder().add_carry().build()
             );
             registers.set_single(&SingleRegister::A, result);
             registers.set_flags(flags);
@@ -235,7 +278,7 @@ instruction_group! {
         /// | C    | m<sup>7</sup> |
         RlC(operand: u8) [2] => {
             let (value, register) = get_register_value(registers, memory, *operand);
-            let (result, flags) = Op::RotateLeft(value).execute(0, false, true);
+            let (result, flags) = Op::RotateLeft(value).execute(0, &OpConfig::builder().set_z().build());
 
             registers.set_flags(flags);
 
@@ -265,7 +308,10 @@ instruction_group! {
         /// | C    | m<sup>7</sup> |
         Rl(operand: u8) [2] => {
             let (value, register) = get_register_value(registers, memory, *operand);
-            let (result, flags) = Op::RotateLeft(value).execute(registers.get_flags() & MASK_FLAG_CARRY, true, true);
+            let (result, flags) = Op::RotateLeft(value).execute(
+                registers.get_flags() & MASK_FLAG_CARRY,
+                &OpConfig::builder().add_carry().set_z().build()
+            );
 
             registers.set_flags(flags);
 
@@ -295,7 +341,7 @@ instruction_group! {
         /// | C    | m<sup>0</sup> |
         RrC(operand: u8) [2] => {
             let (value, register) = get_register_value(registers, memory, *operand);
-            let (result, flags) = Op::RotateRight(value).execute(0, false, true);
+            let (result, flags) = Op::RotateRight(value).execute(0, &OpConfig::builder().set_z().build());
 
             registers.set_flags(flags);
 
@@ -325,7 +371,10 @@ instruction_group! {
         /// | C    | m<sup>0</sup> |
         Rr(operand: u8) [2] => {
             let (value, register) = get_register_value(registers, memory, *operand);
-            let (result, flags) = Op::RotateRight(value).execute(registers.get_flags() & MASK_FLAG_CARRY, true, true);
+            let (result, flags) = Op::RotateRight(value).execute(
+                registers.get_flags() & MASK_FLAG_CARRY,
+                &OpConfig::builder().add_carry().set_z().build()
+            );
 
             registers.set_flags(flags);
 
