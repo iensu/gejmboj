@@ -83,56 +83,60 @@ fn get_register_value(
     }
 }
 
-enum Op {
-    RotateLeft(u8),
-    RotateRight(u8),
-    ShiftLeft(u8),
-    ShiftRight(u8),
-}
-
+/// Configuration for the Op operations.
 #[derive(Default)]
 struct OpConfig {
+    /// Set to `true` if the Carry bit should be added to the result.
     add_carry: bool,
+    /// Set to `true` if the Zero flag should be handled in the operation.
     set_z: bool,
+    /// Set to `true` if the tailing bit should be repeated instead of 0 when shifting.
     repeat_tail: bool,
 }
 
 impl OpConfig {
     pub fn builder() -> OpConfigBuilder {
-        OpConfigBuilder::default()
+        OpConfigBuilder::new()
     }
 }
 
 #[derive(Default)]
 struct OpConfigBuilder {
-    add_carry: bool,
-    set_z: bool,
-    repeat_tail: bool,
+    config: OpConfig,
 }
 
 impl OpConfigBuilder {
+    pub fn new() -> Self {
+        Self {
+            config: OpConfig::default(),
+        }
+    }
+
     pub fn set_z(mut self) -> OpConfigBuilder {
-        self.set_z = true;
+        self.config.set_z = true;
         self
     }
 
     pub fn add_carry(mut self) -> OpConfigBuilder {
-        self.add_carry = true;
+        self.config.add_carry = true;
         self
     }
 
     pub fn repeat_tail(mut self) -> OpConfigBuilder {
-        self.repeat_tail = true;
+        self.config.repeat_tail = true;
         self
     }
 
-    pub fn build(&self) -> OpConfig {
-        OpConfig {
-            add_carry: self.add_carry,
-            set_z: self.set_z,
-            repeat_tail: self.repeat_tail,
-        }
+    pub fn build(self) -> OpConfig {
+        self.config
     }
+}
+
+enum Op {
+    RotateLeft(u8),
+    RotateRight(u8),
+    ShiftLeft(u8),
+    ShiftRight(u8),
 }
 
 impl Op {
