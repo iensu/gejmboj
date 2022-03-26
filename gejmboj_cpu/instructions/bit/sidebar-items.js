@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["Bit","Bit operations"]],"fn":[["decode","Decodes the `operand` into a `Bit` instruction."]]});
