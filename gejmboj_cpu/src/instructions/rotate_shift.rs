@@ -155,20 +155,20 @@ impl Op {
             Op::ShiftLeft(x) => x << 1,
             Op::ShiftRight(x) => x >> 1,
         };
-        let (value, carry_bit, add_bit) = match self {
-            Op::RotateLeft(x) | Op::ShiftLeft(x) => (x, 0b1000_0000, 0b1),
-            Op::RotateRight(x) | Op::ShiftRight(x) => (x, 0b1, 0b1000_0000),
+        let (to_carry, from_carry, tail_bit) = match self {
+            Op::RotateLeft(x) | Op::ShiftLeft(x) => (x & 0b1000_0000, 0b1, x & 0b1),
+            Op::RotateRight(x) | Op::ShiftRight(x) => (x & 0b1, 0b1000_0000, x & 0b1000_0000),
         };
+
         if config.add_carry && flags & MASK_FLAG_CARRY > 0 {
-            result |= add_bit;
+            result |= from_carry;
         }
         if config.repeat_tail {
-            let tail_bit = value & add_bit;
             result |= tail_bit;
         }
 
         let mut flags = flags;
-        if value & carry_bit > 0 {
+        if to_carry > 0 {
             flags |= MASK_FLAG_CARRY;
         } else {
             flags &= 0b1110_0000;
