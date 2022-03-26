@@ -1,3 +1,3 @@
 (function() {var implementors = {};
-implementors["gejmboj_cpu"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.56.1/core/marker/trait.Copy.html\" title=\"trait core::marker::Copy\">Copy</a> for <a class=\"enum\" href=\"gejmboj_cpu/registers/enum.SingleRegister.html\" title=\"enum gejmboj_cpu::registers::SingleRegister\">SingleRegister</a>","synthetic":false,"types":["gejmboj_cpu::registers::SingleRegister"]}];
+implementors["gejmboj_cpu"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.59.0/core/marker/trait.Copy.html\" title=\"trait core::marker::Copy\">Copy</a> for <a class=\"enum\" href=\"gejmboj_cpu/registers/enum.SingleRegister.html\" title=\"enum gejmboj_cpu::registers::SingleRegister\">SingleRegister</a>","synthetic":false,"types":["gejmboj_cpu::registers::SingleRegister"]}];
 if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
