@@ -5,6 +5,7 @@ use crate::{errors::CpuError, memory::Memory, registers::Registers};
 
 pub mod alu_16bit;
 pub mod alu_8bit;
+pub mod bit;
 pub mod control_flow;
 pub mod load_16bit;
 pub mod load_8bit;
@@ -14,6 +15,7 @@ mod utils;
 
 use alu_16bit::ALU16Bit;
 use alu_8bit::ALU8Bit;
+use bit::Bit;
 use control_flow::ControlFlow;
 use load_16bit::Load16Bit;
 use load_8bit::Load8Bit;
@@ -25,7 +27,7 @@ use utils::into_bits;
 pub type InstructionResult = Result<u16, CpuError>;
 
 combine_instructions! {
-    Instruction(ALU16Bit, ALU8Bit,ControlFlow, Load8Bit, Load16Bit, Misc, RotateShift)
+    Instruction(ALU16Bit, ALU8Bit, Bit, ControlFlow, Load8Bit, Load16Bit, Misc, RotateShift)
 }
 
 #[derive(Debug, PartialEq)]
@@ -170,8 +172,13 @@ pub fn decode(opcode: u8, pc: u16, memory: &Memory) -> Result<Instruction, CpuEr
         (0, 0, 0, 0, 1, 1, 1, 1) => Ok(Instruction::RotateShift(RotateShift::RrcA())),
         (0, 0, 0, 1, 0, 1, 1, 1) => Ok(Instruction::RotateShift(RotateShift::RlA())),
         (0, 0, 0, 1, 1, 1, 1, 1) => Ok(Instruction::RotateShift(RotateShift::RrA())),
-        (1, 1, 0, 0, 1, 0, 1, 1) => rotate_shift::decode(get_8bit_operand(pc, memory))
-            .map(|op| Instruction::RotateShift(op)),
+        (1, 1, 0, 0, 1, 0, 1, 1) => {
+            let operand = get_8bit_operand(pc, memory);
+
+            rotate_shift::decode(operand)
+                .map(|op| Instruction::RotateShift(op))
+                .or_else(|_| bit::decode(operand).map(|op| Instruction::Bit(op)))
+        }
 
         // VARIABLE MATCHES
         //
@@ -257,6 +264,28 @@ mod tests {
             (0b0010_1111, I::RotateShift(RS::Sra(0b0010_1111))),
             (0b0011_0111, I::RotateShift(RS::Swap(0b0011_0111))),
             (0b0011_1111, I::RotateShift(RS::Srl(0b0011_1111))),
+        ] {
+            memory.set((pc as usize) + 1, operand);
+
+            assert_eq!(
+                instruction,
+                decode(code, pc, &memory).unwrap(),
+                "Failed to decode with operand 0b{:08b}",
+                operand
+            );
+        }
+    }
+
+    #[test]
+    fn decode_with_operand_bit_instructions_works() {
+        let code = 0b11001011;
+        let pc = 0;
+        let mut memory = Memory::new();
+
+        for (operand, instruction) in vec![
+            (0b0100_0111, I::Bit(Bit::Bit(0b0100_0111))),
+            (0b1100_1111, I::Bit(Bit::Set(0b1100_1111))),
+            (0b1001_0111, I::Bit(Bit::Res(0b1001_0111))),
         ] {
             memory.set((pc as usize) + 1, operand);
 
