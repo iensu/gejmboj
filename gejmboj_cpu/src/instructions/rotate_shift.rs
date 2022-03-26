@@ -1,4 +1,4 @@
-use super::utils;
+use super::utils::{self, get_register_value};
 /// Rotate Shift instructions
 ///
 /// Some of the Rotate Shift instructions share their opcode and it's necessary to
@@ -31,8 +31,7 @@ use super::utils;
 use crate::{
     errors::CpuError,
     instruction_group,
-    memory::Memory,
-    registers::{DoubleRegister, Registers, SingleRegister, MASK_FLAG_CARRY, MASK_FLAG_ZERO},
+    registers::{DoubleRegister, SingleRegister, MASK_FLAG_CARRY, MASK_FLAG_ZERO},
 };
 
 /// Decodes the `operand` into a `RotateShift` instruction.
@@ -58,28 +57,6 @@ pub fn decode(operand: u8) -> Result<RotateShift, CpuError> {
         (0, 0, 1, 1, 0, _, _, _) => Ok(RotateShift::Swap(operand)),
         (0, 0, 1, 1, 1, _, _, _) => Ok(RotateShift::Srl(operand)),
         _ => Err(CpuError::UnknownInstruction(operand)),
-    }
-}
-
-/// Return a tuple of the value from the register designated by the operand
-/// and optionally the affected `SingleRegister`.
-///
-/// Reads either from a `SingleRegister` or `(HL)`.
-fn get_register_value(
-    registers: &Registers,
-    memory: &Memory,
-    operand: u8,
-) -> (u8, Option<SingleRegister>) {
-    match utils::into_bits(operand) {
-        (_, _, _, _, _, 1, 1, 0) => {
-            let value = memory.get(registers.get_double(&DoubleRegister::HL).into());
-            (value, None)
-        }
-        (_, _, _, _, _, a, b, c) => {
-            let r = (a, b, c).into();
-            let value = registers.get_single(&r);
-            (value, Some(r))
-        }
     }
 }
 
