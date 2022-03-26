@@ -920,6 +920,25 @@ crate::instruction_tests! {
         registers.clear();
     }
 
+    sla_sets_the_correct_values(registers, memory, cpu_flags) => {
+        registers.set_single(&SingleRegister::D, 0x80);
+        memory.set(registers.get_double(&DoubleRegister::HL).into(), 0xFF);
+
+        RotateShift::Sla(0b010).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0, registers.get_single(&SingleRegister::D));
+        assert_eq!(true, registers.is_carry());
+        assert_eq!(true, registers.is_zero());
+        assert_eq!(false, registers.is_half_carry());
+        assert_eq!(false, registers.is_negative());
+
+        RotateShift::Sla(0b110).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0xfe, memory.get(registers.get_double(&DoubleRegister::HL).into()));
+        assert_eq!(true, registers.is_carry());
+        assert_eq!(false, registers.is_zero());
+        assert_eq!(false, registers.is_half_carry());
+        assert_eq!(false, registers.is_negative());
+    }
+
     sra_returns_the_correct_machine_cycles(registers, memory, cpu_flags) => {
         for operand in 0..8 {
             let cycles = RotateShift::Sra(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
