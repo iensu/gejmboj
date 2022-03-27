@@ -1,4 +1,4 @@
-use crate::{errors::CpuError, instruction_group};
+use crate::{errors::CpuError, instruction_group, registers::DoubleRegister};
 
 use super::utils::{self, get_register_value};
 
@@ -61,21 +61,37 @@ instruction_group! {
 
         /// Sets the specified bit to 1 in `m`.
         Set(operand: u8) [2] => {
-            let (_value, register) = get_register_value(registers, memory, *operand);
+            let (value, register) = get_register_value(registers, memory, *operand);
+            let bit_mask = get_bit_mask(operand);
+            let new_value = value | bit_mask;
 
             match register {
-                None => Ok(4),
-                _ => Ok(2),
+                Some(r) => {
+                    registers.set_single(&r, new_value);
+                    Ok(2)
+                },
+                None => {
+                    memory.set(registers.get_double(&DoubleRegister::HL).into(), new_value);
+                    Ok(4)
+                },
             }
         }
 
         /// Resets the specified bit to 0 in `m`.
         Res(operand: u8) [2] => {
-            let (_value, register) = get_register_value(registers, memory, *operand);
+            let (value, register) = get_register_value(registers, memory, *operand);
+            let bit_mask = get_bit_mask(operand);
+            let new_value = value & !bit_mask;
 
             match register {
-                None => Ok(4),
-                _ => Ok(2),
+                Some(r) => {
+                    registers.set_single(&r, new_value);
+                    Ok(2)
+                },
+                None => {
+                    memory.set(registers.get_double(&DoubleRegister::HL).into(), new_value);
+                    Ok(4)
+                },
             }
         }
     }
@@ -173,6 +189,49 @@ crate::instruction_tests! {
         }
     }
 
+    set_sets_the_specified_bit_to_one_in_the_register(registers, memory, cpu_flags) => {
+        for (operand, expected) in vec![(0b11_000_111, 0b0000_0001),
+                                        (0b11_001_111, 0b0000_0010),
+                                        (0b11_010_111, 0b0000_0100),
+                                        (0b11_011_111, 0b0000_1000),
+                                        (0b11_100_111, 0b0001_0000),
+                                        (0b11_101_111, 0b0010_0000),
+                                        (0b11_110_111, 0b0100_0000),
+                                        (0b11_111_111, 0b1000_0000)] {
+            Bit::Set(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+            assert_eq!(expected, registers.get_single(&SingleRegister::A));
+            registers.clear();
+        }
+    }
+
+    set_sets_the_specified_bit_to_one_in_memory(registers, memory, cpu_flags) => {
+        registers.set_double(&DoubleRegister::HL, 0xABCD);
+
+        for (operand, expected) in vec![(0b11_000_110, 0b0000_0001),
+                                        (0b11_001_110, 0b0000_0010),
+                                        (0b11_010_110, 0b0000_0100),
+                                        (0b11_011_110, 0b0000_1000),
+                                        (0b11_100_110, 0b0001_0000),
+                                        (0b11_101_110, 0b0010_0000),
+                                        (0b11_110_110, 0b0100_0000),
+                                        (0b11_111_110, 0b1000_0000)] {
+            memory.set(registers.get_double(&DoubleRegister::HL).into(), 0);
+            Bit::Set(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+            assert_eq!(expected, memory.get(registers.get_double(&DoubleRegister::HL).into()));
+        }
+    }
+
+    set_leaves_all_flags_unchanged(registers, memory, cpu_flags) => {
+        for flags in vec![0xF0, 0x00] {
+            registers.set_flags(flags);
+
+            Bit::Set(0b11_000_111).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+            assert_eq!(flags, registers.get_flags());
+        }
+    }
+
     res_returns_the_correct_number_of_machine_cycles(registers, memory, cpu_flags) => {
         for operand in 0..8 {
             let cycles = Bit::Res(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
@@ -182,6 +241,52 @@ crate::instruction_tests! {
             } else {
                 assert_eq!(2, cycles, "Incorrect number of machine cycles for single register ({:08b})", operand);
             }
+        }
+    }
+
+    res_resets_the_specified_bit_to_zero_in_the_register(registers, memory, cpu_flags) => {
+        for (operand, expected) in vec![(0b10_000_111, 0b1111_1110),
+                                        (0b10_001_111, 0b1111_1101),
+                                        (0b10_010_111, 0b1111_1011),
+                                        (0b10_011_111, 0b1111_0111),
+                                        (0b10_100_111, 0b1110_1111),
+                                        (0b10_101_111, 0b1101_1111),
+                                        (0b10_110_111, 0b1011_1111),
+                                        (0b10_111_111, 0b0111_1111)] {
+            registers.set_single(&SingleRegister::A, 0xFF);
+
+            Bit::Res(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+            assert_eq!(expected, registers.get_single(&SingleRegister::A));
+        }
+    }
+
+    res_resets_the_specified_bit_to_zero_in_memory(registers, memory, cpu_flags) => {
+        registers.set_double(&DoubleRegister::HL, 0xABCD);
+
+        for (operand, expected) in vec![(0b10_000_110, 0b1111_1110),
+                                        (0b10_001_110, 0b1111_1101),
+                                        (0b10_010_110, 0b1111_1011),
+                                        (0b10_011_110, 0b1111_0111),
+                                        (0b10_100_110, 0b1110_1111),
+                                        (0b10_101_110, 0b1101_1111),
+                                        (0b10_110_110, 0b1011_1111),
+                                        (0b10_111_110, 0b0111_1111)] {
+            memory.set(registers.get_double(&DoubleRegister::HL).into(), 0xFF);
+
+            Bit::Res(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+            assert_eq!(expected, memory.get(registers.get_double(&DoubleRegister::HL).into()));
+        }
+    }
+
+    res_leaves_all_flags_unchanged(registers, memory, cpu_flags) => {
+        for flags in vec![0xF0, 0x00] {
+            registers.set_flags(flags);
+
+            Bit::Res(0b11_000_111).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+            assert_eq!(flags, registers.get_flags());
         }
     }
 }
