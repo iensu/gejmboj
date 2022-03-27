@@ -133,8 +133,8 @@ impl Op {
             Op::ShiftRight(x) => x >> 1,
         };
         let (to_carry, from_carry, tail_bit) = match self {
-            Op::RotateLeft(x) | Op::ShiftLeft(x) => (x & 0b1000_0000, 0b1, x & 0b1),
-            Op::RotateRight(x) | Op::ShiftRight(x) => (x & 0b1, 0b1000_0000, x & 0b1000_0000),
+            Op::RotateLeft(x) | Op::ShiftLeft(x) => (x & 0x80, 0x01, x & 0x01),
+            Op::RotateRight(x) | Op::ShiftRight(x) => (x & 0x01, 0x80, x & 0x80),
         };
 
         if config.add_carry && flags & MASK_FLAG_CARRY > 0 {
@@ -148,12 +148,12 @@ impl Op {
         if to_carry > 0 {
             flags |= MASK_FLAG_CARRY;
         } else {
-            flags &= 0b1110_0000;
+            flags &= !MASK_FLAG_CARRY;
         }
         if config.set_z && result == 0 {
             flags |= MASK_FLAG_ZERO;
         } else if config.set_z {
-            flags &= 0b0111_0000;
+            flags &= !MASK_FLAG_ZERO;
         }
 
         (result, flags)
