@@ -141,7 +141,7 @@
 <span class="macro">macro_rules!</span> <span class="ident">instruction_tests</span> {
     ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">testname</span>:<span class="ident">ident</span> (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">r</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">m</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">c</span>:<span class="ident">ident</span>) =&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">testbody</span>:<span class="ident">block</span>)<span class="kw-2">*</span>) =&gt; {
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-        <span class="kw">mod</span> <span class="ident">tests</span> {
+        <span class="kw">mod</span> <span class="ident">instruction_tests</span> {
             <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
             <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_imports</span>)]</span>
             <span class="kw">use</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">crate::registers</span>::<span class="kw-2">*</span>;
