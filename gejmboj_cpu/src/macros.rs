@@ -44,7 +44,7 @@ macro_rules! instruction_group {
 macro_rules! instruction_tests {
     ($($testname:ident ($r:ident, $m:ident, $c:ident) => $testbody:block)*) => {
         #[cfg(test)]
-        mod tests {
+        mod instruction_tests {
             use super::*;
             #[allow(unused_imports)]
             use $crate::registers::*;
