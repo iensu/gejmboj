@@ -18,6 +18,12 @@ pub fn decode(operand: u8) -> Result<Bit, CpuError> {
     }
 }
 
+fn get_bit_mask(operand: &u8) -> u8 {
+    let bit_designator = (operand >> 3) & 0b111;
+
+    1 << bit_designator
+}
+
 instruction_group! {
     /// Bit operations
     ///
@@ -39,11 +45,17 @@ instruction_group! {
 
         /// Copies the complement of the contents of the specified bit in `m` to the Z flag of the program status word (PSW).
         Bit(operand: u8) [2] => {
-            let (_value, register) = get_register_value(registers, memory, *operand);
+            let (value, register) = get_register_value(registers, memory, *operand);
+            let bit_mask = get_bit_mask(operand);
+            let designated_bit = value & bit_mask;
+
+            registers.set_zero(designated_bit == 0);
+            registers.set_negative(false);
+            registers.set_half_carry(true);
 
             match register {
+                Some(_) => Ok(2),
                 None => Ok(3),
-                _ => Ok(2),
             }
         }
 
@@ -70,6 +82,27 @@ instruction_group! {
 }
 
 #[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn get_bit_mask_works() {
+        for (operand, expected) in vec![
+            (0b01_000_111, 0b0000_0001),
+            (0b01_001_111, 0b0000_0010),
+            (0b01_010_111, 0b0000_0100),
+            (0b01_011_111, 0b0000_1000),
+            (0b01_100_111, 0b0001_0000),
+            (0b01_101_111, 0b0010_0000),
+            (0b01_110_111, 0b0100_0000),
+            (0b01_111_111, 0b1000_0000),
+        ] {
+            assert_eq!(expected, get_bit_mask(&operand));
+        }
+    }
+}
+
+#[cfg(test)]
 crate::instruction_tests! {
 
     bit_returns_the_correct_number_of_machine_cycles(registers, memory, cpu_flags) => {
@@ -82,6 +115,50 @@ crate::instruction_tests! {
                 assert_eq!(2, cycles, "Incorrect number of machine cycles for single register ({:08b})", operand);
             }
         }
+    }
+
+    bit_sets_zero_flag_to_zero_if_specified_bit_is_one(registers, memory, cpu_flags) => {
+        registers.set_single(&SingleRegister::A, 0x80);
+
+        Bit::Bit(0b01_111_111).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(false, registers.is_zero());
+    }
+
+    bit_sets_zero_flag_to_one_if_specified_bit_is_zero(registers, memory, cpu_flags) => {
+        registers.set_single(&SingleRegister::L, 0xEF);
+
+        Bit::Bit(0b01_100_101).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(true, registers.is_zero());
+    }
+
+    bit_sets_the_half_carry_flag(registers, memory, cpu_flags) => {
+        Bit::Bit(0b01_111_111).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(true, registers.is_half_carry());
+    }
+
+    bit_resets_the_negative_flag(registers, memory, cpu_flags) => {
+        registers.set_flags(MASK_FLAG_NEGATIVE);
+
+        Bit::Bit(0b01_111_111).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(false, registers.is_negative());
+    }
+
+    bit_leaves_carry_flag_unchanged(registers, memory, cpu_flags) => {
+        registers.set_flags(MASK_FLAG_CARRY);
+
+        Bit::Bit(0b01_111_111).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(true, registers.is_carry());
+
+        registers.set_flags(0);
+
+        Bit::Bit(0b01_111_111).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(false, registers.is_carry());
     }
 
     set_returns_the_correct_number_of_machine_cycles(registers, memory, cpu_flags) => {

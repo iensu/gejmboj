@@ -369,6 +369,94 @@ impl Registers {
         self.F = flags & 0xF0;
     }
 
+    /// Convenience function to set or reset the carry flag.
+    ///
+    /// ## Examples
+    ///
+    /// ```rust
+    /// # use gejmboj_cpu::registers::*;
+    /// let mut registers = Registers::new();
+    ///
+    /// registers.set_carry(true);
+    /// assert_eq!(true, registers.is_carry());
+    ///
+    /// registers.set_carry(false);
+    /// assert_eq!(false, registers.is_carry());
+    /// ```
+    pub fn set_carry(&mut self, set: bool) {
+        if set {
+            self.F = self.F | MASK_FLAG_CARRY
+        } else {
+            self.F = self.F & !MASK_FLAG_CARRY
+        }
+    }
+
+    /// Convenience function to set or reset the half-carry flag.
+    ///
+    /// ## Examples
+    ///
+    /// ```rust
+    /// # use gejmboj_cpu::registers::*;
+    /// let mut registers = Registers::new();
+    ///
+    /// registers.set_half_carry(true);
+    /// assert_eq!(true, registers.is_half_carry());
+    ///
+    /// registers.set_half_carry(false);
+    /// assert_eq!(false, registers.is_half_carry());
+    /// ```
+    pub fn set_half_carry(&mut self, set: bool) {
+        if set {
+            self.F = self.F | MASK_FLAG_HALF_CARRY
+        } else {
+            self.F = self.F & !MASK_FLAG_HALF_CARRY
+        }
+    }
+
+    /// Convenience function to set or reset the negative flag.
+    ///
+    /// ## Examples
+    ///
+    /// ```rust
+    /// # use gejmboj_cpu::registers::*;
+    /// let mut registers = Registers::new();
+    ///
+    /// registers.set_negative(true);
+    /// assert_eq!(true, registers.is_negative());
+    ///
+    /// registers.set_negative(false);
+    /// assert_eq!(false, registers.is_negative());
+    /// ```
+    pub fn set_negative(&mut self, set: bool) {
+        if set {
+            self.F = self.F | MASK_FLAG_NEGATIVE
+        } else {
+            self.F = self.F & !MASK_FLAG_NEGATIVE
+        }
+    }
+
+    /// Convenience function to set or reset the zero flag.
+    ///
+    /// ## Examples
+    ///
+    /// ```rust
+    /// # use gejmboj_cpu::registers::*;
+    /// let mut registers = Registers::new();
+    ///
+    /// registers.set_zero(true);
+    /// assert_eq!(true, registers.is_zero());
+    ///
+    /// registers.set_zero(false);
+    /// assert_eq!(false, registers.is_zero());
+    /// ```
+    pub fn set_zero(&mut self, set: bool) {
+        if set {
+            self.F = self.F | MASK_FLAG_ZERO
+        } else {
+            self.F = self.F & !MASK_FLAG_ZERO
+        }
+    }
+
     #[cfg(test)]
     pub fn clear(&mut self) {
         self.A = 0;
