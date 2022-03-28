@@ -52,7 +52,8 @@ instruction_group! {
             Ok(1)
         }
 
-        /// Flips the zero (Z) and carry (C) flags and clears the half-carry (H) flag
+        /// Flips the zero (Z) and carry (C) flags and clears the half-carry (H) flag.
+        /// Decimal Adjust Accumulator.
         DAA() [1] => {
             let value = registers.get_flags();
             let value = value & 0b1101_0000; // Clear H
