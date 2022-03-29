@@ -27,16 +27,75 @@ instruction_group! {
             Ok(1)
         }
 
-        /// Unconditional jump to location at current + offset
+        /// Unconditional jump to location at current + offset (-129 to 126), where the offset is
+        /// relative to the next instruction.
+        ///
+        /// **Positive example**
+        ///
+        /// | Location | Instruction   |
+        /// |---------:|:--------------|
+        /// |    0x480 | JR            |
+        /// |    0x481 | 0x03          |
+        /// |    0x482 | -             |
+        /// |    0x483 | -             |
+        /// |    0x484 | -             |
+        /// |    0x485 | PC after jump |
+        ///
+        /// **Negative example**
+        ///
+        /// | Location | Instruction   |
+        /// |---------:|:--------------|
+        /// |    0x47C | PC after jump |
+        /// |    0x47D | -             |
+        /// |    0x47E | -             |
+        /// |    0x47F | -             |
+        /// |    0x480 | JR            |
+        /// |    0x481 | 0xFA          |
         JpToOffset(operand: u8) [2] => {
-            registers.PC += *operand as u16;
+            let offset = *operand as i8;
+
+            if offset >= 0 {
+                registers.PC += offset as u16;
+            } else {
+                registers.PC -= offset.abs() as u16;
+            }
+
             Ok(3)
         }
 
         /// Conditional jump to relative address specified by offset operand.
+        ///
+        /// **Positive example**
+        ///
+        /// | Location | Instruction   |
+        /// |---------:|:--------------|
+        /// |    0x480 | JR            |
+        /// |    0x481 | 0x03          |
+        /// |    0x482 | -             |
+        /// |    0x483 | -             |
+        /// |    0x484 | -             |
+        /// |    0x485 | PC after jump |
+        ///
+        /// **Negative example**
+        ///
+        /// | Location | Instruction   |
+        /// |---------:|:--------------|
+        /// |    0x47C | PC after jump |
+        /// |    0x47D | -             |
+        /// |    0x47E | -             |
+        /// |    0x47F | -             |
+        /// |    0x480 | JR            |
+        /// |    0x481 | 0xFA          |
         JpToOffsetIf(operand: u8, condition: Condition) [2] => {
             if condition.is_fulfilled(registers) {
-                registers.PC += *operand as u16;
+                let offset = *operand as i8;
+
+                if offset >= 0 {
+                    registers.PC += offset as u16;
+                } else {
+                    registers.PC -= offset.abs() as u16;
+                }
+
                 Ok(3)
             } else {
                 Ok(2)
@@ -147,16 +206,44 @@ crate::instruction_tests! {
         assert_eq!(0xBADA, registers.PC);
     }
 
-    jptooffset_jumps_to_current_plus_offset(registers, memory, cpu_flags) => {
-        let instruction = ControlFlow::JpToOffset(0x42);
+    jptooffset_jumps_to_current_plus_offset_steps(registers, memory, cpu_flags) => {
+        let instruction = ControlFlow::JpToOffset(0x40);
         registers.PC = 0x0200;
 
         instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        assert_eq!(0x0242, registers.PC);
+        assert_eq!(0x0242, registers.PC + instruction.length());
+    }
+
+    jptooffset_continues_if_passed_zero(registers, memory, cpu_flags) => {
+        let instruction = ControlFlow::JpToOffset(0x00);
+        registers.PC = 0x0200;
+        instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0x0202, registers.PC + instruction.length());
+    }
+
+    jptooffset_can_wrap_around(registers, memory, cpu_flags) => {
+        let instruction = ControlFlow::JpToOffset(0xFE);
+        registers.PC = 0x0200;
+        instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0x0200, registers.PC + instruction.length());
+    }
+
+    jptooffset_zilog_manual_example_one(registers, memory, cpu_flags) => {
+        let instruction = ControlFlow::JpToOffset(0x03);
+        registers.PC = 0x480;
+        instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0x485, registers.PC + instruction.length());
+    }
+
+    jptooffset_zilog_manual_example_two(registers, memory, cpu_flags) => {
+        let instruction = ControlFlow::JpToOffset(0xFA);
+        registers.PC = 0x480;
+        instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0x47C, registers.PC + instruction.length());
     }
 
     jptooffsetif_jumps_to_offset_if_condition_is_fulfilled(registers, memory, cpu_flags) => {
-        let instruction = ControlFlow::JpToOffsetIf(0x42, Condition::Zero);
+        let instruction = ControlFlow::JpToOffsetIf(0x40, Condition::Zero);
         registers.PC = 0x0200;
 
         let cycles = instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
@@ -166,8 +253,43 @@ crate::instruction_tests! {
         registers.set_flags(MASK_FLAG_ZERO);
 
         let cycles = instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        assert_eq!(0x0242, registers.PC);
+        assert_eq!(0x0242, registers.PC + instruction.length());
         assert_eq!(3, cycles);
+    }
+
+    jptooffsetif_continues_if_passed_zero(registers, memory, cpu_flags) => {
+        let instruction = ControlFlow::JpToOffsetIf(0x00, Condition::Zero);
+        registers.PC = 0x0200;
+        registers.set_zero(true);
+
+        instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0x0202, registers.PC + instruction.length());
+    }
+
+    jptooffsetif_can_wrap_around(registers, memory, cpu_flags) => {
+        let instruction = ControlFlow::JpToOffsetIf(0xFE, Condition::Zero);
+        registers.PC = 0x0200;
+        registers.set_zero(true);
+
+        instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0x0200, registers.PC + instruction.length());
+    }
+
+    jptooffsetif_zilog_manual_example_one(registers, memory, cpu_flags) => {
+        let instruction = ControlFlow::JpToOffsetIf(0x03, Condition::Zero);
+        registers.PC = 0x480;
+        registers.set_zero(true);
+        instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0x485, registers.PC + instruction.length());
+    }
+
+    jptooffsetif_zilog_manual_example_two(registers, memory, cpu_flags) => {
+        let instruction = ControlFlow::JpToOffsetIf(0xFA, Condition::Zero);
+        registers.PC = 0x480;
+        registers.set_zero(true);
+
+        instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0x47C, registers.PC + instruction.length());
     }
 
     call_calls_function_at_operand(registers, memory, cpu_flags) => {
