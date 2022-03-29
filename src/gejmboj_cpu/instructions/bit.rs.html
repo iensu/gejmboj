@@ -305,9 +305,9 @@
 <span class="doccomment">/// | `10_bbb_rrr` | `Res`        |</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">decode</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Bit</span>, <span class="ident">CpuError</span><span class="op">&gt;</span> {
     <span class="kw">match</span> <span class="ident">utils::into_bits</span>(<span class="ident">operand</span>) {
-        (<span class="number">0</span>, <span class="number">1</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Bit::Bit</span>(<span class="ident">operand</span>)),
-        (<span class="number">1</span>, <span class="number">1</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Bit::Set</span>(<span class="ident">operand</span>)),
-        (<span class="number">1</span>, <span class="number">0</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Bit::Res</span>(<span class="ident">operand</span>)),
+        (<span class="number">0</span>, <span class="number">1</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Bit::BIT</span>(<span class="ident">operand</span>)),
+        (<span class="number">1</span>, <span class="number">1</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Bit::SET</span>(<span class="ident">operand</span>)),
+        (<span class="number">1</span>, <span class="number">0</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Bit::RES</span>(<span class="ident">operand</span>)),
         <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">CpuError::UnknownInstruction</span>(<span class="ident">operand</span>)),
     }
 }
@@ -338,7 +338,7 @@
     <span class="ident">Bit</span> (<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">_cpu_flags</span>) {
 
         <span class="doccomment">/// Copies the complement of the contents of the specified bit in `m` to the Z flag of the program status word (PSW).</span>
-        <span class="ident">Bit</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) [<span class="number">2</span>] =&gt; {
+        <span class="ident">BIT</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) [<span class="number">2</span>] =&gt; {
             <span class="kw">let</span> (<span class="ident">value</span>, <span class="ident">register</span>) <span class="op">=</span> <span class="ident">get_register_value</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="kw-2">*</span><span class="ident">operand</span>);
             <span class="kw">let</span> <span class="ident">bit_mask</span> <span class="op">=</span> <span class="ident">get_bit_mask</span>(<span class="ident">operand</span>);
             <span class="kw">let</span> <span class="ident">designated_bit</span> <span class="op">=</span> <span class="ident">value</span> <span class="op">&amp;</span> <span class="ident">bit_mask</span>;
@@ -354,7 +354,7 @@
         }
 
         <span class="doccomment">/// Sets the specified bit to 1 in `m`.</span>
-        <span class="ident">Set</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) [<span class="number">2</span>] =&gt; {
+        <span class="ident">SET</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) [<span class="number">2</span>] =&gt; {
             <span class="kw">let</span> (<span class="ident">value</span>, <span class="ident">register</span>) <span class="op">=</span> <span class="ident">get_register_value</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="kw-2">*</span><span class="ident">operand</span>);
             <span class="kw">let</span> <span class="ident">bit_mask</span> <span class="op">=</span> <span class="ident">get_bit_mask</span>(<span class="ident">operand</span>);
             <span class="kw">let</span> <span class="ident">new_value</span> <span class="op">=</span> <span class="ident">value</span> <span class="op">|</span> <span class="ident">bit_mask</span>;
@@ -372,7 +372,7 @@
         }
 
         <span class="doccomment">/// Resets the specified bit to 0 in `m`.</span>
-        <span class="ident">Res</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) [<span class="number">2</span>] =&gt; {
+        <span class="ident">RES</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) [<span class="number">2</span>] =&gt; {
             <span class="kw">let</span> (<span class="ident">value</span>, <span class="ident">register</span>) <span class="op">=</span> <span class="ident">get_register_value</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="kw-2">*</span><span class="ident">operand</span>);
             <span class="kw">let</span> <span class="ident">bit_mask</span> <span class="op">=</span> <span class="ident">get_bit_mask</span>(<span class="ident">operand</span>);
             <span class="kw">let</span> <span class="ident">new_value</span> <span class="op">=</span> <span class="ident">value</span> <span class="op">&amp;</span> <span class="op">!</span><span class="ident">bit_mask</span>;
@@ -417,7 +417,7 @@
 
     <span class="ident">bit_returns_the_correct_number_of_machine_cycles</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="kw">for</span> <span class="ident">operand</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">8</span> {
-            <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">Bit::Bit</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">Bit::BIT</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
             <span class="kw">if</span> <span class="ident">operand</span> <span class="op">==</span> <span class="number">0b110</span> {
                 <span class="macro">assert_eq!</span>(<span class="number">3</span>, <span class="ident">cycles</span>, <span class="string">&quot;Incorrect number of machine cycles for HL&quot;</span>);
@@ -430,7 +430,7 @@
     <span class="ident">bit_sets_zero_flag_to_zero_if_specified_bit_is_one</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0x80</span>);
 
-        <span class="ident">Bit::Bit</span>(<span class="number">0b01_111_111</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">Bit::BIT</span>(<span class="number">0b01_111_111</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="bool-val">false</span>, <span class="ident">registers</span>.<span class="ident">is_zero</span>());
     }
@@ -438,13 +438,13 @@
     <span class="ident">bit_sets_zero_flag_to_one_if_specified_bit_is_zero</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::L</span>, <span class="number">0xEF</span>);
 
-        <span class="ident">Bit::Bit</span>(<span class="number">0b01_100_101</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">Bit::BIT</span>(<span class="number">0b01_100_101</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, <span class="ident">registers</span>.<span class="ident">is_zero</span>());
     }
 
     <span class="ident">bit_sets_the_half_carry_flag</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
-        <span class="ident">Bit::Bit</span>(<span class="number">0b01_111_111</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">Bit::BIT</span>(<span class="number">0b01_111_111</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, <span class="ident">registers</span>.<span class="ident">is_half_carry</span>());
     }
@@ -452,7 +452,7 @@
     <span class="ident">bit_resets_the_negative_flag</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="ident">registers</span>.<span class="ident">set_flags</span>(<span class="ident">MASK_FLAG_NEGATIVE</span>);
 
-        <span class="ident">Bit::Bit</span>(<span class="number">0b01_111_111</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">Bit::BIT</span>(<span class="number">0b01_111_111</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="bool-val">false</span>, <span class="ident">registers</span>.<span class="ident">is_negative</span>());
     }
@@ -460,20 +460,20 @@
     <span class="ident">bit_leaves_carry_flag_unchanged</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="ident">registers</span>.<span class="ident">set_flags</span>(<span class="ident">MASK_FLAG_CARRY</span>);
 
-        <span class="ident">Bit::Bit</span>(<span class="number">0b01_111_111</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">Bit::BIT</span>(<span class="number">0b01_111_111</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, <span class="ident">registers</span>.<span class="ident">is_carry</span>());
 
         <span class="ident">registers</span>.<span class="ident">set_flags</span>(<span class="number">0</span>);
 
-        <span class="ident">Bit::Bit</span>(<span class="number">0b01_111_111</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">Bit::BIT</span>(<span class="number">0b01_111_111</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="bool-val">false</span>, <span class="ident">registers</span>.<span class="ident">is_carry</span>());
     }
 
     <span class="ident">set_returns_the_correct_number_of_machine_cycles</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="kw">for</span> <span class="ident">operand</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">8</span> {
-            <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">Bit::Set</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">Bit::SET</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
             <span class="kw">if</span> <span class="ident">operand</span> <span class="op">==</span> <span class="number">0b110</span> {
                 <span class="macro">assert_eq!</span>(<span class="number">4</span>, <span class="ident">cycles</span>, <span class="string">&quot;Incorrect number of machine cycles for HL&quot;</span>);
@@ -492,7 +492,7 @@
                                         (<span class="number">0b11_101_111</span>, <span class="number">0b0010_0000</span>),
                                         (<span class="number">0b11_110_111</span>, <span class="number">0b0100_0000</span>),
                                         (<span class="number">0b11_111_111</span>, <span class="number">0b1000_0000</span>)] {
-            <span class="ident">Bit::Set</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+            <span class="ident">Bit::SET</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
             <span class="macro">assert_eq!</span>(<span class="ident">expected</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>));
             <span class="ident">registers</span>.<span class="ident">clear</span>();
         }
@@ -510,7 +510,7 @@
                                         (<span class="number">0b11_110_110</span>, <span class="number">0b0100_0000</span>),
                                         (<span class="number">0b11_111_110</span>, <span class="number">0b1000_0000</span>)] {
             <span class="ident">memory</span>.<span class="ident">set</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>(), <span class="number">0</span>);
-            <span class="ident">Bit::Set</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+            <span class="ident">Bit::SET</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
             <span class="macro">assert_eq!</span>(<span class="ident">expected</span>, <span class="ident">memory</span>.<span class="ident">get</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>()));
         }
@@ -520,7 +520,7 @@
         <span class="kw">for</span> <span class="ident">flags</span> <span class="kw">in</span> <span class="macro">vec!</span>[<span class="number">0xF0</span>, <span class="number">0x00</span>] {
             <span class="ident">registers</span>.<span class="ident">set_flags</span>(<span class="ident">flags</span>);
 
-            <span class="ident">Bit::Set</span>(<span class="number">0b11_000_111</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+            <span class="ident">Bit::SET</span>(<span class="number">0b11_000_111</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
             <span class="macro">assert_eq!</span>(<span class="ident">flags</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>());
         }
@@ -528,7 +528,7 @@
 
     <span class="ident">res_returns_the_correct_number_of_machine_cycles</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="kw">for</span> <span class="ident">operand</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">8</span> {
-            <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">Bit::Res</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">Bit::RES</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
             <span class="kw">if</span> <span class="ident">operand</span> <span class="op">==</span> <span class="number">0b110</span> {
                 <span class="macro">assert_eq!</span>(<span class="number">4</span>, <span class="ident">cycles</span>, <span class="string">&quot;Incorrect number of machine cycles for HL&quot;</span>);
@@ -549,7 +549,7 @@
                                         (<span class="number">0b10_111_111</span>, <span class="number">0b0111_1111</span>)] {
             <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0xFF</span>);
 
-            <span class="ident">Bit::Res</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+            <span class="ident">Bit::RES</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
             <span class="macro">assert_eq!</span>(<span class="ident">expected</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>));
         }
@@ -568,7 +568,7 @@
                                         (<span class="number">0b10_111_110</span>, <span class="number">0b0111_1111</span>)] {
             <span class="ident">memory</span>.<span class="ident">set</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>(), <span class="number">0xFF</span>);
 
-            <span class="ident">Bit::Res</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+            <span class="ident">Bit::RES</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
             <span class="macro">assert_eq!</span>(<span class="ident">expected</span>, <span class="ident">memory</span>.<span class="ident">get</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>()));
         }
@@ -578,7 +578,7 @@
         <span class="kw">for</span> <span class="ident">flags</span> <span class="kw">in</span> <span class="macro">vec!</span>[<span class="number">0xF0</span>, <span class="number">0x00</span>] {
             <span class="ident">registers</span>.<span class="ident">set_flags</span>(<span class="ident">flags</span>);
 
-            <span class="ident">Bit::Res</span>(<span class="number">0b11_000_111</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+            <span class="ident">Bit::RES</span>(<span class="number">0b11_000_111</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
             <span class="macro">assert_eq!</span>(<span class="ident">flags</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>());
         }

@@ -949,7 +949,7 @@
     <span class="ident">ALU8Bit</span> (<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">_cpu_flags</span>) {
 
         <span class="doccomment">/// Add value of `SingleRegister` to `A`</span>
-        <span class="ident">Add</span>(<span class="ident">r</span>: <span class="ident">SingleRegister</span>) [<span class="number">1</span>] =&gt; {
+        <span class="ident">ADD</span>(<span class="ident">r</span>: <span class="ident">SingleRegister</span>) [<span class="number">1</span>] =&gt; {
             <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">r</span> <span class="op">==</span> <span class="ident">SingleRegister::F</span> {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CpuError::UnsupportedSingleRegister</span>(<span class="kw-2">*</span><span class="ident">r</span>));
             }
@@ -960,14 +960,14 @@
         }
 
         <span class="doccomment">/// Add value of `operand` to `A`</span>
-        <span class="ident">AddN</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) [<span class="number">2</span>] =&gt; {
+        <span class="ident">ADD_N</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) [<span class="number">2</span>] =&gt; {
             <span class="ident">perform_calculation</span>(<span class="ident">AluOp::Add</span>, <span class="ident">registers</span>, (<span class="kw-2">*</span><span class="ident">operand</span>).<span class="ident">into</span>(), <span class="bool-val">false</span>);
 
             <span class="prelude-val">Ok</span>(<span class="number">2</span>)
         }
 
         <span class="doccomment">/// Add value of `(HL)` to `A`</span>
-        <span class="ident">AddHL</span>() [<span class="number">1</span>] =&gt; {
+        <span class="ident">ADD_HL</span>() [<span class="number">1</span>] =&gt; {
             <span class="kw">let</span> <span class="ident">operand</span> <span class="op">=</span> <span class="ident">memory</span>.<span class="ident">get</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>());
             <span class="ident">perform_calculation</span>(<span class="ident">AluOp::Add</span>, <span class="ident">registers</span>, <span class="ident">operand</span>, <span class="bool-val">false</span>);
 
@@ -975,7 +975,7 @@
         }
 
         <span class="doccomment">/// Add value of `SingleRegister` and the Carry flag to `A`</span>
-        <span class="ident">Adc</span>(<span class="ident">r</span>: <span class="ident">SingleRegister</span>) [<span class="number">1</span>] =&gt; {
+        <span class="ident">ADC</span>(<span class="ident">r</span>: <span class="ident">SingleRegister</span>) [<span class="number">1</span>] =&gt; {
             <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">r</span> <span class="op">==</span> <span class="ident">SingleRegister::F</span> {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CpuError::UnsupportedSingleRegister</span>(<span class="kw-2">*</span><span class="ident">r</span>));
             }
@@ -986,14 +986,14 @@
         }
 
         <span class="doccomment">/// Add value of `operand` and Carry to `A`</span>
-        <span class="ident">AdcN</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) [<span class="number">2</span>] =&gt; {
+        <span class="ident">ADC_N</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) [<span class="number">2</span>] =&gt; {
             <span class="ident">perform_calculation</span>(<span class="ident">AluOp::Add</span>, <span class="ident">registers</span>, <span class="kw-2">*</span><span class="ident">operand</span>, <span class="bool-val">true</span>);
 
             <span class="prelude-val">Ok</span>(<span class="number">2</span>)
         }
 
         <span class="doccomment">/// Add value of `(HL)` and Carry to `A`</span>
-        <span class="ident">AdcHL</span>() [<span class="number">1</span>] =&gt; {
+        <span class="ident">ADC_HL</span>() [<span class="number">1</span>] =&gt; {
             <span class="kw">let</span> <span class="ident">operand</span> <span class="op">=</span> <span class="ident">memory</span>.<span class="ident">get</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>());
             <span class="ident">perform_calculation</span>(<span class="ident">AluOp::Add</span>, <span class="ident">registers</span>, <span class="ident">operand</span>, <span class="bool-val">true</span>);
 
@@ -1001,7 +1001,7 @@
         }
 
         <span class="doccomment">/// Subtract value of `SingleRegister` from A</span>
-        <span class="ident">Sub</span>(<span class="ident">r</span>: <span class="ident">SingleRegister</span>) [<span class="number">1</span>] =&gt; {
+        <span class="ident">SUB</span>(<span class="ident">r</span>: <span class="ident">SingleRegister</span>) [<span class="number">1</span>] =&gt; {
             <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">r</span> <span class="op">==</span> <span class="ident">SingleRegister::F</span> {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CpuError::UnsupportedSingleRegister</span>(<span class="kw-2">*</span><span class="ident">r</span>));
             }
@@ -1014,14 +1014,14 @@
         }
 
         <span class="doccomment">/// Subtract value of `operand` from A</span>
-        <span class="ident">SubN</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) [<span class="number">2</span>] =&gt; {
+        <span class="ident">SUB_N</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) [<span class="number">2</span>] =&gt; {
             <span class="ident">perform_calculation</span>(<span class="ident">AluOp::Sub</span>, <span class="ident">registers</span>, <span class="kw-2">*</span><span class="ident">operand</span>, <span class="bool-val">false</span>);
 
             <span class="prelude-val">Ok</span>(<span class="number">2</span>)
         }
 
         <span class="doccomment">/// Subtract value of `(HL)` from A</span>
-        <span class="ident">SubHL</span>() [<span class="number">1</span>] =&gt; {
+        <span class="ident">SUB_HL</span>() [<span class="number">1</span>] =&gt; {
             <span class="kw">let</span> <span class="ident">operand</span> <span class="op">=</span> <span class="ident">memory</span>.<span class="ident">get</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>());
 
             <span class="ident">perform_calculation</span>(<span class="ident">AluOp::Sub</span>, <span class="ident">registers</span>, <span class="ident">operand</span>, <span class="bool-val">false</span>);
@@ -1030,7 +1030,7 @@
         }
 
         <span class="doccomment">/// Subtract value of `SingleRegister` and Carry from A</span>
-        <span class="ident">Sbc</span>(<span class="ident">r</span>: <span class="ident">SingleRegister</span>) [<span class="number">1</span>] =&gt; {
+        <span class="ident">SBC</span>(<span class="ident">r</span>: <span class="ident">SingleRegister</span>) [<span class="number">1</span>] =&gt; {
             <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">r</span> <span class="op">==</span> <span class="ident">SingleRegister::F</span> {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CpuError::UnsupportedSingleRegister</span>(<span class="kw-2">*</span><span class="ident">r</span>));
             }
@@ -1043,14 +1043,14 @@
         }
 
         <span class="doccomment">/// Subtract value of `operand` and Carry from A</span>
-        <span class="ident">SbcN</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) [<span class="number">2</span>] =&gt; {
+        <span class="ident">SBC_N</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) [<span class="number">2</span>] =&gt; {
             <span class="ident">perform_calculation</span>(<span class="ident">AluOp::Sub</span>, <span class="ident">registers</span>, <span class="kw-2">*</span><span class="ident">operand</span>, <span class="bool-val">true</span>);
 
             <span class="prelude-val">Ok</span>(<span class="number">2</span>)
         }
 
         <span class="doccomment">/// Subtract value of `(HL)` and Carry from A</span>
-        <span class="ident">SbcHL</span>() [<span class="number">1</span>] =&gt; {
+        <span class="ident">SBC_HL</span>() [<span class="number">1</span>] =&gt; {
             <span class="kw">let</span> <span class="ident">operand</span> <span class="op">=</span> <span class="ident">memory</span>.<span class="ident">get</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>());
             <span class="ident">perform_calculation</span>(<span class="ident">AluOp::Sub</span>, <span class="ident">registers</span>, <span class="ident">operand</span>, <span class="bool-val">true</span>);
 
@@ -1058,7 +1058,7 @@
         }
 
         <span class="doccomment">/// Logical AND between register and `A`</span>
-        <span class="ident">And</span>(<span class="ident">r</span>: <span class="ident">SingleRegister</span>) [<span class="number">1</span>] =&gt; {
+        <span class="ident">AND</span>(<span class="ident">r</span>: <span class="ident">SingleRegister</span>) [<span class="number">1</span>] =&gt; {
             <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">r</span> <span class="op">==</span> <span class="ident">SingleRegister::F</span> {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CpuError::UnsupportedSingleRegister</span>(<span class="kw-2">*</span><span class="ident">r</span>))
             }
@@ -1069,14 +1069,14 @@
         }
 
         <span class="doccomment">/// Logical AND between `operand` and `A`</span>
-        <span class="ident">AndN</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) [<span class="number">2</span>] =&gt; {
+        <span class="ident">AND_N</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) [<span class="number">2</span>] =&gt; {
             <span class="ident">perform_calculation</span>(<span class="ident">AluOp::And</span>, <span class="ident">registers</span>, <span class="kw-2">*</span><span class="ident">operand</span>, <span class="bool-val">false</span>);
 
             <span class="prelude-val">Ok</span>(<span class="number">2</span>)
         }
 
         <span class="doccomment">/// Logical AND between `(HL)` and `A`</span>
-        <span class="ident">AndHL</span>() [<span class="number">1</span>] =&gt; {
+        <span class="ident">AND_HL</span>() [<span class="number">1</span>] =&gt; {
             <span class="kw">let</span> <span class="ident">operand</span> <span class="op">=</span> <span class="ident">memory</span>.<span class="ident">get</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>());
             <span class="ident">perform_calculation</span>(<span class="ident">AluOp::And</span>, <span class="ident">registers</span>, <span class="ident">operand</span>, <span class="bool-val">false</span>);
 
@@ -1084,7 +1084,7 @@
         }
 
         <span class="doccomment">/// Logical OR between register and `A`</span>
-        <span class="ident">Or</span>(<span class="ident">r</span>: <span class="ident">SingleRegister</span>) [<span class="number">1</span>] =&gt; {
+        <span class="ident">OR</span>(<span class="ident">r</span>: <span class="ident">SingleRegister</span>) [<span class="number">1</span>] =&gt; {
             <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">r</span> <span class="op">==</span> <span class="ident">SingleRegister::F</span> {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CpuError::UnsupportedSingleRegister</span>(<span class="kw-2">*</span><span class="ident">r</span>))
             }
@@ -1096,14 +1096,14 @@
         }
 
         <span class="doccomment">/// Logical OR between `operand` and `A`</span>
-        <span class="ident">OrN</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) [<span class="number">2</span>] =&gt; {
+        <span class="ident">OR_N</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) [<span class="number">2</span>] =&gt; {
             <span class="ident">perform_calculation</span>(<span class="ident">AluOp::Or</span>, <span class="ident">registers</span>, <span class="kw-2">*</span><span class="ident">operand</span>, <span class="bool-val">false</span>);
 
             <span class="prelude-val">Ok</span>(<span class="number">2</span>)
         }
 
         <span class="doccomment">/// Logical OR between `(HL)` and `A`</span>
-        <span class="ident">OrHL</span>() [<span class="number">1</span>] =&gt; {
+        <span class="ident">OR_HL</span>() [<span class="number">1</span>] =&gt; {
             <span class="kw">let</span> <span class="ident">operand</span> <span class="op">=</span> <span class="ident">memory</span>.<span class="ident">get</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>());
             <span class="ident">perform_calculation</span>(<span class="ident">AluOp::Or</span>, <span class="ident">registers</span>, <span class="ident">operand</span>, <span class="bool-val">false</span>);
 
@@ -1111,7 +1111,7 @@
         }
 
         <span class="doccomment">/// Logical XOR between register and `A`</span>
-        <span class="ident">Xor</span>(<span class="ident">r</span>: <span class="ident">SingleRegister</span>) [<span class="number">1</span>] =&gt; {
+        <span class="ident">XOR</span>(<span class="ident">r</span>: <span class="ident">SingleRegister</span>) [<span class="number">1</span>] =&gt; {
             <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">r</span> <span class="op">==</span> <span class="ident">SingleRegister::F</span> {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CpuError::UnsupportedSingleRegister</span>(<span class="kw-2">*</span><span class="ident">r</span>));
             }
@@ -1123,14 +1123,14 @@
         }
 
         <span class="doccomment">/// Logical XOR between `operand` and `A`</span>
-        <span class="ident">XorN</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) [<span class="number">2</span>] =&gt; {
+        <span class="ident">XOR_N</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) [<span class="number">2</span>] =&gt; {
             <span class="ident">perform_calculation</span>(<span class="ident">AluOp::Xor</span>, <span class="ident">registers</span>, <span class="kw-2">*</span><span class="ident">operand</span>, <span class="bool-val">false</span>);
 
             <span class="prelude-val">Ok</span>(<span class="number">2</span>)
         }
 
         <span class="doccomment">/// Logical XOR between `(HL)` and `A`</span>
-        <span class="ident">XorHL</span>() [<span class="number">1</span>] =&gt; {
+        <span class="ident">XOR_HL</span>() [<span class="number">1</span>] =&gt; {
             <span class="kw">let</span> <span class="ident">operand</span> <span class="op">=</span> <span class="ident">memory</span>.<span class="ident">get</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>());
             <span class="ident">perform_calculation</span>(<span class="ident">AluOp::Xor</span>, <span class="ident">registers</span>, <span class="ident">operand</span>, <span class="bool-val">false</span>);
 
@@ -1141,7 +1141,7 @@
         <span class="doccomment">///</span>
         <span class="doccomment">/// Basically an A - n subtraction but with the result being thrown away,</span>
         <span class="doccomment">/// so the same flag rules as `Sub` apply.</span>
-        <span class="ident">Cp</span>(<span class="ident">r</span>: <span class="ident">SingleRegister</span>) [<span class="number">1</span>] =&gt; {
+        <span class="ident">CP</span>(<span class="ident">r</span>: <span class="ident">SingleRegister</span>) [<span class="number">1</span>] =&gt; {
             <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">r</span> <span class="op">==</span> <span class="ident">SingleRegister::F</span> {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CpuError::UnsupportedSingleRegister</span>(<span class="kw-2">*</span><span class="ident">r</span>));
             }
@@ -1155,7 +1155,7 @@
         }
 
         <span class="doccomment">/// Compare `operand` and `A`</span>
-        <span class="ident">CpN</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) [<span class="number">2</span>] =&gt; {
+        <span class="ident">CP_N</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) [<span class="number">2</span>] =&gt; {
             <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>);
 
             <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">flags</span>) <span class="op">=</span> <span class="ident">AluOp::Cp</span>.<span class="ident">calculate</span>(<span class="ident">a</span>, <span class="kw-2">*</span><span class="ident">operand</span>);
@@ -1166,7 +1166,7 @@
         }
 
         <span class="doccomment">/// Compare `(HL)` and `A`</span>
-        <span class="ident">CpHL</span>() [<span class="number">1</span>] =&gt; {
+        <span class="ident">CP_HL</span>() [<span class="number">1</span>] =&gt; {
             <span class="kw">let</span> <span class="ident">operand</span> <span class="op">=</span> <span class="ident">memory</span>.<span class="ident">get</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>());
             <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>);
 
@@ -1180,7 +1180,7 @@
         <span class="doccomment">/// Increment `SingleRegister` by 1</span>
         <span class="doccomment">///</span>
         <span class="doccomment">/// The Carry flag is unaffected by this instruction.</span>
-        <span class="ident">Inc</span>(<span class="ident">r</span>: <span class="ident">SingleRegister</span>) [<span class="number">1</span>] =&gt; {
+        <span class="ident">INC</span>(<span class="ident">r</span>: <span class="ident">SingleRegister</span>) [<span class="number">1</span>] =&gt; {
             <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">r</span> <span class="op">==</span> <span class="ident">SingleRegister::F</span> {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CpuError::UnsupportedSingleRegister</span>(<span class="kw-2">*</span><span class="ident">r</span>));
             }
@@ -1199,7 +1199,7 @@
         <span class="doccomment">/// Increment `HL` by 1</span>
         <span class="doccomment">///</span>
         <span class="doccomment">/// The Carry flag is unaffected by this instruction.</span>
-        <span class="ident">IncHL</span>() [<span class="number">1</span>] =&gt; {
+        <span class="ident">INC_HL</span>() [<span class="number">1</span>] =&gt; {
             <span class="kw">let</span> <span class="ident">operand</span> <span class="op">=</span> <span class="ident">memory</span>.<span class="ident">get</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>());
             <span class="kw">let</span> (<span class="ident">result</span>, <span class="ident">flags</span>) <span class="op">=</span> <span class="ident">AluOp::Add</span>.<span class="ident">calculate</span>(<span class="ident">operand</span>, <span class="number">1</span>);
             <span class="comment">// Set Carry if already set, otherwise reset</span>
@@ -1214,7 +1214,7 @@
         <span class="doccomment">/// Decrement `SingleRegister` by 1</span>
         <span class="doccomment">///</span>
         <span class="doccomment">/// The Carry flag is unaffected by this instruction.</span>
-        <span class="ident">Dec</span>(<span class="ident">r</span>: <span class="ident">SingleRegister</span>) [<span class="number">1</span>] =&gt; {
+        <span class="ident">DEC</span>(<span class="ident">r</span>: <span class="ident">SingleRegister</span>) [<span class="number">1</span>] =&gt; {
             <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">r</span> <span class="op">==</span> <span class="ident">SingleRegister::F</span> {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CpuError::UnsupportedSingleRegister</span>(<span class="kw-2">*</span><span class="ident">r</span>));
             }
@@ -1233,7 +1233,7 @@
         <span class="doccomment">/// Decrement `HL` by 1</span>
         <span class="doccomment">///</span>
         <span class="doccomment">/// The Carry flag is unaffected by this instruction.</span>
-        <span class="ident">DecHL</span>() [<span class="number">1</span>] =&gt; {
+        <span class="ident">DEC_HL</span>() [<span class="number">1</span>] =&gt; {
             <span class="kw">let</span> <span class="ident">operand</span> <span class="op">=</span> <span class="ident">memory</span>.<span class="ident">get</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>());
             <span class="kw">let</span> (<span class="ident">result</span>, <span class="ident">flags</span>) <span class="op">=</span> <span class="ident">AluOp::Sub</span>.<span class="ident">calculate</span>(<span class="ident">operand</span>, <span class="number">1</span>);
             <span class="comment">// Set Carry if already set, otherwise reset</span>
@@ -1337,7 +1337,7 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="macro">crate::instruction_tests!</span> {
     <span class="ident">add_takes_one_machine_cycle</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
-        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::Add</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::ADD</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">1</span>, <span class="ident">cycles</span>);
     }
@@ -1346,7 +1346,7 @@
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">1</span>);
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::B</span>, <span class="number">2</span>);
 
-        <span class="ident">ALU8Bit::Add</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::ADD</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">3</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>));
     }
@@ -1357,7 +1357,7 @@
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0</span>);
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::B</span>, <span class="number">0</span>);
 
-        <span class="ident">ALU8Bit::Add</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::ADD</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">0b1000_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>());
     }
@@ -1366,7 +1366,7 @@
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0b0000_0111</span>);
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::B</span>, <span class="number">0b0000_1001</span>);
 
-        <span class="ident">ALU8Bit::Add</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::ADD</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">0b0010_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>());
     }
@@ -1375,7 +1375,7 @@
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0b1111_0000</span>);
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::B</span>, <span class="number">0b0001_0001</span>);
 
-        <span class="ident">ALU8Bit::Add</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::ADD</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">0b0001_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>());
     }
@@ -1384,20 +1384,20 @@
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">252</span>);
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::B</span>, <span class="number">8</span>);
 
-        <span class="ident">ALU8Bit::Add</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::ADD</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">4</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>));
     }
 
     <span class="ident">add_does_not_support_the_f_register</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">ALU8Bit::Add</span>(<span class="ident">SingleRegister::F</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>);
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">ALU8Bit::ADD</span>(<span class="ident">SingleRegister::F</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>);
         <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::errors::CpuError::UnsupportedSingleRegister</span>(<span class="ident">SingleRegister::F</span>));
 
         <span class="macro">assert_eq!</span>(<span class="ident">expected</span>, <span class="ident">result</span>);
     }
 
     <span class="ident">addn_takes_2_machine_cycles</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
-        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::AddN</span>(<span class="number">0xAB</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::ADD_N</span>(<span class="number">0xAB</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">2</span>, <span class="ident">cycles</span>);
     }
@@ -1405,13 +1405,13 @@
     <span class="ident">addn_adds_operand_to_a</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">40</span>);
 
-        <span class="ident">ALU8Bit::AddN</span>(<span class="number">2</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::ADD_N</span>(<span class="number">2</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">42</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>));
     }
 
     <span class="ident">addhl_takes_2_machine_cycles</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
-        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::AddHL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::ADD_HL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">2</span>, <span class="ident">cycles</span>);
     }
@@ -1420,7 +1420,7 @@
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">40</span>);
         <span class="ident">memory</span>.<span class="ident">set</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>(), <span class="number">2</span>);
 
-        <span class="ident">ALU8Bit::AddHL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::ADD_HL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">42</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>));
     }
@@ -1429,26 +1429,26 @@
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0x3A</span>);
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::B</span>, <span class="number">0xC6</span>);
 
-        <span class="ident">ALU8Bit::Add</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::ADD</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0x00</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>), <span class="string">&quot;Wrong result&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="number">0b1011_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;Incorrect flags&quot;</span>);
 
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0x3C</span>);
 
-        <span class="ident">ALU8Bit::AddN</span>(<span class="number">0xFF</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::ADD_N</span>(<span class="number">0xFF</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0x3B</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>), <span class="string">&quot;Wrong result&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="number">0b0011_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;Incorrect flags&quot;</span>);
 
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0x3C</span>);
         <span class="ident">memory</span>.<span class="ident">set</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>(), <span class="number">0x12</span>);
 
-        <span class="ident">ALU8Bit::AddHL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::ADD_HL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0x4E</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>), <span class="string">&quot;Wrong result&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="number">0b0000_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;Incorrect flags&quot;</span>);
     }
 
     <span class="ident">adc_takes_1_machine_cycle</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
-        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::Adc</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::ADC</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">1</span>, <span class="ident">cycles</span>);
     }
@@ -1458,20 +1458,20 @@
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::B</span>, <span class="number">2</span>);
         <span class="ident">registers</span>.<span class="ident">set_flags</span>(<span class="ident">MASK_FLAG_CARRY</span>);
 
-        <span class="ident">ALU8Bit::Adc</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::ADC</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">43</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>));
 
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">40</span>);
         <span class="ident">registers</span>.<span class="ident">set_flags</span>(<span class="number">0</span>);
 
-        <span class="ident">ALU8Bit::Adc</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::ADC</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">42</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>));
     }
 
     <span class="ident">adcn_takes_2_machine_cycles</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
-        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::AdcN</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::ADC_N</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">2</span>, <span class="ident">cycles</span>);
     }
@@ -1480,20 +1480,20 @@
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">40</span>);
         <span class="ident">registers</span>.<span class="ident">set_flags</span>(<span class="ident">MASK_FLAG_CARRY</span>);
 
-        <span class="ident">ALU8Bit::AdcN</span>(<span class="number">2</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::ADC_N</span>(<span class="number">2</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">43</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>));
 
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">40</span>);
         <span class="ident">registers</span>.<span class="ident">set_flags</span>(<span class="number">0</span>);
 
-        <span class="ident">ALU8Bit::AdcN</span>(<span class="number">2</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::ADC_N</span>(<span class="number">2</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">42</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>));
     }
 
     <span class="ident">adchl_takes_2_machine_cycles</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
-        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::AdcHL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::ADC_HL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">2</span>, <span class="ident">cycles</span>);
     }
@@ -1503,20 +1503,20 @@
         <span class="ident">memory</span>.<span class="ident">set</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>(), <span class="number">2</span>);
         <span class="ident">registers</span>.<span class="ident">set_flags</span>(<span class="ident">MASK_FLAG_CARRY</span>);
 
-        <span class="ident">ALU8Bit::AdcHL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::ADC_HL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">43</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>));
 
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">40</span>);
         <span class="ident">registers</span>.<span class="ident">set_flags</span>(<span class="number">0</span>);
 
-        <span class="ident">ALU8Bit::AdcHL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::ADC_HL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">42</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>));
     }
 
     <span class="ident">sub_takes_1_machine_cycle</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
-        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::Sub</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::SUB</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">1</span>, <span class="ident">cycles</span>);
     }
@@ -1525,7 +1525,7 @@
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">45</span>);
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::B</span>, <span class="number">3</span>);
 
-        <span class="ident">ALU8Bit::Sub</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::SUB</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">42</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>));
     }
@@ -1533,7 +1533,7 @@
     <span class="ident">sub_sets_the_negative_flag</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="macro">assert_eq!</span>(<span class="bool-val">false</span>, <span class="ident">registers</span>.<span class="ident">is_negative</span>());
 
-        <span class="ident">ALU8Bit::Sub</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::SUB</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, <span class="ident">registers</span>.<span class="ident">is_negative</span>());
     }
@@ -1541,7 +1541,7 @@
     <span class="ident">sub_sets_the_zero_flag_if_result_is_zero</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="macro">assert_eq!</span>(<span class="bool-val">false</span>, <span class="ident">registers</span>.<span class="ident">is_zero</span>());
 
-        <span class="ident">ALU8Bit::Sub</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::SUB</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, <span class="ident">registers</span>.<span class="ident">is_zero</span>());
     }
@@ -1552,7 +1552,7 @@
 
         <span class="macro">assert_eq!</span>(<span class="bool-val">false</span>, <span class="ident">registers</span>.<span class="ident">is_zero</span>());
 
-        <span class="ident">ALU8Bit::Sub</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::SUB</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="bool-val">false</span>, <span class="ident">registers</span>.<span class="ident">is_zero</span>());
     }
@@ -1561,7 +1561,7 @@
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">10</span>);
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::B</span>, <span class="number">15</span>);
 
-        <span class="ident">ALU8Bit::Sub</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::SUB</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">251</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>));
     }
@@ -1571,33 +1571,33 @@
         <span class="ident">memory</span>.<span class="ident">set</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>(), <span class="number">0x40</span>);
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0x3E</span>);
 
-        <span class="ident">ALU8Bit::Sub</span>(<span class="ident">SingleRegister::E</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::SUB</span>(<span class="ident">SingleRegister::E</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0x00</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>), <span class="string">&quot;Sub has wrong result&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="number">0b1100_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;Sub sets incorrect flags&quot;</span>);
 
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0x3E</span>);
 
-        <span class="ident">ALU8Bit::SubN</span>(<span class="number">0x0F</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::SUB_N</span>(<span class="number">0x0F</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0x2F</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>), <span class="string">&quot;SubN has wrong result&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="number">0b0110_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;SubN sets incorrect flags&quot;</span>);
 
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0x3E</span>);
 
-        <span class="ident">ALU8Bit::SubHL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::SUB_HL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0xFE</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>), <span class="string">&quot;SubHL has wrong result&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="number">0b0101_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;SubN sets incorrect flags&quot;</span>);
     }
 
     <span class="ident">sbc_takes_the_correct_amount_of_machine_cycles</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
-        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::Sbc</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::SBC</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">1</span>, <span class="ident">cycles</span>, <span class="string">&quot;Incorrect machine cycle count for Sbc&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::SbcN</span>(<span class="number">42</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::SBC_N</span>(<span class="number">42</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">2</span>, <span class="ident">cycles</span>, <span class="string">&quot;Incorrect machine cycle count for SbcN&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::SbcHL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::SBC_HL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">2</span>, <span class="ident">cycles</span>, <span class="string">&quot;Incorrect machine cycle count for SbcHL&quot;</span>);
     }
@@ -1608,14 +1608,14 @@
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0x3B</span>);
         <span class="ident">registers</span>.<span class="ident">set_flags</span>(<span class="number">0b0001_0000</span>);
 
-        <span class="ident">ALU8Bit::Sbc</span>(<span class="ident">SingleRegister::H</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::SBC</span>(<span class="ident">SingleRegister::H</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0x10</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>), <span class="string">&quot;Sbc has wrong result&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="number">0b0100_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;Sbc sets incorrect flags&quot;</span>);
 
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0x3B</span>);
         <span class="ident">registers</span>.<span class="ident">set_flags</span>(<span class="number">0b0001_0000</span>);
 
-        <span class="ident">ALU8Bit::SbcN</span>(<span class="number">0x3A</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::SBC_N</span>(<span class="number">0x3A</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0x00</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>), <span class="string">&quot;SbcN has wrong result&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="number">0b1100_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;SbcN sets incorrect flags&quot;</span>);
 
@@ -1623,27 +1623,27 @@
 
         <span class="ident">registers</span>.<span class="ident">set_flags</span>(<span class="number">0b0001_0000</span>);
 
-        <span class="ident">ALU8Bit::SbcHL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::SBC_HL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0xEB</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>), <span class="string">&quot;SbcHL has wrong result&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="number">0b0111_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;SbcHL sets incorrect flags&quot;</span>);
     }
 
     <span class="ident">and_takes_the_correct_amount_of_machine_cycles</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
-        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::And</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::AND</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">1</span>, <span class="ident">cycles</span>, <span class="string">&quot;Incorrect machine cycle count for And&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::AndN</span>(<span class="number">42</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::AND_N</span>(<span class="number">42</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">2</span>, <span class="ident">cycles</span>, <span class="string">&quot;Incorrect machine cycle count for AndN&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::AndHL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::AND_HL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">2</span>, <span class="ident">cycles</span>, <span class="string">&quot;Incorrect machine cycle count for AndHL&quot;</span>);
     }
 
     <span class="ident">and_does_not_support_the_f_register</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">ALU8Bit::And</span>(<span class="ident">SingleRegister::F</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>);
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">ALU8Bit::AND</span>(<span class="ident">SingleRegister::F</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>);
         <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::errors::CpuError::UnsupportedSingleRegister</span>(<span class="ident">SingleRegister::F</span>));
 
         <span class="macro">assert_eq!</span>(<span class="ident">expected</span>, <span class="ident">result</span>);
@@ -1653,40 +1653,40 @@
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0x5A</span>);
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::L</span>, <span class="number">0x3F</span>);
 
-        <span class="ident">ALU8Bit::And</span>(<span class="ident">SingleRegister::L</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::AND</span>(<span class="ident">SingleRegister::L</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0x1A</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>), <span class="string">&quot;And has wrong result&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="number">0b0010_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;And sets incorrect flags&quot;</span>);
 
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0x5A</span>);
 
-        <span class="ident">ALU8Bit::AndN</span>(<span class="number">0x38</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::AND_N</span>(<span class="number">0x38</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0x18</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>), <span class="string">&quot;AndN has wrong result&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="number">0b0010_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;AndN sets incorrect flags&quot;</span>);
 
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0x5A</span>);
         <span class="ident">registers</span>.<span class="ident">set_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>, <span class="number">0x00</span>);
 
-        <span class="ident">ALU8Bit::AndHL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::AND_HL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0x00</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>), <span class="string">&quot;AndHL has wrong result&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="number">0b1010_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;AndHL sets incorrect flags&quot;</span>);
     }
 
     <span class="ident">or_takes_the_correct_amount_of_machine_cycles</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
-        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::Or</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::OR</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">1</span>, <span class="ident">cycles</span>, <span class="string">&quot;Incorrect machine cycle count for Or&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::OrN</span>(<span class="number">42</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::OR_N</span>(<span class="number">42</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">2</span>, <span class="ident">cycles</span>, <span class="string">&quot;Incorrect machine cycle count for OrN&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::OrHL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::OR_HL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">2</span>, <span class="ident">cycles</span>, <span class="string">&quot;Incorrect machine cycle count for OrHL&quot;</span>);
     }
 
     <span class="ident">or_does_not_support_the_f_register</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">ALU8Bit::Or</span>(<span class="ident">SingleRegister::F</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>);
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">ALU8Bit::OR</span>(<span class="ident">SingleRegister::F</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>);
         <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::errors::CpuError::UnsupportedSingleRegister</span>(<span class="ident">SingleRegister::F</span>));
 
         <span class="macro">assert_eq!</span>(<span class="ident">expected</span>, <span class="ident">result</span>);
@@ -1696,39 +1696,39 @@
         <span class="ident">memory</span>.<span class="ident">set</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>(), <span class="number">0x0F</span>);
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0x5A</span>);
 
-        <span class="ident">ALU8Bit::Or</span>(<span class="ident">SingleRegister::A</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::OR</span>(<span class="ident">SingleRegister::A</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0x5A</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>), <span class="string">&quot;Or has wrong result&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="number">0b0000_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;Or sets incorrect flags&quot;</span>);
 
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0x5A</span>);
 
-        <span class="ident">ALU8Bit::OrN</span>(<span class="number">0x03</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::OR_N</span>(<span class="number">0x03</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0x5B</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>), <span class="string">&quot;OrN has wrong result&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="number">0b0000_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;OrN sets incorrect flags&quot;</span>);
 
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0x5A</span>);
 
-        <span class="ident">ALU8Bit::OrHL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::OR_HL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0x5F</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>), <span class="string">&quot;OrHL has wrong result&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="number">0b0000_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;OrHL sets incorrect flags&quot;</span>);
     }
 
     <span class="ident">xor_takes_the_correct_amount_of_machine_cycles</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
-        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::Xor</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::XOR</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">1</span>, <span class="ident">cycles</span>, <span class="string">&quot;Incorrect machine cycle count for Xor&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::XorN</span>(<span class="number">42</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::XOR_N</span>(<span class="number">42</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">2</span>, <span class="ident">cycles</span>, <span class="string">&quot;Incorrect machine cycle count for XorN&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::XorHL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::XOR_HL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">2</span>, <span class="ident">cycles</span>, <span class="string">&quot;Incorrect machine cycle count for XorHL&quot;</span>);
     }
 
     <span class="ident">xor_does_not_support_the_f_register</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">ALU8Bit::Xor</span>(<span class="ident">SingleRegister::F</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>);
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">ALU8Bit::XOR</span>(<span class="ident">SingleRegister::F</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>);
         <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::errors::CpuError::UnsupportedSingleRegister</span>(<span class="ident">SingleRegister::F</span>));
 
         <span class="macro">assert_eq!</span>(<span class="ident">expected</span>, <span class="ident">result</span>);
@@ -1738,39 +1738,39 @@
         <span class="ident">memory</span>.<span class="ident">set</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>(), <span class="number">0x8A</span>);
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0xFF</span>);
 
-        <span class="ident">ALU8Bit::Xor</span>(<span class="ident">SingleRegister::A</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::XOR</span>(<span class="ident">SingleRegister::A</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0x00</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>), <span class="string">&quot;Xor has wrong result&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="number">0b1000_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;Xor sets incorrect flags&quot;</span>);
 
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0xFF</span>);
 
-        <span class="ident">ALU8Bit::XorN</span>(<span class="number">0x0F</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::XOR_N</span>(<span class="number">0x0F</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0xF0</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>), <span class="string">&quot;XorN has wrong result&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="number">0b0000_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;XorN sets incorrect flags&quot;</span>);
 
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0xFF</span>);
 
-        <span class="ident">ALU8Bit::XorHL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::XOR_HL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0x75</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>), <span class="string">&quot;XorHL has wrong result&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="number">0b0000_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;XorHL sets incorrect flags&quot;</span>);
     }
 
     <span class="ident">cp_takes_the_correct_amount_of_machine_cycles</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
-        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::Cp</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::CP</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">1</span>, <span class="ident">cycles</span>, <span class="string">&quot;Incorrect machine cycle count for Cp&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::CpN</span>(<span class="number">42</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::CP_N</span>(<span class="number">42</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">2</span>, <span class="ident">cycles</span>, <span class="string">&quot;Incorrect machine cycle count for CpN&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::CpHL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::CP_HL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">2</span>, <span class="ident">cycles</span>, <span class="string">&quot;Incorrect machine cycle count for CpHL&quot;</span>);
     }
 
     <span class="ident">cp_does_not_support_the_f_register</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">ALU8Bit::Cp</span>(<span class="ident">SingleRegister::F</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>);
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">ALU8Bit::CP</span>(<span class="ident">SingleRegister::F</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>);
         <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::errors::CpuError::UnsupportedSingleRegister</span>(<span class="ident">SingleRegister::F</span>));
 
         <span class="macro">assert_eq!</span>(<span class="ident">expected</span>, <span class="ident">result</span>);
@@ -1781,30 +1781,30 @@
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::B</span>, <span class="number">0x2F</span>);
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0x3C</span>);
 
-        <span class="ident">ALU8Bit::Cp</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::CP</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b0110_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;Cp sets incorrect flags&quot;</span>);
 
-        <span class="ident">ALU8Bit::CpN</span>(<span class="number">0x3C</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::CP_N</span>(<span class="number">0x3C</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b1100_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;CpN sets incorrect flags&quot;</span>);
 
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0x3C</span>);
 
-        <span class="ident">ALU8Bit::CpHL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::CP_HL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b0101_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;CpHL sets incorrect flags&quot;</span>);
     }
 
     <span class="ident">inc_takes_the_correct_amount_of_machine_cycles</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
-        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::Inc</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::INC</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">1</span>, <span class="ident">cycles</span>, <span class="string">&quot;Incorrect machine cycle count for Inc&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::IncHL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::INC_HL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">3</span>, <span class="ident">cycles</span>, <span class="string">&quot;Incorrect machine cycle count for IncHL&quot;</span>);
     }
 
     <span class="ident">inc_does_not_support_the_f_register</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">ALU8Bit::Inc</span>(<span class="ident">SingleRegister::F</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>);
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">ALU8Bit::INC</span>(<span class="ident">SingleRegister::F</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>);
         <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::errors::CpuError::UnsupportedSingleRegister</span>(<span class="ident">SingleRegister::F</span>));
 
         <span class="macro">assert_eq!</span>(<span class="ident">expected</span>, <span class="ident">result</span>);
@@ -1814,35 +1814,35 @@
         <span class="ident">memory</span>.<span class="ident">set</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>(), <span class="number">0x50</span>);
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0xFF</span>);
 
-        <span class="ident">ALU8Bit::Inc</span>(<span class="ident">SingleRegister::A</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::INC</span>(<span class="ident">SingleRegister::A</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>), <span class="string">&quot;Inc sets wrong result&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="number">0b1010_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;Inc sets incorrect flags&quot;</span>);
 
-        <span class="ident">ALU8Bit::IncHL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::INC_HL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0x51</span>, <span class="ident">memory</span>.<span class="ident">get</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>()), <span class="string">&quot;IncHL sets wrong result&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="number">0b0000_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;IncHL sets incorrect flags&quot;</span>);
 
         <span class="ident">registers</span>.<span class="ident">set_flags</span>(<span class="ident">MASK_FLAG_CARRY</span>);
-        <span class="ident">ALU8Bit::Inc</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::INC</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b0001_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;Inc did not maintain Carry flag&quot;</span>);
 
         <span class="ident">registers</span>.<span class="ident">set_flags</span>(<span class="ident">MASK_FLAG_CARRY</span>);
-        <span class="ident">ALU8Bit::IncHL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::INC_HL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b0001_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;IncHL did not maintain Carry flag&quot;</span>);
     }
 
     <span class="ident">dec_takes_the_correct_amount_of_machine_cycles</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
-        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::Dec</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::DEC</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">1</span>, <span class="ident">cycles</span>, <span class="string">&quot;Incorrect machine cycle count for Dec&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::DecHL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">ALU8Bit::DEC_HL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">3</span>, <span class="ident">cycles</span>, <span class="string">&quot;Incorrect machine cycle count for DecHL&quot;</span>);
     }
 
     <span class="ident">dec_does_not_support_the_f_register</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">ALU8Bit::Dec</span>(<span class="ident">SingleRegister::F</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>);
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">ALU8Bit::DEC</span>(<span class="ident">SingleRegister::F</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>);
         <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="prelude-val">Err</span>(<span class="ident"><span class="kw">crate</span>::errors::CpuError::UnsupportedSingleRegister</span>(<span class="ident">SingleRegister::F</span>));
 
         <span class="macro">assert_eq!</span>(<span class="ident">expected</span>, <span class="ident">result</span>);
@@ -1853,20 +1853,20 @@
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0x01</span>);
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::C</span>, <span class="number">0x02</span>);
 
-        <span class="ident">ALU8Bit::Dec</span>(<span class="ident">SingleRegister::A</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::DEC</span>(<span class="ident">SingleRegister::A</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>), <span class="string">&quot;Dec sets wrong result&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="number">0b1100_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;Dec sets incorrect flags&quot;</span>);
 
-        <span class="ident">ALU8Bit::DecHL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::DEC_HL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0xFF</span>, <span class="ident">memory</span>.<span class="ident">get</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>()), <span class="string">&quot;DecHL sets wrong result&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="number">0b0110_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;DecHL sets incorrect flags&quot;</span>);
 
         <span class="ident">registers</span>.<span class="ident">set_flags</span>(<span class="ident">MASK_FLAG_CARRY</span>);
-        <span class="ident">ALU8Bit::Dec</span>(<span class="ident">SingleRegister::C</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::DEC</span>(<span class="ident">SingleRegister::C</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b0101_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;Dec did not maintain Carry flag&quot;</span>);
 
         <span class="ident">registers</span>.<span class="ident">set_flags</span>(<span class="ident">MASK_FLAG_CARRY</span>);
-        <span class="ident">ALU8Bit::DecHL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">ALU8Bit::DEC_HL</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b0101_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;DecHL did not maintain Carry flag&quot;</span>);
     }
 }

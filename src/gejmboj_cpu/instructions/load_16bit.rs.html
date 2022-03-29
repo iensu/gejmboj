@@ -169,27 +169,27 @@
     <span class="ident">Load16Bit</span> (<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">_cpu_flags</span>) {
 
         <span class="doccomment">/// Loads 16-bit data into 16-bit register</span>
-        <span class="ident">Ld</span>(<span class="ident">r</span>: <span class="ident">DoubleRegister</span>, <span class="ident">operand</span>: <span class="ident">u16</span>) [<span class="number">3</span>] =&gt; {
+        <span class="ident">LD</span>(<span class="ident">r</span>: <span class="ident">DoubleRegister</span>, <span class="ident">operand</span>: <span class="ident">u16</span>) [<span class="number">3</span>] =&gt; {
             <span class="ident">registers</span>.<span class="ident">set_double</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>, <span class="kw-2">*</span><span class="ident">operand</span>);
             <span class="prelude-val">Ok</span>(<span class="number">3</span>)
         }
 
         <span class="doccomment">/// Loads value from SP into address</span>
-        <span class="ident">LdFromSP</span>(<span class="ident">address</span>: <span class="ident">u16</span>) [<span class="number">3</span>] =&gt; {
+        <span class="ident">LD_FROM_SP</span>(<span class="ident">address</span>: <span class="ident">u16</span>) [<span class="number">3</span>] =&gt; {
             <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::SP</span>);
             <span class="ident">memory</span>.<span class="ident">set_u16</span>((<span class="kw-2">*</span><span class="ident">address</span>).<span class="ident">into</span>(), <span class="ident">value</span>);
             <span class="prelude-val">Ok</span>(<span class="number">5</span>)
         }
 
         <span class="doccomment">/// Loads data from HL into SP</span>
-        <span class="ident">LdHLToSP</span>() [<span class="number">1</span>] =&gt; {
+        <span class="ident">LD_HL_TO_SP</span>() [<span class="number">1</span>] =&gt; {
             <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>);
             <span class="ident">registers</span>.<span class="ident">set_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::SP</span>, <span class="ident">value</span>);
             <span class="prelude-val">Ok</span>(<span class="number">2</span>)
         }
 
         <span class="doccomment">/// Push data from 16-bit register to stack memory</span>
-        <span class="ident">Push</span>(<span class="ident">r</span>: <span class="ident">DoubleRegister</span>) [<span class="number">1</span>] =&gt; {
+        <span class="ident">PUSH</span>(<span class="ident">r</span>: <span class="ident">DoubleRegister</span>) [<span class="number">1</span>] =&gt; {
             <span class="kw">let</span> <span class="ident">sp</span> <span class="op">=</span> <span class="ident">registers</span>.<span class="ident">decrement_sp</span>();
             <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="ident">r</span>);
             <span class="ident">memory</span>.<span class="ident">set_u16</span>(<span class="ident">sp</span>.<span class="ident">into</span>(), <span class="ident">value</span>);
@@ -197,7 +197,7 @@
         }
 
         <span class="doccomment">/// Pop data from stack memory to 16-bit register</span>
-        <span class="ident">Pop</span>(<span class="ident">r</span>: <span class="ident">DoubleRegister</span>) [<span class="number">1</span>] =&gt; {
+        <span class="ident">POP</span>(<span class="ident">r</span>: <span class="ident">DoubleRegister</span>) [<span class="number">1</span>] =&gt; {
             <span class="kw">let</span> <span class="ident">sp</span> <span class="op">=</span> <span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::SP</span>);
             <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">memory</span>.<span class="ident">get_u16</span>(<span class="ident">sp</span>.<span class="ident">into</span>());
             <span class="ident">registers</span>.<span class="ident">set_double</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>, <span class="ident">value</span>);
@@ -210,27 +210,27 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="macro">crate::instruction_tests!</span> {
     <span class="ident">load_16_bit_data_to_registers</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
-        <span class="kw">let</span> <span class="ident">instruction</span> <span class="op">=</span> <span class="ident">Load16Bit::Ld</span>(<span class="ident">DoubleRegister::BC</span>, <span class="number">0x1234</span>);
+        <span class="kw">let</span> <span class="ident">instruction</span> <span class="op">=</span> <span class="ident">Load16Bit::LD</span>(<span class="ident">DoubleRegister::BC</span>, <span class="number">0x1234</span>);
         <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">instruction</span>.<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">3</span>, <span class="ident">cycles</span>);
         <span class="macro">assert_eq!</span>(<span class="number">0x1234</span>, <span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::BC</span>), <span class="string">&quot;Register BC was not set correctly&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">instruction</span> <span class="op">=</span> <span class="ident">Load16Bit::Ld</span>(<span class="ident">DoubleRegister::DE</span>, <span class="number">0x1234</span>);
+        <span class="kw">let</span> <span class="ident">instruction</span> <span class="op">=</span> <span class="ident">Load16Bit::LD</span>(<span class="ident">DoubleRegister::DE</span>, <span class="number">0x1234</span>);
         <span class="kw">let</span> <span class="ident">_cycles</span> <span class="op">=</span> <span class="ident">instruction</span>.<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0x1234</span>, <span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::DE</span>), <span class="string">&quot;Register DE was not set correctly&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">instruction</span> <span class="op">=</span> <span class="ident">Load16Bit::Ld</span>(<span class="ident">DoubleRegister::HL</span>, <span class="number">0x1234</span>);
+        <span class="kw">let</span> <span class="ident">instruction</span> <span class="op">=</span> <span class="ident">Load16Bit::LD</span>(<span class="ident">DoubleRegister::HL</span>, <span class="number">0x1234</span>);
         <span class="kw">let</span> <span class="ident">_cycles</span> <span class="op">=</span> <span class="ident">instruction</span>.<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0x1234</span>, <span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>), <span class="string">&quot;Register HL was not set correctly&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">instruction</span> <span class="op">=</span> <span class="ident">Load16Bit::Ld</span>(<span class="ident">DoubleRegister::SP</span>, <span class="number">0x1234</span>);
+        <span class="kw">let</span> <span class="ident">instruction</span> <span class="op">=</span> <span class="ident">Load16Bit::LD</span>(<span class="ident">DoubleRegister::SP</span>, <span class="number">0x1234</span>);
         <span class="kw">let</span> <span class="ident">_cycles</span> <span class="op">=</span> <span class="ident">instruction</span>.<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0x1234</span>, <span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::SP</span>), <span class="string">&quot;Register SP was not set correctly&quot;</span>);
     }
 
     <span class="ident">load_16_bit_data_from_sp_into_address</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="ident">registers</span>.<span class="ident">set_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::SP</span>, <span class="number">0x1234</span>);
-        <span class="kw">let</span> <span class="ident">instruction</span> <span class="op">=</span> <span class="ident">Load16Bit::LdFromSP</span>(<span class="number">0xABCD</span>);
+        <span class="kw">let</span> <span class="ident">instruction</span> <span class="op">=</span> <span class="ident">Load16Bit::LD_FROM_SP</span>(<span class="number">0xABCD</span>);
         <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">instruction</span>.<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">5</span>, <span class="ident">cycles</span>);
         <span class="macro">assert_eq!</span>(<span class="number">0x1234</span>, <span class="ident">memory</span>.<span class="ident">get_u16</span>(<span class="number">0xABCD</span>));
@@ -241,7 +241,7 @@
         <span class="kw">let</span> <span class="ident">stack_pointer_start_address</span> <span class="op">=</span> <span class="number">0xFFFE</span>;
         <span class="macro">assert_eq!</span>(<span class="ident">stack_pointer_start_address</span>, <span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::SP</span>));
 
-        <span class="kw">let</span> <span class="ident">instruction</span> <span class="op">=</span> <span class="ident">Load16Bit::LdHLToSP</span>();
+        <span class="kw">let</span> <span class="ident">instruction</span> <span class="op">=</span> <span class="ident">Load16Bit::LD_HL_TO_SP</span>();
         <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">instruction</span>.<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">2</span>, <span class="ident">cycles</span>);
         <span class="macro">assert_eq!</span>(<span class="number">0x1234</span>, <span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::SP</span>));
@@ -256,25 +256,25 @@
         <span class="ident">registers</span>.<span class="ident">set_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>, <span class="number">0x5566</span>);
         <span class="ident">registers</span>.<span class="ident">set_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::AF</span>, <span class="number">0x7780</span>);
 
-        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">Load16Bit::Push</span>(<span class="ident">DoubleRegister::BC</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">Load16Bit::PUSH</span>(<span class="ident">DoubleRegister::BC</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">sp</span> <span class="op">=</span> <span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::SP</span>);
         <span class="macro">assert_eq!</span>(<span class="number">4</span>, <span class="ident">cycles</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">stack_pointer_start_address</span> <span class="op">-</span> <span class="number">2</span>, <span class="ident">sp</span>);
         <span class="macro">assert_eq!</span>(<span class="number">0x1122</span>, <span class="ident">memory</span>.<span class="ident">get_u16</span>(<span class="ident">sp</span>.<span class="ident">into</span>()));
 
-        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">Load16Bit::Push</span>(<span class="ident">DoubleRegister::DE</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">Load16Bit::PUSH</span>(<span class="ident">DoubleRegister::DE</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">sp</span> <span class="op">=</span> <span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::SP</span>);
         <span class="macro">assert_eq!</span>(<span class="number">4</span>, <span class="ident">cycles</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">stack_pointer_start_address</span> <span class="op">-</span> <span class="number">4</span>, <span class="ident">sp</span>);
         <span class="macro">assert_eq!</span>(<span class="number">0x3344</span>, <span class="ident">memory</span>.<span class="ident">get_u16</span>(<span class="ident">sp</span>.<span class="ident">into</span>()));
 
-        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">Load16Bit::Push</span>(<span class="ident">DoubleRegister::HL</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">Load16Bit::PUSH</span>(<span class="ident">DoubleRegister::HL</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">sp</span> <span class="op">=</span> <span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::SP</span>);
         <span class="macro">assert_eq!</span>(<span class="number">4</span>, <span class="ident">cycles</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">stack_pointer_start_address</span> <span class="op">-</span> <span class="number">6</span>, <span class="ident">sp</span>);
         <span class="macro">assert_eq!</span>(<span class="number">0x5566</span>, <span class="ident">memory</span>.<span class="ident">get_u16</span>(<span class="ident">sp</span>.<span class="ident">into</span>()));
 
-        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">Load16Bit::Push</span>(<span class="ident">DoubleRegister::AF</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">Load16Bit::PUSH</span>(<span class="ident">DoubleRegister::AF</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">sp</span> <span class="op">=</span> <span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::SP</span>);
         <span class="macro">assert_eq!</span>(<span class="number">4</span>, <span class="ident">cycles</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">stack_pointer_start_address</span> <span class="op">-</span> <span class="number">8</span>, <span class="ident">sp</span>);
@@ -284,7 +284,7 @@
     <span class="ident">pop_stack_memory_to_bc_register</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="kw">let</span> <span class="ident">sp</span> <span class="op">=</span> <span class="ident">registers</span>.<span class="ident">decrement_sp</span>();
         <span class="ident">memory</span>.<span class="ident">set_u16</span>(<span class="ident">sp</span>.<span class="ident">into</span>(), <span class="number">0xABCD</span>);
-        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">Load16Bit::Pop</span>(<span class="ident">DoubleRegister::BC</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">Load16Bit::POP</span>(<span class="ident">DoubleRegister::BC</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="ident">cycles</span>, <span class="number">3</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">sp</span> <span class="op">+</span> <span class="number">2</span>, <span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::SP</span>));
@@ -294,7 +294,7 @@
     <span class="ident">pop_stack_memory_to_de_register</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="kw">let</span> <span class="ident">sp</span> <span class="op">=</span> <span class="ident">registers</span>.<span class="ident">decrement_sp</span>();
         <span class="ident">memory</span>.<span class="ident">set_u16</span>(<span class="ident">sp</span>.<span class="ident">into</span>(), <span class="number">0xABCD</span>);
-        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">Load16Bit::Pop</span>(<span class="ident">DoubleRegister::DE</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">Load16Bit::POP</span>(<span class="ident">DoubleRegister::DE</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="ident">cycles</span>, <span class="number">3</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">sp</span> <span class="op">+</span> <span class="number">2</span>, <span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::SP</span>));
@@ -304,7 +304,7 @@
     <span class="ident">pop_stack_memory_to_hl_register</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="kw">let</span> <span class="ident">sp</span> <span class="op">=</span> <span class="ident">registers</span>.<span class="ident">decrement_sp</span>();
         <span class="ident">memory</span>.<span class="ident">set_u16</span>(<span class="ident">sp</span>.<span class="ident">into</span>(), <span class="number">0xABCD</span>);
-        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">Load16Bit::Pop</span>(<span class="ident">DoubleRegister::HL</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">Load16Bit::POP</span>(<span class="ident">DoubleRegister::HL</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="ident">cycles</span>, <span class="number">3</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">sp</span> <span class="op">+</span> <span class="number">2</span>, <span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::SP</span>));
@@ -314,7 +314,7 @@
     <span class="ident">pop_stack_memory_to_af_register</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="kw">let</span> <span class="ident">sp</span> <span class="op">=</span> <span class="ident">registers</span>.<span class="ident">decrement_sp</span>();
         <span class="ident">memory</span>.<span class="ident">set_u16</span>(<span class="ident">sp</span>.<span class="ident">into</span>(), <span class="number">0xABCD</span>);
-        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">Load16Bit::Pop</span>(<span class="ident">DoubleRegister::AF</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">Load16Bit::POP</span>(<span class="ident">DoubleRegister::AF</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="ident">cycles</span>, <span class="number">3</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">sp</span> <span class="op">+</span> <span class="number">2</span>, <span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::SP</span>));

@@ -1175,14 +1175,14 @@
 <span class="doccomment">/// | `00_111_rrr` | `Srl`       |</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">decode</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">RotateShift</span>, <span class="ident">CpuError</span><span class="op">&gt;</span> {
     <span class="kw">match</span> <span class="ident">utils::into_bits</span>(<span class="ident">operand</span>) {
-        (<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">RotateShift::RlC</span>(<span class="ident">operand</span>)),
-        (<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">RotateShift::RrC</span>(<span class="ident">operand</span>)),
-        (<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">RotateShift::Rl</span>(<span class="ident">operand</span>)),
-        (<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">RotateShift::Rr</span>(<span class="ident">operand</span>)),
-        (<span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">RotateShift::Sla</span>(<span class="ident">operand</span>)),
-        (<span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">RotateShift::Sra</span>(<span class="ident">operand</span>)),
-        (<span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">RotateShift::Swap</span>(<span class="ident">operand</span>)),
-        (<span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">RotateShift::Srl</span>(<span class="ident">operand</span>)),
+        (<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">RotateShift::RLC</span>(<span class="ident">operand</span>)),
+        (<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">RotateShift::RRC</span>(<span class="ident">operand</span>)),
+        (<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">RotateShift::RL</span>(<span class="ident">operand</span>)),
+        (<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">RotateShift::RR</span>(<span class="ident">operand</span>)),
+        (<span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">RotateShift::SLA</span>(<span class="ident">operand</span>)),
+        (<span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">RotateShift::SRA</span>(<span class="ident">operand</span>)),
+        (<span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">RotateShift::SWAP</span>(<span class="ident">operand</span>)),
+        (<span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">RotateShift::SRL</span>(<span class="ident">operand</span>)),
         <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">CpuError::UnknownInstruction</span>(<span class="ident">operand</span>)),
     }
 }
@@ -1309,7 +1309,7 @@
         <span class="doccomment">/// | N    | `0`           |</span>
         <span class="doccomment">/// | H    | `0`           |</span>
         <span class="doccomment">/// | C    | A&lt;sup&gt;7&lt;/sup&gt; |</span>
-        <span class="ident">RlcA</span>() [<span class="number">1</span>] =&gt; {
+        <span class="ident">RLCA</span>() [<span class="number">1</span>] =&gt; {
             <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>);
             <span class="kw">let</span> (<span class="ident">result</span>, <span class="ident">flags</span>) <span class="op">=</span> <span class="ident">Op::RotateLeft</span>(<span class="ident">value</span>).<span class="ident">execute</span>(<span class="number">0</span>, <span class="kw-2">&amp;</span><span class="ident">OpConfig::default</span>());
             <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="ident">result</span>);
@@ -1328,7 +1328,7 @@
         <span class="doccomment">/// | N    | `0`           |</span>
         <span class="doccomment">/// | H    | `0`           |</span>
         <span class="doccomment">/// | C    | A&lt;sup&gt;7&lt;/sup&gt; |</span>
-        <span class="ident">RlA</span>() [<span class="number">1</span>] =&gt; {
+        <span class="ident">RLA</span>() [<span class="number">1</span>] =&gt; {
             <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>);
             <span class="kw">let</span> (<span class="ident">result</span>, <span class="ident">flags</span>) <span class="op">=</span> <span class="ident">Op::RotateLeft</span>(<span class="ident">value</span>).<span class="ident">execute</span>(
                 <span class="ident">registers</span>.<span class="ident">get_flags</span>() <span class="op">&amp;</span> <span class="ident">MASK_FLAG_CARRY</span>,
@@ -1350,7 +1350,7 @@
         <span class="doccomment">/// | N    | `0`           |</span>
         <span class="doccomment">/// | H    | `0`           |</span>
         <span class="doccomment">/// | C    | A&lt;sup&gt;0&lt;/sup&gt; |</span>
-        <span class="ident">RrcA</span>() [<span class="number">1</span>] =&gt; {
+        <span class="ident">RRCA</span>() [<span class="number">1</span>] =&gt; {
             <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>);
             <span class="kw">let</span> (<span class="ident">result</span>, <span class="ident">flags</span>) <span class="op">=</span> <span class="ident">Op::RotateRight</span>(<span class="ident">value</span>).<span class="ident">execute</span>(<span class="number">0</span>, <span class="kw-2">&amp;</span><span class="ident">OpConfig::default</span>());
             <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="ident">result</span>);
@@ -1369,7 +1369,7 @@
         <span class="doccomment">/// | N    | `0`           |</span>
         <span class="doccomment">/// | H    | `0`           |</span>
         <span class="doccomment">/// | C    | A&lt;sup&gt;0&lt;/sup&gt; |</span>
-        <span class="ident">RrA</span>() [<span class="number">1</span>] =&gt; {
+        <span class="ident">RRA</span>() [<span class="number">1</span>] =&gt; {
             <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>);
             <span class="kw">let</span> (<span class="ident">result</span>, <span class="ident">flags</span>) <span class="op">=</span> <span class="ident">Op::RotateRight</span>(<span class="ident">value</span>).<span class="ident">execute</span>(
                 <span class="ident">registers</span>.<span class="ident">get_flags</span>() <span class="op">&amp;</span> <span class="ident">MASK_FLAG_CARRY</span>,
@@ -1392,7 +1392,7 @@
         <span class="doccomment">/// | N    | `0`           |</span>
         <span class="doccomment">/// | H    | `0`           |</span>
         <span class="doccomment">/// | C    | m&lt;sup&gt;7&lt;/sup&gt; |</span>
-        <span class="ident">RlC</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) [<span class="number">2</span>] =&gt; {
+        <span class="ident">RLC</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) [<span class="number">2</span>] =&gt; {
             <span class="kw">let</span> (<span class="ident">value</span>, <span class="ident">register</span>) <span class="op">=</span> <span class="ident">get_register_value</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="kw-2">*</span><span class="ident">operand</span>);
             <span class="kw">let</span> (<span class="ident">result</span>, <span class="ident">flags</span>) <span class="op">=</span> <span class="ident">Op::RotateLeft</span>(<span class="ident">value</span>).<span class="ident">execute</span>(<span class="number">0</span>, <span class="kw-2">&amp;</span><span class="ident">OpConfig::builder</span>().<span class="ident">set_z</span>().<span class="ident">build</span>());
 
@@ -1422,7 +1422,7 @@
         <span class="doccomment">/// | N    | `0`           |</span>
         <span class="doccomment">/// | H    | `0`           |</span>
         <span class="doccomment">/// | C    | m&lt;sup&gt;7&lt;/sup&gt; |</span>
-        <span class="ident">Rl</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) [<span class="number">2</span>] =&gt; {
+        <span class="ident">RL</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) [<span class="number">2</span>] =&gt; {
             <span class="kw">let</span> (<span class="ident">value</span>, <span class="ident">register</span>) <span class="op">=</span> <span class="ident">get_register_value</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="kw-2">*</span><span class="ident">operand</span>);
             <span class="kw">let</span> (<span class="ident">result</span>, <span class="ident">flags</span>) <span class="op">=</span> <span class="ident">Op::RotateLeft</span>(<span class="ident">value</span>).<span class="ident">execute</span>(
                 <span class="ident">registers</span>.<span class="ident">get_flags</span>() <span class="op">&amp;</span> <span class="ident">MASK_FLAG_CARRY</span>,
@@ -1455,7 +1455,7 @@
         <span class="doccomment">/// | N    | `0`           |</span>
         <span class="doccomment">/// | H    | `0`           |</span>
         <span class="doccomment">/// | C    | m&lt;sup&gt;0&lt;/sup&gt; |</span>
-        <span class="ident">RrC</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) [<span class="number">2</span>] =&gt; {
+        <span class="ident">RRC</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) [<span class="number">2</span>] =&gt; {
             <span class="kw">let</span> (<span class="ident">value</span>, <span class="ident">register</span>) <span class="op">=</span> <span class="ident">get_register_value</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="kw-2">*</span><span class="ident">operand</span>);
             <span class="kw">let</span> (<span class="ident">result</span>, <span class="ident">flags</span>) <span class="op">=</span> <span class="ident">Op::RotateRight</span>(<span class="ident">value</span>).<span class="ident">execute</span>(<span class="number">0</span>, <span class="kw-2">&amp;</span><span class="ident">OpConfig::builder</span>().<span class="ident">set_z</span>().<span class="ident">build</span>());
 
@@ -1485,7 +1485,7 @@
         <span class="doccomment">/// | N    | `0`           |</span>
         <span class="doccomment">/// | H    | `0`           |</span>
         <span class="doccomment">/// | C    | m&lt;sup&gt;0&lt;/sup&gt; |</span>
-        <span class="ident">Rr</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) [<span class="number">2</span>] =&gt; {
+        <span class="ident">RR</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) [<span class="number">2</span>] =&gt; {
             <span class="kw">let</span> (<span class="ident">value</span>, <span class="ident">register</span>) <span class="op">=</span> <span class="ident">get_register_value</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="kw-2">*</span><span class="ident">operand</span>);
             <span class="kw">let</span> (<span class="ident">result</span>, <span class="ident">flags</span>) <span class="op">=</span> <span class="ident">Op::RotateRight</span>(<span class="ident">value</span>).<span class="ident">execute</span>(
                 <span class="ident">registers</span>.<span class="ident">get_flags</span>() <span class="op">&amp;</span> <span class="ident">MASK_FLAG_CARRY</span>,
@@ -1518,7 +1518,7 @@
         <span class="doccomment">/// | N    | `0`           |</span>
         <span class="doccomment">/// | H    | `0`           |</span>
         <span class="doccomment">/// | C    | m&lt;sup&gt;7&lt;/sup&gt; |</span>
-        <span class="ident">Sla</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) [<span class="number">2</span>] =&gt; {
+        <span class="ident">SLA</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) [<span class="number">2</span>] =&gt; {
             <span class="kw">let</span> (<span class="ident">value</span>, <span class="ident">register</span>) <span class="op">=</span> <span class="ident">get_register_value</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="kw-2">*</span><span class="ident">operand</span>);
             <span class="kw">let</span> (<span class="ident">result</span>, <span class="ident">flags</span>) <span class="op">=</span> <span class="ident">Op::ShiftLeft</span>(<span class="ident">value</span>).<span class="ident">execute</span>(<span class="number">0</span>, <span class="kw-2">&amp;</span><span class="ident">OpConfig::builder</span>().<span class="ident">set_z</span>().<span class="ident">build</span>());
 
@@ -1548,7 +1548,7 @@
         <span class="doccomment">/// | N    | `0`           |</span>
         <span class="doccomment">/// | H    | `0`           |</span>
         <span class="doccomment">/// | C    | m&lt;sup&gt;0&lt;/sup&gt; |</span>
-        <span class="ident">Sra</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) [<span class="number">2</span>] =&gt; {
+        <span class="ident">SRA</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) [<span class="number">2</span>] =&gt; {
             <span class="kw">let</span> (<span class="ident">value</span>, <span class="ident">register</span>) <span class="op">=</span> <span class="ident">get_register_value</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="kw-2">*</span><span class="ident">operand</span>);
             <span class="kw">let</span> (<span class="ident">result</span>, <span class="ident">flags</span>) <span class="op">=</span> <span class="ident">Op::ShiftRight</span>(<span class="ident">value</span>).<span class="ident">execute</span>(<span class="number">0</span>, <span class="kw-2">&amp;</span><span class="ident">OpConfig::builder</span>().<span class="ident">set_z</span>().<span class="ident">repeat_tail</span>().<span class="ident">build</span>());
 
@@ -1578,7 +1578,7 @@
         <span class="doccomment">/// | N    | `0`           |</span>
         <span class="doccomment">/// | H    | `0`           |</span>
         <span class="doccomment">/// | C    | m&lt;sup&gt;0&lt;/sup&gt; |</span>
-        <span class="ident">Srl</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) [<span class="number">2</span>] =&gt; {
+        <span class="ident">SRL</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) [<span class="number">2</span>] =&gt; {
             <span class="kw">let</span> (<span class="ident">value</span>, <span class="ident">register</span>) <span class="op">=</span> <span class="ident">get_register_value</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="kw-2">*</span><span class="ident">operand</span>);
             <span class="kw">let</span> (<span class="ident">result</span>, <span class="ident">flags</span>) <span class="op">=</span> <span class="ident">Op::ShiftRight</span>(<span class="ident">value</span>).<span class="ident">execute</span>(<span class="number">0</span>, <span class="kw-2">&amp;</span><span class="ident">OpConfig::builder</span>().<span class="ident">set_z</span>().<span class="ident">build</span>());
 
@@ -1606,7 +1606,7 @@
         <span class="doccomment">/// | N    | `0`           |</span>
         <span class="doccomment">/// | H    | `0`           |</span>
         <span class="doccomment">/// | C    | `0`           |</span>
-        <span class="ident">Swap</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) [<span class="number">2</span>] =&gt; {
+        <span class="ident">SWAP</span>(<span class="ident">operand</span>: <span class="ident">u8</span>) [<span class="number">2</span>] =&gt; {
             <span class="kw">let</span> (<span class="ident">value</span>, <span class="ident">register</span>) <span class="op">=</span> <span class="ident">get_register_value</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="kw-2">*</span><span class="ident">operand</span>);
 
             <span class="kw">let</span> <span class="ident">flags</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">value</span> <span class="op">==</span> <span class="number">0</span> { <span class="ident">MASK_FLAG_ZERO</span> } <span class="kw">else</span> { <span class="number">0</span> };
@@ -1633,132 +1633,132 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="macro">crate::instruction_tests!</span> {
     <span class="ident">rlca_takes_1_machine_cycle</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
-        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">RotateShift::RlcA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">RotateShift::RLCA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">1</span>, <span class="ident">cycles</span>);
     }
 
     <span class="ident">rlca_rotates_the_a_register_left</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0b0001_0100</span>);
-        <span class="ident">RotateShift::RlcA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::RLCA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b0010_1000</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>));
     }
 
     <span class="ident">rlca_sets_flags_correctly</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="ident">registers</span>.<span class="ident">set_flags</span>(<span class="number">0b1110_0000</span>);
-        <span class="ident">RotateShift::RlcA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::RLCA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b0000_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;Did not clear Z, N and H&quot;</span>);
         <span class="ident">registers</span>.<span class="ident">clear</span>();
 
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0b0101_0101</span>);
-        <span class="ident">RotateShift::RlcA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::RLCA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b0000_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;C should NOT be set&quot;</span>);
         <span class="ident">registers</span>.<span class="ident">clear</span>();
 
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0b1010_1010</span>);
-        <span class="ident">RotateShift::RlcA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::RLCA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b0001_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;C should be set&quot;</span>);
     }
 
     <span class="ident">rla_takes_1_machine_cycle</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
-        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">RotateShift::RlA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">RotateShift::RLA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">1</span>, <span class="ident">cycles</span>);
     }
 
     <span class="ident">rla_rotates_the_a_register_left</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0b0001_0100</span>);
-        <span class="ident">RotateShift::RlA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::RLA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b0010_1000</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>));
     }
 
     <span class="ident">rla_sets_bit0_to_c</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="ident">registers</span>.<span class="ident">set_flags</span>(<span class="ident">MASK_FLAG_CARRY</span>);
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0b0000_0000</span>);
-        <span class="ident">RotateShift::RlA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::RLA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b0000_0001</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>));
     }
 
     <span class="ident">rla_sets_flags_correctly</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="ident">registers</span>.<span class="ident">set_flags</span>(<span class="number">0b1110_0000</span>);
-        <span class="ident">RotateShift::RlA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::RLA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b0000_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;Did not clear Z, N and H&quot;</span>);
         <span class="ident">registers</span>.<span class="ident">clear</span>();
 
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0b0101_0101</span>);
-        <span class="ident">RotateShift::RlA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::RLA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b0000_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;C should NOT be set&quot;</span>);
         <span class="ident">registers</span>.<span class="ident">clear</span>();
 
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0b1010_1010</span>);
-        <span class="ident">RotateShift::RlA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::RLA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b0001_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;C should be set&quot;</span>);
     }
 
     <span class="ident">rrca_takes_1_machine_cycle</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
-        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">RotateShift::RrcA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">RotateShift::RRCA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">1</span>, <span class="ident">cycles</span>);
     }
 
     <span class="ident">rrca_rotates_the_a_register_right</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0b0010_1000</span>);
-        <span class="ident">RotateShift::RrcA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::RRCA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b0001_0100</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>));
     }
 
     <span class="ident">rrca_sets_flags_correctly</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="ident">registers</span>.<span class="ident">set_flags</span>(<span class="number">0b1110_0000</span>);
-        <span class="ident">RotateShift::RrcA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::RRCA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b0000_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;Did not clear Z, N and H&quot;</span>);
         <span class="ident">registers</span>.<span class="ident">clear</span>();
 
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0b0101_0101</span>);
-        <span class="ident">RotateShift::RrcA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::RRCA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b0001_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;C should be set&quot;</span>);
         <span class="ident">registers</span>.<span class="ident">clear</span>();
 
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0b1010_1010</span>);
-        <span class="ident">RotateShift::RrcA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::RRCA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b0000_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;C should NOT be set&quot;</span>);
         <span class="ident">registers</span>.<span class="ident">clear</span>();
     }
 
     <span class="ident">rra_takes_1_machine_cycle</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
-        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">RotateShift::RrA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">RotateShift::RRA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">1</span>, <span class="ident">cycles</span>);
     }
 
     <span class="ident">rra_rotates_the_a_register_left</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0b001_01000</span>);
-        <span class="ident">RotateShift::RrA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::RRA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b0001_0100</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>));
     }
 
     <span class="ident">rra_sets_bit7_to_c</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="ident">registers</span>.<span class="ident">set_flags</span>(<span class="ident">MASK_FLAG_CARRY</span>);
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0b0000_0000</span>);
-        <span class="ident">RotateShift::RrA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::RRA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b1000_0000</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>));
     }
 
     <span class="ident">rra_sets_flags_correctly</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="ident">registers</span>.<span class="ident">set_flags</span>(<span class="number">0b1110_0000</span>);
-        <span class="ident">RotateShift::RrA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::RRA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b0000_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;Did not clear Z, N and H&quot;</span>);
         <span class="ident">registers</span>.<span class="ident">clear</span>();
 
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0b0101_0101</span>);
-        <span class="ident">RotateShift::RrA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::RRA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b0001_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;C should be set&quot;</span>);
         <span class="ident">registers</span>.<span class="ident">clear</span>();
 
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0b1010_1010</span>);
-        <span class="ident">RotateShift::RrA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::RRA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b0000_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;C should NOT be set&quot;</span>);
         <span class="ident">registers</span>.<span class="ident">clear</span>();
     }
 
     <span class="ident">rlc_returns_the_correct_machine_cycles</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="kw">for</span> <span class="ident">operand</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">8</span> {
-            <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">RotateShift::RlC</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">RotateShift::RLC</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
             <span class="kw">if</span> <span class="ident">operand</span> <span class="op">==</span> <span class="number">0b110</span> {
                 <span class="macro">assert_eq!</span>(<span class="number">4</span>, <span class="ident">cycles</span>, <span class="string">&quot;Incorrect number of machine cycles for HL&quot;</span>);
@@ -1781,7 +1781,7 @@
                 <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">operand</span>.<span class="ident">try_into</span>().<span class="ident">unwrap</span>(), <span class="ident">value</span>);
             }
 
-            <span class="ident">RotateShift::RlC</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+            <span class="ident">RotateShift::RLC</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
             <span class="kw">if</span> <span class="ident">operand</span> <span class="op">==</span> <span class="number">0b110</span> {
                 <span class="macro">assert_eq!</span>(<span class="ident">expected</span>, <span class="ident">memory</span>.<span class="ident">get</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>()), <span class="string">&quot;Incorrect result for (HL)&quot;</span>);
@@ -1796,19 +1796,19 @@
 
     <span class="ident">rlc_handles_flags_correctly</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::B</span>, <span class="number">0b0</span>);
-        <span class="ident">RotateShift::RlC</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::RLC</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b1000_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;Z flag not set&quot;</span>);
         <span class="ident">registers</span>.<span class="ident">clear</span>();
 
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::B</span>, <span class="number">0b1000_0000</span>);
-        <span class="ident">RotateShift::RlC</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::RLC</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b0001_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;C flag not set&quot;</span>);
         <span class="ident">registers</span>.<span class="ident">clear</span>();
     }
 
     <span class="ident">rrc_returns_the_correct_machine_cycles</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="kw">for</span> <span class="ident">operand</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">8</span> {
-            <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">RotateShift::RrC</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">RotateShift::RRC</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
             <span class="kw">if</span> <span class="ident">operand</span> <span class="op">==</span> <span class="number">0b110</span> {
                 <span class="macro">assert_eq!</span>(<span class="number">4</span>, <span class="ident">cycles</span>, <span class="string">&quot;Incorrect number of machine cycles for HL&quot;</span>);
@@ -1831,7 +1831,7 @@
                 <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">operand</span>.<span class="ident">try_into</span>().<span class="ident">unwrap</span>(), <span class="ident">value</span>);
             }
 
-            <span class="ident">RotateShift::RrC</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+            <span class="ident">RotateShift::RRC</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
             <span class="kw">if</span> <span class="ident">operand</span> <span class="op">==</span> <span class="number">0b110</span> {
                 <span class="macro">assert_eq!</span>(<span class="ident">expected</span>, <span class="ident">memory</span>.<span class="ident">get</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>()), <span class="string">&quot;Incorrect result for (HL)&quot;</span>);
@@ -1846,19 +1846,19 @@
 
     <span class="ident">rrc_handles_flags_correctly</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::B</span>, <span class="number">0b0</span>);
-        <span class="ident">RotateShift::RrC</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::RRC</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b1000_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;Z flag not set&quot;</span>);
         <span class="ident">registers</span>.<span class="ident">clear</span>();
 
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::B</span>, <span class="number">0b0000_0001</span>);
-        <span class="ident">RotateShift::RrC</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::RRC</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b0001_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;C flag not set&quot;</span>);
         <span class="ident">registers</span>.<span class="ident">clear</span>();
     }
 
     <span class="ident">rl_returns_the_correct_machine_cycles</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="kw">for</span> <span class="ident">operand</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">8</span> {
-            <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">RotateShift::Rl</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">RotateShift::RL</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
             <span class="kw">if</span> <span class="ident">operand</span> <span class="op">==</span> <span class="number">0b110</span> {
                 <span class="macro">assert_eq!</span>(<span class="number">4</span>, <span class="ident">cycles</span>, <span class="string">&quot;Incorrect number of machine cycles for HL&quot;</span>);
@@ -1881,7 +1881,7 @@
                 <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">operand</span>.<span class="ident">try_into</span>().<span class="ident">unwrap</span>(), <span class="ident">value</span>);
             }
 
-            <span class="ident">RotateShift::Rl</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+            <span class="ident">RotateShift::RL</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
             <span class="kw">if</span> <span class="ident">operand</span> <span class="op">==</span> <span class="number">0b110</span> {
                 <span class="macro">assert_eq!</span>(<span class="ident">expected</span>, <span class="ident">memory</span>.<span class="ident">get</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>()), <span class="string">&quot;Incorrect result for (HL)&quot;</span>);
@@ -1896,17 +1896,17 @@
 
     <span class="ident">rl_handles_flags_correctly</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::B</span>, <span class="number">0b0</span>);
-        <span class="ident">RotateShift::Rl</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::RL</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b1000_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;Z flag not set&quot;</span>);
         <span class="ident">registers</span>.<span class="ident">clear</span>();
 
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::B</span>, <span class="number">0b1000_0000</span>);
-        <span class="ident">RotateShift::Rl</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::RL</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b0001_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;C flag not set&quot;</span>);
         <span class="ident">registers</span>.<span class="ident">clear</span>();
 
         <span class="ident">registers</span>.<span class="ident">set_flags</span>(<span class="ident">MASK_FLAG_CARRY</span>);
-        <span class="ident">RotateShift::Rl</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::RL</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b0000_0001</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::B</span>), <span class="string">&quot;C flag not moved to m0&quot;</span>);
         <span class="macro">println!</span>(<span class="string">&quot;Flags: {:08b}&quot;</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>());
         <span class="macro">assert_eq!</span>(<span class="bool-val">false</span>, <span class="ident">registers</span>.<span class="ident">is_carry</span>(), <span class="string">&quot;C flag was still set&quot;</span>);
@@ -1915,7 +1915,7 @@
 
     <span class="ident">rr_returns_the_correct_machine_cycles</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="kw">for</span> <span class="ident">operand</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">8</span> {
-            <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">RotateShift::Rr</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">RotateShift::RR</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
             <span class="kw">if</span> <span class="ident">operand</span> <span class="op">==</span> <span class="number">0b110</span> {
                 <span class="macro">assert_eq!</span>(<span class="number">4</span>, <span class="ident">cycles</span>, <span class="string">&quot;Incorrect number of machine cycles for HL&quot;</span>);
@@ -1938,7 +1938,7 @@
                 <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">operand</span>.<span class="ident">try_into</span>().<span class="ident">unwrap</span>(), <span class="ident">value</span>);
             }
 
-            <span class="ident">RotateShift::Rr</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+            <span class="ident">RotateShift::RR</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
             <span class="kw">if</span> <span class="ident">operand</span> <span class="op">==</span> <span class="number">0b110</span> {
                 <span class="macro">assert_eq!</span>(<span class="ident">expected</span>, <span class="ident">memory</span>.<span class="ident">get</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>()), <span class="string">&quot;Incorrect result for (HL)&quot;</span>);
@@ -1953,17 +1953,17 @@
 
     <span class="ident">rr_handles_flags_correctly</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::B</span>, <span class="number">0b0</span>);
-        <span class="ident">RotateShift::Rr</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::RR</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b1000_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;Z flag not set&quot;</span>);
         <span class="ident">registers</span>.<span class="ident">clear</span>();
 
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::B</span>, <span class="number">0b0000_0001</span>);
-        <span class="ident">RotateShift::Rr</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::RR</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b0001_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;C flag not set&quot;</span>);
         <span class="ident">registers</span>.<span class="ident">clear</span>();
 
         <span class="ident">registers</span>.<span class="ident">set_flags</span>(<span class="ident">MASK_FLAG_CARRY</span>);
-        <span class="ident">RotateShift::Rr</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::RR</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b1000_0000</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::B</span>), <span class="string">&quot;C flag not moved to m7&quot;</span>);
         <span class="macro">assert_eq!</span>(<span class="bool-val">false</span>, <span class="ident">registers</span>.<span class="ident">is_carry</span>(), <span class="string">&quot;C flag was still set&quot;</span>);
         <span class="ident">registers</span>.<span class="ident">clear</span>();
@@ -1971,7 +1971,7 @@
 
     <span class="ident">sla_returns_the_correct_machine_cycles</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="kw">for</span> <span class="ident">operand</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">8</span> {
-            <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">RotateShift::Sla</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">RotateShift::SLA</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
             <span class="kw">if</span> <span class="ident">operand</span> <span class="op">==</span> <span class="number">0b110</span> {
                 <span class="macro">assert_eq!</span>(<span class="number">4</span>, <span class="ident">cycles</span>, <span class="string">&quot;Incorrect number of machine cycles for HL&quot;</span>);
@@ -1994,7 +1994,7 @@
                 <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">operand</span>.<span class="ident">try_into</span>().<span class="ident">unwrap</span>(), <span class="ident">value</span>);
             }
 
-            <span class="ident">RotateShift::Sla</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+            <span class="ident">RotateShift::SLA</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
             <span class="kw">if</span> <span class="ident">operand</span> <span class="op">==</span> <span class="number">0b110</span> {
                 <span class="macro">assert_eq!</span>(<span class="ident">expected</span>, <span class="ident">memory</span>.<span class="ident">get</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>()), <span class="string">&quot;Incorrect result for (HL)&quot;</span>);
@@ -2009,17 +2009,17 @@
 
     <span class="ident">sla_handles_flags_correctly</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::B</span>, <span class="number">0b0</span>);
-        <span class="ident">RotateShift::Sla</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::SLA</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b1000_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;Z flag not set&quot;</span>);
         <span class="ident">registers</span>.<span class="ident">clear</span>();
 
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::B</span>, <span class="number">0b1000_0001</span>);
-        <span class="ident">RotateShift::Sla</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::SLA</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b0001_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;C flag not set&quot;</span>);
         <span class="ident">registers</span>.<span class="ident">clear</span>();
 
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::B</span>, <span class="number">0b1000_0000</span>);
-        <span class="ident">RotateShift::Sla</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::SLA</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b1001_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;C and Z flags not set&quot;</span>);
         <span class="ident">registers</span>.<span class="ident">clear</span>();
     }
@@ -2028,14 +2028,14 @@
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::D</span>, <span class="number">0x80</span>);
         <span class="ident">memory</span>.<span class="ident">set</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>(), <span class="number">0xFF</span>);
 
-        <span class="ident">RotateShift::Sla</span>(<span class="number">0b010</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::SLA</span>(<span class="number">0b010</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::D</span>));
         <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, <span class="ident">registers</span>.<span class="ident">is_carry</span>());
         <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, <span class="ident">registers</span>.<span class="ident">is_zero</span>());
         <span class="macro">assert_eq!</span>(<span class="bool-val">false</span>, <span class="ident">registers</span>.<span class="ident">is_half_carry</span>());
         <span class="macro">assert_eq!</span>(<span class="bool-val">false</span>, <span class="ident">registers</span>.<span class="ident">is_negative</span>());
 
-        <span class="ident">RotateShift::Sla</span>(<span class="number">0b110</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::SLA</span>(<span class="number">0b110</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0xfe</span>, <span class="ident">memory</span>.<span class="ident">get</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>()));
         <span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, <span class="ident">registers</span>.<span class="ident">is_carry</span>());
         <span class="macro">assert_eq!</span>(<span class="bool-val">false</span>, <span class="ident">registers</span>.<span class="ident">is_zero</span>());
@@ -2045,7 +2045,7 @@
 
     <span class="ident">sra_returns_the_correct_machine_cycles</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="kw">for</span> <span class="ident">operand</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">8</span> {
-            <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">RotateShift::Sra</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">RotateShift::SRA</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
             <span class="kw">if</span> <span class="ident">operand</span> <span class="op">==</span> <span class="number">0b110</span> {
                 <span class="macro">assert_eq!</span>(<span class="number">4</span>, <span class="ident">cycles</span>, <span class="string">&quot;Incorrect number of machine cycles for HL&quot;</span>);
@@ -2068,7 +2068,7 @@
                 <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">operand</span>.<span class="ident">try_into</span>().<span class="ident">unwrap</span>(), <span class="ident">value</span>);
             }
 
-            <span class="ident">RotateShift::Sra</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+            <span class="ident">RotateShift::SRA</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
             <span class="kw">if</span> <span class="ident">operand</span> <span class="op">==</span> <span class="number">0b110</span> {
                 <span class="macro">assert_eq!</span>(<span class="ident">expected</span>, <span class="ident">memory</span>.<span class="ident">get</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>()), <span class="string">&quot;Incorrect result for (HL)&quot;</span>);
@@ -2094,7 +2094,7 @@
                 <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">operand</span>.<span class="ident">try_into</span>().<span class="ident">unwrap</span>(), <span class="ident">value</span>);
             }
 
-            <span class="ident">RotateShift::Sra</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+            <span class="ident">RotateShift::SRA</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
             <span class="kw">if</span> <span class="ident">operand</span> <span class="op">==</span> <span class="number">0b110</span> {
                 <span class="macro">assert_eq!</span>(<span class="ident">expected</span>, <span class="ident">memory</span>.<span class="ident">get</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>()), <span class="string">&quot;Incorrect result for (HL)&quot;</span>);
@@ -2109,24 +2109,24 @@
 
     <span class="ident">sra_handles_flags_correctly</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::B</span>, <span class="number">0b0</span>);
-        <span class="ident">RotateShift::Sra</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::SRA</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b1000_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;Z flag not set&quot;</span>);
         <span class="ident">registers</span>.<span class="ident">clear</span>();
 
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::B</span>, <span class="number">0b1000_0001</span>);
-        <span class="ident">RotateShift::Sra</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::SRA</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b0001_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;C flag not set&quot;</span>);
         <span class="ident">registers</span>.<span class="ident">clear</span>();
 
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::B</span>, <span class="number">0b0000_0001</span>);
-        <span class="ident">RotateShift::Sra</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::SRA</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b1001_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;C and Z flags not set&quot;</span>);
         <span class="ident">registers</span>.<span class="ident">clear</span>();
     }
 
     <span class="ident">srl_returns_the_correct_machine_cycles</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="kw">for</span> <span class="ident">operand</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">8</span> {
-            <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">RotateShift::Srl</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">RotateShift::SRL</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
             <span class="kw">if</span> <span class="ident">operand</span> <span class="op">==</span> <span class="number">0b110</span> {
                 <span class="macro">assert_eq!</span>(<span class="number">4</span>, <span class="ident">cycles</span>, <span class="string">&quot;Incorrect number of machine cycles for HL&quot;</span>);
@@ -2149,7 +2149,7 @@
                 <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">operand</span>.<span class="ident">try_into</span>().<span class="ident">unwrap</span>(), <span class="ident">value</span>);
             }
 
-            <span class="ident">RotateShift::Srl</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+            <span class="ident">RotateShift::SRL</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
             <span class="kw">if</span> <span class="ident">operand</span> <span class="op">==</span> <span class="number">0b110</span> {
                 <span class="macro">assert_eq!</span>(<span class="ident">expected</span>, <span class="ident">memory</span>.<span class="ident">get</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>()), <span class="string">&quot;Incorrect result for (HL)&quot;</span>);
@@ -2175,7 +2175,7 @@
                 <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">operand</span>.<span class="ident">try_into</span>().<span class="ident">unwrap</span>(), <span class="ident">value</span>);
             }
 
-            <span class="ident">RotateShift::Srl</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+            <span class="ident">RotateShift::SRL</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
             <span class="kw">if</span> <span class="ident">operand</span> <span class="op">==</span> <span class="number">0b110</span> {
                 <span class="macro">assert_eq!</span>(<span class="ident">expected</span>, <span class="ident">memory</span>.<span class="ident">get</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>()), <span class="string">&quot;Incorrect result for (HL)&quot;</span>);
@@ -2190,24 +2190,24 @@
 
     <span class="ident">srl_handles_flags_correctly</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::B</span>, <span class="number">0b0</span>);
-        <span class="ident">RotateShift::Srl</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::SRL</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b1000_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;Z flag not set&quot;</span>);
         <span class="ident">registers</span>.<span class="ident">clear</span>();
 
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::B</span>, <span class="number">0b1000_0001</span>);
-        <span class="ident">RotateShift::Srl</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::SRL</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b0001_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;C flag not set&quot;</span>);
         <span class="ident">registers</span>.<span class="ident">clear</span>();
 
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::B</span>, <span class="number">0b0000_0001</span>);
-        <span class="ident">RotateShift::Srl</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::SRL</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b1001_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;C and Z flags not set&quot;</span>);
         <span class="ident">registers</span>.<span class="ident">clear</span>();
     }
 
     <span class="ident">swap_returns_the_correct_machine_cycles</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="kw">for</span> <span class="ident">operand</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">8</span> {
-            <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">RotateShift::Swap</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">cycles</span> <span class="op">=</span> <span class="ident">RotateShift::SWAP</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
             <span class="kw">if</span> <span class="ident">operand</span> <span class="op">==</span> <span class="number">0b110</span> {
                 <span class="macro">assert_eq!</span>(<span class="number">4</span>, <span class="ident">cycles</span>, <span class="string">&quot;Incorrect number of machine cycles for HL&quot;</span>);
@@ -2230,7 +2230,7 @@
                 <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">operand</span>.<span class="ident">try_into</span>().<span class="ident">unwrap</span>(), <span class="ident">value</span>);
             }
 
-            <span class="ident">RotateShift::Swap</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+            <span class="ident">RotateShift::SWAP</span>(<span class="ident">operand</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
             <span class="kw">if</span> <span class="ident">operand</span> <span class="op">==</span> <span class="number">0b110</span> {
                 <span class="macro">assert_eq!</span>(<span class="ident">expected</span>, <span class="ident">memory</span>.<span class="ident">get</span>(<span class="ident">registers</span>.<span class="ident">get_double</span>(<span class="kw-2">&amp;</span><span class="ident">DoubleRegister::HL</span>).<span class="ident">into</span>()), <span class="string">&quot;Incorrect result for (HL)&quot;</span>);
@@ -2245,7 +2245,7 @@
 
     <span class="ident">swap_handles_flags_correctly</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
         <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::B</span>, <span class="number">0b0</span>);
-        <span class="ident">RotateShift::Swap</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="ident">RotateShift::SWAP</span>(<span class="number">0</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="number">0b1000_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>(), <span class="string">&quot;Z flag not set&quot;</span>);
         <span class="ident">registers</span>.<span class="ident">clear</span>();
     }
