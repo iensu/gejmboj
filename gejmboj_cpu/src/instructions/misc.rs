@@ -18,7 +18,7 @@ instruction_group! {
     Misc (registers, _memory, cpu_flags) {
 
         /// No operation
-        Noop() [1] => {
+        NOP() [1] => {
             Ok(1)
         }
 

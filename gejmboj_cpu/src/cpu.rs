@@ -79,7 +79,7 @@ mod test {
 
         let (_, instruction) = cpu.tick(&mut registers, &mut memory).unwrap();
 
-        assert_eq!(Instruction::Misc(misc::Misc::Noop()), instruction);
+        assert_eq!(Instruction::Misc(misc::Misc::NOP()), instruction);
         assert_eq!(instruction.length(), registers.PC);
     }
 

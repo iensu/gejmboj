@@ -11,6 +11,7 @@ macro_rules! instruction_group {
 
         $(#[$groupdocs])*
         #[derive(Debug, PartialEq)]
+        #[allow(non_camel_case_types)]
         pub enum $group_name {
             $($(#[$itemdocs])*$item_name($($t),*),)+
         }

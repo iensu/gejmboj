@@ -11,9 +11,9 @@ use super::utils::{self, get_register_value};
 /// | `10_bbb_rrr` | `Res`        |
 pub fn decode(operand: u8) -> Result<Bit, CpuError> {
     match utils::into_bits(operand) {
-        (0, 1, _, _, _, _, _, _) => Ok(Bit::Bit(operand)),
-        (1, 1, _, _, _, _, _, _) => Ok(Bit::Set(operand)),
-        (1, 0, _, _, _, _, _, _) => Ok(Bit::Res(operand)),
+        (0, 1, _, _, _, _, _, _) => Ok(Bit::BIT(operand)),
+        (1, 1, _, _, _, _, _, _) => Ok(Bit::SET(operand)),
+        (1, 0, _, _, _, _, _, _) => Ok(Bit::RES(operand)),
         _ => Err(CpuError::UnknownInstruction(operand)),
     }
 }
@@ -44,7 +44,7 @@ instruction_group! {
     Bit (registers, memory, _cpu_flags) {
 
         /// Copies the complement of the contents of the specified bit in `m` to the Z flag of the program status word (PSW).
-        Bit(operand: u8) [2] => {
+        BIT(operand: u8) [2] => {
             let (value, register) = get_register_value(registers, memory, *operand);
             let bit_mask = get_bit_mask(operand);
             let designated_bit = value & bit_mask;
@@ -60,7 +60,7 @@ instruction_group! {
         }
 
         /// Sets the specified bit to 1 in `m`.
-        Set(operand: u8) [2] => {
+        SET(operand: u8) [2] => {
             let (value, register) = get_register_value(registers, memory, *operand);
             let bit_mask = get_bit_mask(operand);
             let new_value = value | bit_mask;
@@ -78,7 +78,7 @@ instruction_group! {
         }
 
         /// Resets the specified bit to 0 in `m`.
-        Res(operand: u8) [2] => {
+        RES(operand: u8) [2] => {
             let (value, register) = get_register_value(registers, memory, *operand);
             let bit_mask = get_bit_mask(operand);
             let new_value = value & !bit_mask;
@@ -123,7 +123,7 @@ crate::instruction_tests! {
 
     bit_returns_the_correct_number_of_machine_cycles(registers, memory, cpu_flags) => {
         for operand in 0..8 {
-            let cycles = Bit::Bit(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+            let cycles = Bit::BIT(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
             if operand == 0b110 {
                 assert_eq!(3, cycles, "Incorrect number of machine cycles for HL");
@@ -136,7 +136,7 @@ crate::instruction_tests! {
     bit_sets_zero_flag_to_zero_if_specified_bit_is_one(registers, memory, cpu_flags) => {
         registers.set_single(&SingleRegister::A, 0x80);
 
-        Bit::Bit(0b01_111_111).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        Bit::BIT(0b01_111_111).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
         assert_eq!(false, registers.is_zero());
     }
@@ -144,13 +144,13 @@ crate::instruction_tests! {
     bit_sets_zero_flag_to_one_if_specified_bit_is_zero(registers, memory, cpu_flags) => {
         registers.set_single(&SingleRegister::L, 0xEF);
 
-        Bit::Bit(0b01_100_101).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        Bit::BIT(0b01_100_101).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
         assert_eq!(true, registers.is_zero());
     }
 
     bit_sets_the_half_carry_flag(registers, memory, cpu_flags) => {
-        Bit::Bit(0b01_111_111).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        Bit::BIT(0b01_111_111).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
         assert_eq!(true, registers.is_half_carry());
     }
@@ -158,7 +158,7 @@ crate::instruction_tests! {
     bit_resets_the_negative_flag(registers, memory, cpu_flags) => {
         registers.set_flags(MASK_FLAG_NEGATIVE);
 
-        Bit::Bit(0b01_111_111).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        Bit::BIT(0b01_111_111).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
         assert_eq!(false, registers.is_negative());
     }
@@ -166,20 +166,20 @@ crate::instruction_tests! {
     bit_leaves_carry_flag_unchanged(registers, memory, cpu_flags) => {
         registers.set_flags(MASK_FLAG_CARRY);
 
-        Bit::Bit(0b01_111_111).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        Bit::BIT(0b01_111_111).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
         assert_eq!(true, registers.is_carry());
 
         registers.set_flags(0);
 
-        Bit::Bit(0b01_111_111).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        Bit::BIT(0b01_111_111).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
         assert_eq!(false, registers.is_carry());
     }
 
     set_returns_the_correct_number_of_machine_cycles(registers, memory, cpu_flags) => {
         for operand in 0..8 {
-            let cycles = Bit::Set(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+            let cycles = Bit::SET(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
             if operand == 0b110 {
                 assert_eq!(4, cycles, "Incorrect number of machine cycles for HL");
@@ -198,7 +198,7 @@ crate::instruction_tests! {
                                         (0b11_101_111, 0b0010_0000),
                                         (0b11_110_111, 0b0100_0000),
                                         (0b11_111_111, 0b1000_0000)] {
-            Bit::Set(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+            Bit::SET(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
             assert_eq!(expected, registers.get_single(&SingleRegister::A));
             registers.clear();
         }
@@ -216,7 +216,7 @@ crate::instruction_tests! {
                                         (0b11_110_110, 0b0100_0000),
                                         (0b11_111_110, 0b1000_0000)] {
             memory.set(registers.get_double(&DoubleRegister::HL).into(), 0);
-            Bit::Set(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+            Bit::SET(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
             assert_eq!(expected, memory.get(registers.get_double(&DoubleRegister::HL).into()));
         }
@@ -226,7 +226,7 @@ crate::instruction_tests! {
         for flags in vec![0xF0, 0x00] {
             registers.set_flags(flags);
 
-            Bit::Set(0b11_000_111).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+            Bit::SET(0b11_000_111).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
             assert_eq!(flags, registers.get_flags());
         }
@@ -234,7 +234,7 @@ crate::instruction_tests! {
 
     res_returns_the_correct_number_of_machine_cycles(registers, memory, cpu_flags) => {
         for operand in 0..8 {
-            let cycles = Bit::Res(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+            let cycles = Bit::RES(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
             if operand == 0b110 {
                 assert_eq!(4, cycles, "Incorrect number of machine cycles for HL");
@@ -255,7 +255,7 @@ crate::instruction_tests! {
                                         (0b10_111_111, 0b0111_1111)] {
             registers.set_single(&SingleRegister::A, 0xFF);
 
-            Bit::Res(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+            Bit::RES(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
             assert_eq!(expected, registers.get_single(&SingleRegister::A));
         }
@@ -274,7 +274,7 @@ crate::instruction_tests! {
                                         (0b10_111_110, 0b0111_1111)] {
             memory.set(registers.get_double(&DoubleRegister::HL).into(), 0xFF);
 
-            Bit::Res(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+            Bit::RES(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
             assert_eq!(expected, memory.get(registers.get_double(&DoubleRegister::HL).into()));
         }
@@ -284,7 +284,7 @@ crate::instruction_tests! {
         for flags in vec![0xF0, 0x00] {
             registers.set_flags(flags);
 
-            Bit::Res(0b11_000_111).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+            Bit::RES(0b11_000_111).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
             assert_eq!(flags, registers.get_flags());
         }
