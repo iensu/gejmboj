@@ -16,3 +16,4 @@ A Game Boy emulator. This project is in progress and will most likely stay that 
 * https://files.nekoblog.org/uploads/pdf/39999184-GameBoy-Programming-Manual.pdf
 * https://ia803208.us.archive.org/9/items/GameBoyProgManVer1.1/GameBoyProgManVer1.1.pdf
 * http://www.zilog.com/docs/z80/um0080.pdf
+* https://ehaskins.com/2018-01-30%20Z80%20DAA/
