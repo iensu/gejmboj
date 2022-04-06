@@ -1,4 +1,8 @@
-use crate::{instruction_group, registers::SingleRegister};
+use crate::{
+    instruction_group,
+    instructions::utils,
+    registers::{SingleRegister, MASK_FLAG_CARRY, MASK_FLAG_ZERO},
+};
 
 instruction_group! {
     /// Miscelleneous instructions
@@ -52,13 +56,83 @@ instruction_group! {
             Ok(1)
         }
 
-        /// Flips the zero (Z) and carry (C) flags and clears the half-carry (H) flag.
-        /// Decimal Adjust Accumulator.
+        /// Decimal Adjust Accumulator (DAA)
+        ///
+        /// This instruction affects the A register and should be called after Binary Coded Decimal (BCD) addition or
+        /// subtraction instructions. This instruction converts the value stored in A into BCD representation. The
+        /// instruction sets the Carry and Zero flags if appropriate.
+        ///
+        /// In BCD representation each nibble (4 bits) represents a digit:
+        ///
+        /// | Decimal | Binary        | BCD                  |
+        /// |:--------|:--------------|:---------------------|
+        /// | `1`     | `0b0000_0001` | `0b0000_0001` (0, 1) |
+        /// | `10`    | `0b0000_1010` | `0b0001_0000` (1, 0) |
+        /// | `28`    | `0b0001_1100` | `0b0010_1000` (2, 8) |
+        ///
+        /// When you operate on BCD numbers you have to convert the result into BCD as well according to the following rules:
+        /// * Add 6 to each digit above 9 if addition
+        /// * Subtract 6 from each digit above 9 if subtraction
+        ///
+        /// All subtraction is achieved by adding the Two's Complement (inverse of number + 1).
+        ///
+        /// **BCD example: 29 + 13 = 42**
+        ///
+        /// ```asciidoc
+        ///   0b0010_1001
+        /// + 0b0001_0011
+        ///   -----------
+        ///   0b0011_1100 (BCD: 3(12), Binary: 60)
+        ///
+        ///   0b0011_1100
+        /// + 0b0000_0110
+        ///   -----------
+        ///   0b0100_0010 (BCD: 42, Binary: 66)
+        /// ```
+        /// **BCD example: 23 - 19 = 4**
+        ///
+        /// ```asciidoc
+        ///     11     11
+        ///   0b0010_0011
+        /// + 0b1110_0111 (Two's Complement of 19)
+        ///   -----------
+        ///   0b0000_1010 (BCD: 8, Binary: 8)
+        ///
+        ///     1111   1
+        ///   0b0000_1010
+        /// + 0b1111_1010
+        ///   -----------
+        ///   0b0000_0100 (BCD: 4, Binary: 4)
+        /// ```
+        ///
+        /// BCD representation is often used instead of converting back-and-forth between binary and decimal when doing addition
+        /// and subtraction, especially when no micro-processor is involved since the necessary circuit becomes a lot simpler. A
+        /// common use-case is Seven Segment Displays where each display represents a digit.
         DAA() [1] => {
-            let value = registers.get_flags();
-            let value = value & 0b1101_0000; // Clear H
-            let value = value ^ 0b1001_0000; // Flip Z and C
-            registers.set_flags(value);
+            let a = registers.get_single(&SingleRegister::A);
+            let mut bcd_correction = 0;
+            let mut flags = 0;
+
+            if registers.is_half_carry() || (a & 0xF) > 9 {
+                bcd_correction = bcd_correction | 0x6;
+            }
+            if registers.is_carry() || a > 0x99 {
+                bcd_correction = bcd_correction | 0x60;
+                flags = flags | MASK_FLAG_CARRY;
+            }
+
+            if registers.is_negative() {
+                bcd_correction = utils::twos_complement(bcd_correction);
+            };
+
+            let bcd = a.wrapping_add(bcd_correction);
+            registers.set_single(&SingleRegister::A, bcd);
+
+            if bcd == 0 {
+                flags = flags | MASK_FLAG_ZERO;
+            }
+
+            registers.set_flags(flags);
             Ok(1)
         }
 
@@ -173,16 +247,40 @@ crate::instruction_tests! {
         assert_eq!(0, h_flag);
     }
 
-    daa_flips_the_zero_and_carry_flags(registers, memory, cpu_flags) => {
-        registers.set_flags(0b0000_0000);
+    daa_flips_sets_the_zero_flag(registers, memory, cpu_flags) => {
+        registers.set_single(&SingleRegister::A, 0);
 
         Misc::DAA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
-        assert_eq!(0b1001_0000, registers.get_flags());
+        assert!(registers.is_zero());
+
+        registers.set_single(&SingleRegister::A, 6);
 
         Misc::DAA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
         assert_eq!(0b0000_0000, registers.get_flags());
+    }
+
+    daa_example_test(registers, memory, cpu_flags) => {
+        use crate::instructions::alu_8bit::{ALU8Bit};
+
+        registers.set_single(&SingleRegister::A, 0x45);
+        registers.set_single(&SingleRegister::B, 0x38);
+
+        ALU8Bit::ADD(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0x7D, registers.get_single(&SingleRegister::A));
+        assert!(!registers.is_negative());
+
+        Misc::DAA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0x7D + 0x06, registers.get_single(&SingleRegister::A));
+        assert!(!registers.is_carry());
+
+        ALU8Bit::SUB(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0x83 - 0x38, registers.get_single(&SingleRegister::A));
+        assert!(registers.is_negative());
+
+        Misc::DAA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        assert_eq!(0x4Bu8.wrapping_add(0xFA), registers.get_single(&SingleRegister::A));
     }
 
     cpl_takes_one_machine_cycle(registers, memory, cpu_flags) => {
