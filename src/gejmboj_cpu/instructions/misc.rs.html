@@ -217,7 +217,109 @@
 <span id="215">215</span>
 <span id="216">216</span>
 <span id="217">217</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">instruction_group</span>, <span class="ident">registers::SingleRegister</span>};
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">instruction_group</span>,
+    <span class="ident">instructions::utils</span>,
+    <span class="ident">registers</span>::{<span class="ident">SingleRegister</span>, <span class="ident">MASK_FLAG_CARRY</span>, <span class="ident">MASK_FLAG_ZERO</span>},
+};
 
 <span class="macro">instruction_group!</span> {
     <span class="doccomment">/// Miscelleneous instructions</span>
@@ -271,13 +373,83 @@
             <span class="prelude-val">Ok</span>(<span class="number">1</span>)
         }
 
-        <span class="doccomment">/// Flips the zero (Z) and carry (C) flags and clears the half-carry (H) flag.</span>
-        <span class="doccomment">/// Decimal Adjust Accumulator.</span>
+        <span class="doccomment">/// Decimal Adjust Accumulator (DAA)</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// This instruction affects the A register and should be called after Binary Coded Decimal (BCD) addition or</span>
+        <span class="doccomment">/// subtraction instructions. This instruction converts the value stored in A into BCD representation. The</span>
+        <span class="doccomment">/// instruction sets the Carry and Zero flags if appropriate.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// In BCD representation each nibble (4 bits) represents a digit:</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// | Decimal | Binary        | BCD                  |</span>
+        <span class="doccomment">/// |:--------|:--------------|:---------------------|</span>
+        <span class="doccomment">/// | `1`     | `0b0000_0001` | `0b0000_0001` (0, 1) |</span>
+        <span class="doccomment">/// | `10`    | `0b0000_1010` | `0b0001_0000` (1, 0) |</span>
+        <span class="doccomment">/// | `28`    | `0b0001_1100` | `0b0010_1000` (2, 8) |</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// When you operate on BCD numbers you have to convert the result into BCD as well according to the following rules:</span>
+        <span class="doccomment">/// * Add 6 to each digit above 9 if addition</span>
+        <span class="doccomment">/// * Subtract 6 from each digit above 9 if subtraction</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// All subtraction is achieved by adding the Two&#39;s Complement (inverse of number + 1).</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// **BCD example: 29 + 13 = 42**</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// ```asciidoc</span>
+        <span class="doccomment">///   0b0010_1001</span>
+        <span class="doccomment">/// + 0b0001_0011</span>
+        <span class="doccomment">///   -----------</span>
+        <span class="doccomment">///   0b0011_1100 (BCD: 3(12), Binary: 60)</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">///   0b0011_1100</span>
+        <span class="doccomment">/// + 0b0000_0110</span>
+        <span class="doccomment">///   -----------</span>
+        <span class="doccomment">///   0b0100_0010 (BCD: 42, Binary: 66)</span>
+        <span class="doccomment">/// ```</span>
+        <span class="doccomment">/// **BCD example: 23 - 19 = 4**</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// ```asciidoc</span>
+        <span class="doccomment">///     11     11</span>
+        <span class="doccomment">///   0b0010_0011</span>
+        <span class="doccomment">/// + 0b1110_0111 (Two&#39;s Complement of 19)</span>
+        <span class="doccomment">///   -----------</span>
+        <span class="doccomment">///   0b0000_1010 (BCD: 8, Binary: 8)</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">///     1111   1</span>
+        <span class="doccomment">///   0b0000_1010</span>
+        <span class="doccomment">/// + 0b1111_1010</span>
+        <span class="doccomment">///   -----------</span>
+        <span class="doccomment">///   0b0000_0100 (BCD: 4, Binary: 4)</span>
+        <span class="doccomment">/// ```</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// BCD representation is often used instead of converting back-and-forth between binary and decimal when doing addition</span>
+        <span class="doccomment">/// and subtraction, especially when no micro-processor is involved since the necessary circuit becomes a lot simpler. A</span>
+        <span class="doccomment">/// common use-case is Seven Segment Displays where each display represents a digit.</span>
         <span class="ident">DAA</span>() [<span class="number">1</span>] =&gt; {
-            <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">registers</span>.<span class="ident">get_flags</span>();
-            <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">value</span> <span class="op">&amp;</span> <span class="number">0b1101_0000</span>; <span class="comment">// Clear H</span>
-            <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">value</span> <span class="op">^</span> <span class="number">0b1001_0000</span>; <span class="comment">// Flip Z and C</span>
-            <span class="ident">registers</span>.<span class="ident">set_flags</span>(<span class="ident">value</span>);
+            <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bcd_correction</span> <span class="op">=</span> <span class="number">0</span>;
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">flags</span> <span class="op">=</span> <span class="number">0</span>;
+
+            <span class="kw">if</span> <span class="ident">registers</span>.<span class="ident">is_half_carry</span>() <span class="op">|</span><span class="op">|</span> (<span class="ident">a</span> <span class="op">&amp;</span> <span class="number">0xF</span>) <span class="op">&gt;</span> <span class="number">9</span> {
+                <span class="ident">bcd_correction</span> <span class="op">=</span> <span class="ident">bcd_correction</span> <span class="op">|</span> <span class="number">0x6</span>;
+            }
+            <span class="kw">if</span> <span class="ident">registers</span>.<span class="ident">is_carry</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">a</span> <span class="op">&gt;</span> <span class="number">0x99</span> {
+                <span class="ident">bcd_correction</span> <span class="op">=</span> <span class="ident">bcd_correction</span> <span class="op">|</span> <span class="number">0x60</span>;
+                <span class="ident">flags</span> <span class="op">=</span> <span class="ident">flags</span> <span class="op">|</span> <span class="ident">MASK_FLAG_CARRY</span>;
+            }
+
+            <span class="kw">if</span> <span class="ident">registers</span>.<span class="ident">is_negative</span>() {
+                <span class="ident">bcd_correction</span> <span class="op">=</span> <span class="ident">utils::twos_complement</span>(<span class="ident">bcd_correction</span>);
+            };
+
+            <span class="kw">let</span> <span class="ident">bcd</span> <span class="op">=</span> <span class="ident">a</span>.<span class="ident">wrapping_add</span>(<span class="ident">bcd_correction</span>);
+            <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="ident">bcd</span>);
+
+            <span class="kw">if</span> <span class="ident">bcd</span> <span class="op">==</span> <span class="number">0</span> {
+                <span class="ident">flags</span> <span class="op">=</span> <span class="ident">flags</span> <span class="op">|</span> <span class="ident">MASK_FLAG_ZERO</span>;
+            }
+
+            <span class="ident">registers</span>.<span class="ident">set_flags</span>(<span class="ident">flags</span>);
             <span class="prelude-val">Ok</span>(<span class="number">1</span>)
         }
 
@@ -392,16 +564,40 @@
         <span class="macro">assert_eq!</span>(<span class="number">0</span>, <span class="ident">h_flag</span>);
     }
 
-    <span class="ident">daa_flips_the_zero_and_carry_flags</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
-        <span class="ident">registers</span>.<span class="ident">set_flags</span>(<span class="number">0b0000_0000</span>);
+    <span class="ident">daa_flips_sets_the_zero_flag</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
+        <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0</span>);
 
         <span class="ident">Misc::DAA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
-        <span class="macro">assert_eq!</span>(<span class="number">0b1001_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>());
+        <span class="macro">assert!</span>(<span class="ident">registers</span>.<span class="ident">is_zero</span>());
+
+        <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">6</span>);
 
         <span class="ident">Misc::DAA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="number">0b0000_0000</span>, <span class="ident">registers</span>.<span class="ident">get_flags</span>());
+    }
+
+    <span class="ident">daa_example_test</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
+        <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::instructions::alu_8bit</span>::{<span class="ident">ALU8Bit</span>};
+
+        <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>, <span class="number">0x45</span>);
+        <span class="ident">registers</span>.<span class="ident">set_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::B</span>, <span class="number">0x38</span>);
+
+        <span class="ident">ALU8Bit::ADD</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq!</span>(<span class="number">0x7D</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>));
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">registers</span>.<span class="ident">is_negative</span>());
+
+        <span class="ident">Misc::DAA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq!</span>(<span class="number">0x7D</span> <span class="op">+</span> <span class="number">0x06</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>));
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">registers</span>.<span class="ident">is_carry</span>());
+
+        <span class="ident">ALU8Bit::SUB</span>(<span class="ident">SingleRegister::B</span>).<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq!</span>(<span class="number">0x83</span> <span class="op">-</span> <span class="number">0x38</span>, <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>));
+        <span class="macro">assert!</span>(<span class="ident">registers</span>.<span class="ident">is_negative</span>());
+
+        <span class="ident">Misc::DAA</span>().<span class="ident">execute</span>(<span class="kw-2">&amp;mut</span> <span class="ident">registers</span>, <span class="kw-2">&amp;mut</span> <span class="ident">memory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">cpu_flags</span>).<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq!</span>(<span class="number">0x4Bu8</span>.<span class="ident">wrapping_add</span>(<span class="number">0xFA</span>), <span class="ident">registers</span>.<span class="ident">get_single</span>(<span class="kw-2">&amp;</span><span class="ident">SingleRegister::A</span>));
     }
 
     <span class="ident">cpl_takes_one_machine_cycle</span>(<span class="ident">registers</span>, <span class="ident">memory</span>, <span class="ident">cpu_flags</span>) =&gt; {
