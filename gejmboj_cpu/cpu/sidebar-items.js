@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["CPU",""],["CpuFlags",""]]});
+window.SIDEBAR_ITEMS = {"struct":["CPU","CpuFlags"]};

@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Memory",""]]});
+window.SIDEBAR_ITEMS = {"struct":["Memory"]};

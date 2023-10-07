@@ -1,1 +1,1 @@
-initSidebarItems({"macro":[["instruction_group","Macro to define a group of instructions"]],"mod":[["cpu","Sharp SM83 CPU implementation"],["errors","Gejmboj CPU related errors"],["instructions","Sharp SM83 instruction set"],["macros","Macros used within this crate"],["memory","Memory implementation"],["registers","Sharp SM83 register"]]});
+window.SIDEBAR_ITEMS = {"macro":["instruction_group"],"mod":["cpu","errors","instructions","macros","memory","registers"]};

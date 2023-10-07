@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Condition",""],["Instruction",""]],"fn":[["decode","Decode an operation code into an `Instruction`."]],"mod":[["alu_16bit",""],["alu_8bit",""],["bit",""],["control_flow",""],["load_16bit",""],["load_8bit",""],["misc",""],["rotate_shift",""]],"type":[["InstructionResult","Return either the number of consumed machine cycles, or a `CpuError`."]]});
+window.SIDEBAR_ITEMS = {"enum":["Condition","Instruction"],"fn":["decode"],"mod":["alu_16bit","alu_8bit","bit","control_flow","load_16bit","load_8bit","misc","rotate_shift"],"type":["InstructionResult"]};

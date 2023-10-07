@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["MASK_FLAG_CARRY",""],["MASK_FLAG_HALF_CARRY",""],["MASK_FLAG_NEGATIVE",""],["MASK_FLAG_ZERO",""]],"enum":[["DoubleRegister","Represents a 16-bit general purpose register."],["SingleRegister","Represents an 8-bit general purpose register."]],"struct":[["Registers",""]]});
+window.SIDEBAR_ITEMS = {"constant":["MASK_FLAG_CARRY","MASK_FLAG_HALF_CARRY","MASK_FLAG_NEGATIVE","MASK_FLAG_ZERO"],"enum":["DoubleRegister","SingleRegister"],"struct":["Registers"]};

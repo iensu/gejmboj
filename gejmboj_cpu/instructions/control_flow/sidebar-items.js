@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["ControlFlow","Program control flow instructions"]]});
+window.SIDEBAR_ITEMS = {"enum":["ControlFlow"]};

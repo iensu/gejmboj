@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["ALU8Bit","8-bit ALU (math) instructions"]]});
+window.SIDEBAR_ITEMS = {"enum":["ALU8Bit"]};

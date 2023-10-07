@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Load8Bit","8 Bit load instructions."]]});
+window.SIDEBAR_ITEMS = {"enum":["Load8Bit"]};

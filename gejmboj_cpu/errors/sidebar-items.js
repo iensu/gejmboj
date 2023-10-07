@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["CpuError",""]]});
+window.SIDEBAR_ITEMS = {"enum":["CpuError"]};
