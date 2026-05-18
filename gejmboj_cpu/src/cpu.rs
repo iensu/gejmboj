@@ -16,7 +16,14 @@ pub struct CpuFlags {
     pub IME_scheduled: bool,
 }
 
+impl Default for CpuFlags {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl CpuFlags {
+    #[must_use] 
     pub fn new() -> Self {
         Self {
             IME: false,
@@ -29,7 +36,14 @@ pub struct CPU {
     flags: CpuFlags,
 }
 
+impl Default for CPU {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl CPU {
+    #[must_use] 
     pub fn new() -> Self {
         Self {
             flags: CpuFlags::new(),
@@ -42,9 +56,9 @@ impl CPU {
         memory: &mut Memory,
     ) -> Result<(u16, Instruction), CpuError> {
         let opcode = memory.get(registers.PC.into());
-        let instruction_location = registers.PC.clone();
+        let instruction_location = registers.PC;
 
-        let instruction = instructions::decode(opcode, registers.PC.into(), memory)?;
+        let instruction = instructions::decode(opcode, registers.PC, memory)?;
 
         registers.PC += instruction.length();
 

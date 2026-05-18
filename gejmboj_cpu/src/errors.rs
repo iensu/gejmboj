@@ -15,13 +15,13 @@ pub enum CpuError {
 impl Display for CpuError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            CpuError::Error(msg) => write!(f, "Something went wrong: {}", msg),
-            CpuError::UnknownInstruction(opcode) => write!(f, "Unknown opcode: {:08b}", opcode),
+            CpuError::Error(msg) => write!(f, "Something went wrong: {msg}"),
+            CpuError::UnknownInstruction(opcode) => write!(f, "Unknown opcode: {opcode:08b}"),
             CpuError::UnsupportedSingleRegister(register) => {
-                write!(f, "Instruction does not support register {:?}", register)
+                write!(f, "Instruction does not support register {register:?}")
             }
             CpuError::SingleRegisterParseError(x) => {
-                write!(f, "No single register matching {:08b}", x)
+                write!(f, "No single register matching {x:08b}")
             }
         }
     }

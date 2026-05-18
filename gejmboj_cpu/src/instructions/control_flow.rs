@@ -52,12 +52,12 @@ instruction_group! {
         /// |    0x480 | JR            |
         /// |    0x481 | 0xFA          |
         JR(operand: u8) [2] => {
-            let offset = *operand as i8;
+            let offset = (*operand).cast_signed();
 
             if offset >= 0 {
-                registers.PC += offset as u16;
+                registers.PC += u16::from(offset.unsigned_abs());
             } else {
-                registers.PC -= offset.abs() as u16;
+                registers.PC -= u16::from(offset.unsigned_abs());
             }
 
             Ok(3)
@@ -88,12 +88,12 @@ instruction_group! {
         /// |    0x481 | 0xFA          |
         JRC(operand: u8, condition: Condition) [2] => {
             if condition.is_fulfilled(registers) {
-                let offset = *operand as i8;
+                let offset = (*operand).cast_signed();
 
                 if offset >= 0 {
-                    registers.PC += offset as u16;
+                    registers.PC += u16::from(offset.unsigned_abs());
                 } else {
-                    registers.PC -= offset.abs() as u16;
+                    registers.PC -= u16::from(offset.unsigned_abs());
                 }
 
                 Ok(3)
@@ -172,7 +172,7 @@ instruction_group! {
 }
 
 fn get_reset_address(opcode: u8) -> u16 {
-    (opcode & 0b00111000) as u16
+    u16::from(opcode & 0b0011_1000)
 }
 
 #[cfg(test)]
@@ -381,7 +381,7 @@ crate::instruction_tests! {
 
         assert_eq!(0xAAAD, registers.PC);
         assert_eq!(0xFFFE, registers.SP);
-        assert_eq!(true, cpu_flags.IME);
+        assert!(cpu_flags.IME);
     }
 
     rst_calls_function_at_reset_address(registers, memory, cpu_flags) => {

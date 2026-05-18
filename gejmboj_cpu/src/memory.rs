@@ -24,7 +24,14 @@ pub struct Memory {
     memory: Vec<u8>,
 }
 
+impl Default for Memory {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Memory {
+    #[must_use]
     pub fn new() -> Self {
         Self {
             // 65536 bytes which is 0xFFFF + 1
@@ -58,6 +65,7 @@ impl Memory {
     ///
     /// assert_eq!(value, memory.get(0));
     /// ```
+    #[must_use]
     pub fn get(&self, location: usize) -> u8 {
         self.memory[location]
     }
@@ -73,6 +81,7 @@ impl Memory {
     ///
     /// assert_eq!(value, memory.get_u16(42));
     /// ```
+    #[must_use]
     pub fn get_u16(&self, location: usize) -> u16 {
         let lo = self.get(location);
         let hi = self.get(location + 1);
@@ -105,7 +114,7 @@ impl Display for Memory {
         let bytes_string: String = self
             .memory
             .iter()
-            .map(|x| format!("{:02x?}", x))
+            .map(|x| format!("{x:02x?}"))
             .collect::<Vec<String>>()
             .chunks(columns)
             .enumerate()
@@ -118,9 +127,8 @@ impl Display for Memory {
             "
        0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
     ,-------------------------------------------------,
-{}
-    `-------------------------------------------------´",
-            bytes_string
+{bytes_string}
+    `-------------------------------------------------´"
         )
     }
 }

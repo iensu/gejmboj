@@ -17,14 +17,14 @@ instruction_group! {
                 return Err(CpuError::UnsupportedSingleRegister(*r));
             }
 
-            perform_calculation(AluOp::Add, registers, registers.get_single(&r).into(), false);
+            perform_calculation(&AluOp::Add, registers, registers.get_single(r), false);
 
             Ok(1)
         }
 
         /// Add value of `operand` to `A`
         ADD_N(operand: u8) [2] => {
-            perform_calculation(AluOp::Add, registers, (*operand).into(), false);
+            perform_calculation(&AluOp::Add, registers, *operand , false);
 
             Ok(2)
         }
@@ -32,7 +32,7 @@ instruction_group! {
         /// Add value of `(HL)` to `A`
         ADD_HL() [1] => {
             let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
-            perform_calculation(AluOp::Add, registers, operand, false);
+            perform_calculation(&AluOp::Add, registers, operand, false);
 
             Ok(2)
         }
@@ -43,14 +43,14 @@ instruction_group! {
                 return Err(CpuError::UnsupportedSingleRegister(*r));
             }
 
-            perform_calculation(AluOp::Add, registers, registers.get_single(&r), true);
+            perform_calculation(&AluOp::Add, registers, registers.get_single(r), true);
 
             Ok(1)
         }
 
         /// Add value of `operand` and Carry to `A`
         ADC_N(operand: u8) [2] => {
-            perform_calculation(AluOp::Add, registers, *operand, true);
+            perform_calculation(&AluOp::Add, registers, *operand, true);
 
             Ok(2)
         }
@@ -58,7 +58,7 @@ instruction_group! {
         /// Add value of `(HL)` and Carry to `A`
         ADC_HL() [1] => {
             let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
-            perform_calculation(AluOp::Add, registers, operand, true);
+            perform_calculation(&AluOp::Add, registers, operand, true);
 
             Ok(2)
         }
@@ -69,16 +69,16 @@ instruction_group! {
                 return Err(CpuError::UnsupportedSingleRegister(*r));
             }
 
-            let operand = registers.get_single(&r);
+            let operand = registers.get_single(r);
 
-            perform_calculation(AluOp::Sub, registers, operand, false);
+            perform_calculation(&AluOp::Sub, registers, operand, false);
 
             Ok(1)
         }
 
         /// Subtract value of `operand` from A
         SUB_N(operand: u8) [2] => {
-            perform_calculation(AluOp::Sub, registers, *operand, false);
+            perform_calculation(&AluOp::Sub, registers, *operand, false);
 
             Ok(2)
         }
@@ -87,7 +87,7 @@ instruction_group! {
         SUB_HL() [1] => {
             let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
 
-            perform_calculation(AluOp::Sub, registers, operand, false);
+            perform_calculation(&AluOp::Sub, registers, operand, false);
 
             Ok(2)
         }
@@ -100,14 +100,14 @@ instruction_group! {
 
             let operand = registers.get_single(r);
 
-            perform_calculation(AluOp::Sub, registers, operand, true);
+            perform_calculation(&AluOp::Sub, registers, operand, true);
 
             Ok(1)
         }
 
         /// Subtract value of `operand` and Carry from A
         SBC_N(operand: u8) [2] => {
-            perform_calculation(AluOp::Sub, registers, *operand, true);
+            perform_calculation(&AluOp::Sub, registers, *operand, true);
 
             Ok(2)
         }
@@ -115,7 +115,7 @@ instruction_group! {
         /// Subtract value of `(HL)` and Carry from A
         SBC_HL() [1] => {
             let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
-            perform_calculation(AluOp::Sub, registers, operand, true);
+            perform_calculation(&AluOp::Sub, registers, operand, true);
 
             Ok(2)
         }
@@ -126,14 +126,14 @@ instruction_group! {
                 return Err(CpuError::UnsupportedSingleRegister(*r))
             }
 
-            perform_calculation(AluOp::And, registers, registers.get_single(r), false);
+            perform_calculation(&AluOp::And, registers, registers.get_single(r), false);
 
             Ok(1)
         }
 
         /// Logical AND between `operand` and `A`
         AND_N(operand: u8) [2] => {
-            perform_calculation(AluOp::And, registers, *operand, false);
+            perform_calculation(&AluOp::And, registers, *operand, false);
 
             Ok(2)
         }
@@ -141,7 +141,7 @@ instruction_group! {
         /// Logical AND between `(HL)` and `A`
         AND_HL() [1] => {
             let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
-            perform_calculation(AluOp::And, registers, operand, false);
+            perform_calculation(&AluOp::And, registers, operand, false);
 
             Ok(2)
         }
@@ -153,14 +153,14 @@ instruction_group! {
             }
 
             let operand = registers.get_single(r);
-            perform_calculation(AluOp::Or, registers, operand, false);
+            perform_calculation(&AluOp::Or, registers, operand, false);
 
             Ok(1)
         }
 
         /// Logical OR between `operand` and `A`
         OR_N(operand: u8) [2] => {
-            perform_calculation(AluOp::Or, registers, *operand, false);
+            perform_calculation(&AluOp::Or, registers, *operand, false);
 
             Ok(2)
         }
@@ -168,7 +168,7 @@ instruction_group! {
         /// Logical OR between `(HL)` and `A`
         OR_HL() [1] => {
             let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
-            perform_calculation(AluOp::Or, registers, operand, false);
+            perform_calculation(&AluOp::Or, registers, operand, false);
 
             Ok(2)
         }
@@ -180,14 +180,14 @@ instruction_group! {
             }
 
             let operand = registers.get_single(r);
-            perform_calculation(AluOp::Xor, registers, operand, false);
+            perform_calculation(&AluOp::Xor, registers, operand, false);
 
             Ok(1)
         }
 
         /// Logical XOR between `operand` and `A`
         XOR_N(operand: u8) [2] => {
-            perform_calculation(AluOp::Xor, registers, *operand, false);
+            perform_calculation(&AluOp::Xor, registers, *operand, false);
 
             Ok(2)
         }
@@ -195,7 +195,7 @@ instruction_group! {
         /// Logical XOR between `(HL)` and `A`
         XOR_HL() [1] => {
             let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
-            perform_calculation(AluOp::Xor, registers, operand, false);
+            perform_calculation(&AluOp::Xor, registers, operand, false);
 
             Ok(2)
         }
@@ -310,7 +310,7 @@ instruction_group! {
     }
 }
 
-fn perform_calculation(op: AluOp, registers: &mut Registers, operand: u8, add_carry: bool) {
+fn perform_calculation(op: &AluOp, registers: &mut Registers, operand: u8, add_carry: bool) {
     let a = registers.get_single(&SingleRegister::A);
     let operand = if add_carry && registers.is_carry() {
         operand.wrapping_add(1)
@@ -334,43 +334,43 @@ enum AluOp {
 }
 
 impl AluOp {
-    pub fn calculate(&self, a: u8, operand: u8) -> (u8, u8) {
+    pub const fn calculate(&self, a: u8, operand: u8) -> (u8, u8) {
         match &self {
-            AluOp::Sub | AluOp::Cp => {
+            Self::Sub | Self::Cp => {
                 let (result, is_carry) = a.overflowing_sub(operand);
 
-                let mut flags = 0b0000_0000 | MASK_FLAG_NEGATIVE;
+                let mut flags = MASK_FLAG_NEGATIVE;
 
                 if result == 0 {
-                    flags = flags | MASK_FLAG_ZERO; // Set Z
+                    flags |= MASK_FLAG_ZERO; // Set Z
                 }
                 // Check if the 5th bit has changed in the result
                 if result != 0 && (result & 0x10) != (a & 0x10) {
-                    flags = flags | MASK_FLAG_HALF_CARRY; // Set H
+                    flags |= MASK_FLAG_HALF_CARRY; // Set H
                 }
                 if is_carry {
-                    flags = flags | MASK_FLAG_CARRY; // Set C
+                    flags |= MASK_FLAG_CARRY; // Set C
                 }
 
                 (result, flags)
             }
-            AluOp::Add => {
+            Self::Add => {
                 let (result, is_carry) = a.overflowing_add(operand);
                 let mut flags = 0b0000_0000;
 
                 if result == 0 {
-                    flags = flags | MASK_FLAG_ZERO; // Set Z
+                    flags |= MASK_FLAG_ZERO; // Set Z
                 }
                 if (a ^ operand ^ result) & 0x10 > 0 {
-                    flags = flags | MASK_FLAG_HALF_CARRY; // Set H
+                    flags |= MASK_FLAG_HALF_CARRY; // Set H
                 }
                 if is_carry {
-                    flags = flags | MASK_FLAG_CARRY; // Set C
+                    flags |= MASK_FLAG_CARRY; // Set C
                 }
 
                 (result, flags)
             }
-            AluOp::And => {
+            Self::And => {
                 let result = a & operand;
                 let mut flags = 0b0010_0000;
 
@@ -380,14 +380,14 @@ impl AluOp {
 
                 (result, flags)
             }
-            AluOp::Or => {
+            Self::Or => {
                 let result = a | operand;
 
                 let flags = if result == 0 { MASK_FLAG_ZERO } else { 0 };
 
                 (result, flags)
             }
-            AluOp::Xor => {
+            Self::Xor => {
                 let result = a ^ operand;
                 let flags = if result == 0 { MASK_FLAG_ZERO } else { 0 };
 
@@ -594,30 +594,30 @@ crate::instruction_tests! {
     }
 
     sub_sets_the_negative_flag(registers, memory, cpu_flags) => {
-        assert_eq!(false, registers.is_negative());
+        assert!(!registers.is_negative());
 
         ALU8Bit::SUB(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
-        assert_eq!(true, registers.is_negative());
+        assert!(registers.is_negative());
     }
 
     sub_sets_the_zero_flag_if_result_is_zero(registers, memory, cpu_flags) => {
-        assert_eq!(false, registers.is_zero());
+        assert!(!registers.is_zero());
 
         ALU8Bit::SUB(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
-        assert_eq!(true, registers.is_zero());
+        assert!(registers.is_zero());
     }
 
     sub_resets_the_zero_flag_if_result_is_non_zero(registers, memory, cpu_flags) => {
         registers.set_single(&SingleRegister::A, 45);
         registers.set_single(&SingleRegister::B, 3);
 
-        assert_eq!(false, registers.is_zero());
+        assert!(!registers.is_zero());
 
         ALU8Bit::SUB(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
-        assert_eq!(false, registers.is_zero());
+        assert!(!registers.is_zero());
     }
 
     sub_handles_overflow(registers, memory, cpu_flags) => {

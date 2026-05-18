@@ -8,5 +8,5 @@ fn main() {
     registers.set_double(&DoubleRegister::DE, 0x1144);
     registers.set_double(&DoubleRegister::HL, 0x3322);
 
-    println!("{}", registers);
+    println!("{registers}");
 }

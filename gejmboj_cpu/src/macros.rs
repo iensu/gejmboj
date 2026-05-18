@@ -27,10 +27,10 @@ macro_rules! instruction_group {
                 }
             }
 
-            pub fn length(&self) -> u16 {
+            pub const fn length(&self) -> u16 {
                 match self {
                     $($group_name::$item_name($($operand),*) => {
-                        $(drop($operand);)*
+                        $(let _ = $operand;)*
                         $length
                     },)+
                 }

@@ -7,7 +7,7 @@ instruction_group! {
 
         /// Loads 16-bit data into 16-bit register
         LD(r: DoubleRegister, operand: u16) [3] => {
-            registers.set_double(&r, *operand);
+            registers.set_double(r, *operand);
             Ok(3)
         }
 
@@ -37,7 +37,7 @@ instruction_group! {
         POP(r: DoubleRegister) [1] => {
             let sp = registers.get_double(&DoubleRegister::SP);
             let value = memory.get_u16(sp.into());
-            registers.set_double(&r, value);
+            registers.set_double(r, value);
             registers.increment_sp();
             Ok(3)
         }

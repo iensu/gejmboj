@@ -70,7 +70,14 @@ pub struct Registers {
     pub SP: u16,
 }
 
+impl Default for Registers {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Registers {
+    #[must_use]
     pub fn new() -> Self {
         Self {
             A: 0,
@@ -149,6 +156,7 @@ impl Registers {
     ///
     /// assert_eq!(0, registers.get_single(&SingleRegister::A));
     /// ```
+    #[must_use]
     pub fn get_single(&self, r: &SingleRegister) -> u8 {
         match r {
             SingleRegister::A => self.A,
@@ -174,6 +182,7 @@ impl Registers {
     ///
     /// assert_eq!(0xABCD, registers.get_double(&DoubleRegister::BC));
     /// ````
+    #[must_use]
     pub fn get_double(&self, r: &DoubleRegister) -> u16 {
         match r {
             DoubleRegister::AF => u16::from_be_bytes([self.A, self.F]),
@@ -247,7 +256,7 @@ impl Registers {
     /// assert_eq!(0xFFFE, registers.get_double(&DoubleRegister::SP));
     /// ```
     pub fn increment_sp(&mut self) -> u16 {
-        self.SP = self.SP + 2;
+        self.SP += 2;
         self.SP
     }
 
@@ -265,7 +274,7 @@ impl Registers {
     /// assert_eq!(0xFFFC, registers.get_double(&DoubleRegister::SP));
     /// ```
     pub fn decrement_sp(&mut self) -> u16 {
-        self.SP = self.SP - 2;
+        self.SP -= 2;
         self.SP
     }
 
@@ -283,6 +292,7 @@ impl Registers {
     /// registers.set_flags(0b0001_0000);
     /// assert_eq!(true, registers.is_carry());
     /// ```
+    #[must_use]
     pub fn is_carry(&self) -> bool {
         self.F & MASK_FLAG_CARRY > 0
     }
@@ -301,6 +311,7 @@ impl Registers {
     /// registers.set_flags(0b0010_0000);
     /// assert_eq!(true, registers.is_half_carry());
     /// ```
+    #[must_use]
     pub fn is_half_carry(&self) -> bool {
         self.F & MASK_FLAG_HALF_CARRY > 0
     }
@@ -319,6 +330,7 @@ impl Registers {
     /// registers.set_flags(0b0100_0000);
     /// assert_eq!(true, registers.is_negative());
     /// ```
+    #[must_use]
     pub fn is_negative(&self) -> bool {
         self.F & MASK_FLAG_NEGATIVE > 0
     }
@@ -337,6 +349,7 @@ impl Registers {
     /// registers.set_flags(0b1000_0000);
     /// assert_eq!(true, registers.is_zero());
     /// ```
+    #[must_use]
     pub fn is_zero(&self) -> bool {
         self.F & MASK_FLAG_ZERO > 0
     }
@@ -344,6 +357,7 @@ impl Registers {
     /// Returns the value of the flag register `F`.
     ///
     /// Convenience method to get the flag register value.
+    #[must_use]
     pub fn get_flags(&self) -> u8 {
         self.F
     }
@@ -385,9 +399,9 @@ impl Registers {
     /// ```
     pub fn set_carry(&mut self, set: bool) {
         if set {
-            self.F = self.F | MASK_FLAG_CARRY
+            self.F |= MASK_FLAG_CARRY;
         } else {
-            self.F = self.F & !MASK_FLAG_CARRY
+            self.F &= !MASK_FLAG_CARRY;
         }
     }
 
@@ -407,9 +421,9 @@ impl Registers {
     /// ```
     pub fn set_half_carry(&mut self, set: bool) {
         if set {
-            self.F = self.F | MASK_FLAG_HALF_CARRY
+            self.F |= MASK_FLAG_HALF_CARRY;
         } else {
-            self.F = self.F & !MASK_FLAG_HALF_CARRY
+            self.F &= !MASK_FLAG_HALF_CARRY;
         }
     }
 
@@ -429,9 +443,9 @@ impl Registers {
     /// ```
     pub fn set_negative(&mut self, set: bool) {
         if set {
-            self.F = self.F | MASK_FLAG_NEGATIVE
+            self.F |= MASK_FLAG_NEGATIVE;
         } else {
-            self.F = self.F & !MASK_FLAG_NEGATIVE
+            self.F &= !MASK_FLAG_NEGATIVE;
         }
     }
 
@@ -451,9 +465,9 @@ impl Registers {
     /// ```
     pub fn set_zero(&mut self, set: bool) {
         if set {
-            self.F = self.F | MASK_FLAG_ZERO
+            self.F |= MASK_FLAG_ZERO;
         } else {
-            self.F = self.F & !MASK_FLAG_ZERO
+            self.F &= !MASK_FLAG_ZERO;
         }
     }
 
@@ -469,7 +483,7 @@ impl Registers {
         self.F = 0;
 
         self.PC = 0;
-        self.SP = 0xFFFE
+        self.SP = 0xFFFE;
     }
 }
 

@@ -4,8 +4,7 @@ use crate::{
 };
 
 /// Instruction utility functions
-
-pub fn into_bits(x: u8) -> (u8, u8, u8, u8, u8, u8, u8, u8) {
+pub const fn into_bits(x: u8) -> (u8, u8, u8, u8, u8, u8, u8, u8) {
     (
         (x & 0b1000_0000) >> 7,
         (x & 0b0100_0000) >> 6,
@@ -42,8 +41,8 @@ pub fn get_register_value(
 
 /// Returns 8-bit Two's Complement of the given number.
 ///
-/// https://en.wikipedia.org/wiki/Two%27s_complement
-pub fn twos_complement(x: u8) -> u8 {
+/// <https://en.wikipedia.org/wiki/Two%27s_complement>
+pub const fn twos_complement(x: u8) -> u8 {
     (!x).wrapping_add(1)
 }
 
@@ -71,7 +70,7 @@ mod tests {
         let registers = Registers::new();
         let memory = Memory::new();
 
-        for (operand, expected_register) in vec![
+        for (operand, expected_register) in [
             (0b000, Some(SingleRegister::B)),
             (0b001, Some(SingleRegister::C)),
             (0b010, Some(SingleRegister::D)),
@@ -91,7 +90,7 @@ mod tests {
         let mut registers = Registers::new();
         let memory = Memory::new();
 
-        for (operand, register, value) in vec![
+        for (operand, register, value) in [
             (0b000, SingleRegister::B, 1),
             (0b001, SingleRegister::C, 2),
             (0b010, SingleRegister::D, 3),

@@ -114,22 +114,22 @@ instruction_group! {
             let mut flags = 0;
 
             if registers.is_half_carry() || (a & 0xF) > 9 {
-                bcd_correction = bcd_correction | 0x6;
+                bcd_correction |= 0x6;
             }
             if registers.is_carry() || a > 0x99 {
-                bcd_correction = bcd_correction | 0x60;
-                flags = flags | MASK_FLAG_CARRY;
+                bcd_correction |= 0x60;
+                flags |= MASK_FLAG_CARRY;
             }
 
             if registers.is_negative() {
                 bcd_correction = utils::twos_complement(bcd_correction);
-            };
+            }
 
             let bcd = a.wrapping_add(bcd_correction);
             registers.set_single(&SingleRegister::A, bcd);
 
             if bcd == 0 {
-                flags = flags | MASK_FLAG_ZERO;
+                flags |= MASK_FLAG_ZERO;
             }
 
             registers.set_flags(flags);
@@ -158,16 +158,16 @@ crate::instruction_tests! {
         let cycles = Misc::DI().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
         assert_eq!(1, cycles);
-        assert_eq!(false, cpu_flags.IME);
+        assert!(!cpu_flags.IME);
     }
 
     ei_schedules_interrupt_handling(registers, memory, cpu_flags) => {
-        assert_eq!(false, cpu_flags.IME_scheduled);
+        assert!(!cpu_flags.IME_scheduled);
 
         let cycles = Misc::EI().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
         assert_eq!(1, cycles);
-        assert_eq!(true, cpu_flags.IME_scheduled);
+        assert!(cpu_flags.IME_scheduled);
     }
 
     ccf_takes_one_machine_cycle(registers, memory, cpu_flags) => {

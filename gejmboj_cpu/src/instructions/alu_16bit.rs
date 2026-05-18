@@ -18,7 +18,7 @@ instruction_group! {
         /// | `C`  | Set if carry from bit 15, else reset |
         ADD_HL(r: DoubleRegister) [1] => {
             let hl = registers.get_double(&DoubleRegister::HL);
-            let operand = registers.get_double(&r);
+            let operand = registers.get_double(r);
             let (result, carry) = hl.overflowing_add(operand);
 
             let mut flags = registers.get_flags() & MASK_FLAG_ZERO; // Keep the Z flag unchanged
@@ -43,7 +43,7 @@ instruction_group! {
         /// | `C`  | Set if carry from bit 15, else reset |
         ADD_SP(operand: u8) [2] => {
             let sp = registers.get_double(&DoubleRegister::SP);
-            let operand: u16 = *operand as u16;
+            let operand: u16 = u16::from(*operand);
             let (result, carry) = sp.overflowing_add(operand);
 
             let mut flags = 0b0000_0000;
@@ -63,8 +63,8 @@ instruction_group! {
         ///
         /// Flags are unaffected.
         INC(r: DoubleRegister) [1] => {
-            let result = registers.get_double(&r).wrapping_add(1);
-            registers.set_double(&r, result);
+            let result = registers.get_double(r).wrapping_add(1);
+            registers.set_double(r, result);
             Ok(2)
         }
 
@@ -72,8 +72,8 @@ instruction_group! {
         ///
         /// Flags are unaffected.
         DEC(r: DoubleRegister) [1] => {
-            let result = registers.get_double(&r).wrapping_sub(1);
-            registers.set_double(&r, result);
+            let result = registers.get_double(r).wrapping_sub(1);
+            registers.set_double(r, result);
             Ok(2)
         }
     }
@@ -95,22 +95,21 @@ crate::instruction_tests! {
     }
 
     addhl_sets_flags_correctly(registers, memory, cpu_flags) => {
-        for (hl, bc, flags, expected_flags) in vec![
+        for (hl, bc, flags, expected_flags) in [
             (0x0001, 0x0002, 0b0000_0000, 0b0000_0000),
             (0x0001, 0x0002, 0b0100_0000, 0b0000_0000),
             (0x0001, 0x0002, 0b1000_0000, 0b1000_0000),
             (0xFF00, 0x1100, 0b0000_0000, 0b0001_0000),
             (0x0FFF, 0x0111, 0b0000_0000, 0b0010_0000),
             (0xFFFF, 0x1111, 0b0000_0000, 0b0011_0000),
-            (0xFFFF, 0x1111, 0b1000_0000, 0b1011_0000),
-        ] {
+            (0xFFFF, 0x1111, 0b1000_0000, 0b1011_0000)] {
             registers.set_double(&DoubleRegister::HL, hl);
             registers.set_double(&DoubleRegister::BC, bc);
             registers.set_flags(flags);
 
             ALU16Bit::ADD_HL(DoubleRegister::BC).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
-            assert_eq!(expected_flags, registers.get_flags(), "Expected {:08b} from {:04x} + {:04x} (flags: {:08b})", expected_flags, hl, bc, flags);
+            assert_eq!(expected_flags, registers.get_flags(), "Expected {expected_flags:08b} from {hl:04x} + {bc:04x} (flags: {flags:08b})");
         }
     }
 
@@ -127,20 +126,19 @@ crate::instruction_tests! {
     }
 
     addsp_sets_flags_correctly(registers, memory, cpu_flags) => {
-        for (sp, operand, flags, expected_flags) in vec![
+        for (sp, operand, flags, expected_flags) in [
             (0x0001, 0x02, 0b0000_0000, 0b0000_0000),
             (0x0003, 0x04, 0b0100_0000, 0b0000_0000),
             (0x0005, 0x06, 0b1000_0000, 0b0000_0000),
             (0x0F11, 0xFF, 0b0000_0000, 0b0010_0000),
             (0xFFFF, 0xFF, 0b0000_0000, 0b0011_0000),
-            (0xFFFF, 0xFF, 0b1000_0000, 0b0011_0000),
-        ] {
+            (0xFFFF, 0xFF, 0b1000_0000, 0b0011_0000)] {
             registers.set_double(&DoubleRegister::SP, sp);
             registers.set_flags(flags);
 
             ALU16Bit::ADD_SP(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
-            assert_eq!(expected_flags, registers.get_flags(), "Expected {:08b} from {:04x} + {:04x} (flags: {:08b})", expected_flags, sp, operand, flags);
+            assert_eq!(expected_flags, registers.get_flags(), "Expected {expected_flags:08b} from {sp:04x} + {operand:04x} (flags: {flags:08b})");
         }
     }
 
