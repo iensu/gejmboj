@@ -10,75 +10,47 @@ A GameBoy emulator.
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.flake-utils.follows = "flake-utils";
+    };
+    naersk = {
+      url = "github:nix-community/naersk/master";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = { self, flake-utils, rust-overlay, nixpkgs }:
+  outputs = { self, flake-utils, rust-overlay, naersk, nixpkgs }:
     flake-utils.lib.eachDefaultSystem
       (system:
         let
           cargoConfig = builtins.fromTOML(builtins.readFile(./Cargo.toml));
           name = cargoConfig.package.name;
-          overlays = [ (import rust-overlay) ];
+          version = cargoConfig.package.version;
+          overlays = [(import rust-overlay)];
           pkgs = import nixpkgs { inherit system overlays; };
-          additionalBuildInputs = with pkgs; [];
-          enabledFeatures = [];
+          rustBinaries = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
+          naersk-lib = pkgs.callPackage naersk {
+            cargo = rustBinaries;
+            rustc = rustBinaries;
+          };
+          package = naersk-lib.buildPackage {
+            inherit name version;
+            root = builtins.path { path = ./.; inherit name; };
+          };
         in
         {
-          checks.format = pkgs.runCommand "check-format"
-            {
-              buildInputs = with pkgs; [ rustfmt cargo ];
-            } ''
-            ${pkgs.rustfmt}/bin/cargo-fmt fmt --manifest-path ${./.}/Cargo.toml -- --check
-            touch $out # success!
-            '';
-
           apps.${name} = {
             type = "app";
             program = "${self.pkgs.${system}.${name}}/bin/${name}";
           };
-
-          packages.${name} = (pkgs.makeRustPlatform {
-            cargo = pkgs.rust-bin.stable.latest.minimal;
-            rustc = pkgs.rust-bin.stable.latest.minimal;
-          }).buildRustPackage {
-            pname = cargoConfig.package.name;
-            version = cargoConfig.package.version;
-            src = ./.;
-
-            cargoLock = {
-              lockFile = ./Cargo.lock;
-            };
-
-            buildFeatures = enabledFeatures;
-            buildInputs = additionalBuildInputs;
-
-            doCheck = true;
-            cargoTestFlags = "--workspace";
-
-            cargoSha256 = "sha256-fw/zUbYynrpeLGQ/uhs3LEq7tnECvatNAuDCJuCQGms=";
-          };
-
+          packages.${name} = package;
           defaultPackage = self.packages.${system}.${name};
 
-          devShell = pkgs.mkShell {
-            buildInputs = with pkgs; [
-              openssl
-              pkgconfig
-              exa
-              fd
-              bat
-              rust-bin.stable.latest.default
+          devShell = with pkgs; pkgs.mkShell {
+            buildInputs = [
+              rustBinaries
               rust-analyzer
-            ] ++ additionalBuildInputs;
-
-            shellHook = ''
-              alias cat=bat
-              alias ls=exa
-              alias find=fd
-              export RUST_LOG=debug
-            '';
+            ];
+            RUST_SRC_PATH = rustPlatform.rustLibSrc;
+            RUST_LOG = "debug";
           };
         });
 }
