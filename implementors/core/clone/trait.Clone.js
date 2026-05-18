@@ -1,3 +1,0 @@
-(function() {var implementors = {
-"gejmboj_cpu":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.72.1/core/clone/trait.Clone.html\" title=\"trait core::clone::Clone\">Clone</a> for <a class=\"enum\" href=\"gejmboj_cpu/registers/enum.SingleRegister.html\" title=\"enum gejmboj_cpu::registers::SingleRegister\">SingleRegister</a>"]]
-};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
