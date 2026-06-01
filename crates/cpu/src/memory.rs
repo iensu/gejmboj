@@ -39,6 +39,45 @@ impl Memory {
         }
     }
 
+    /// Reset memory to expected startup values.
+    ///
+    /// References:
+    /// - <https://gbdev.io/pandocs/Power_Up_Sequence.html#hardware-registers>
+    pub fn reset(&mut self) {
+        self.memory[TIMA] = 0x00;
+        self.memory[TMA] = 0x00;
+        self.memory[TAC] = 0x00;
+        self.memory[IF] = 0xE1;
+        self.memory[NR10] = 0x80;
+        self.memory[NR11] = 0xBF;
+        self.memory[NR12] = 0xF3;
+        self.memory[NR14] = 0xBF;
+        self.memory[NR21] = 0x3F;
+        self.memory[NR22] = 0x00;
+        self.memory[NR24] = 0xBF;
+        self.memory[NR30] = 0x7F;
+        self.memory[NR31] = 0xFF;
+        self.memory[NR32] = 0x9F;
+        self.memory[NR34] = 0xBF;
+        self.memory[NR41] = 0xFF;
+        self.memory[NR42] = 0x00;
+        self.memory[NR43] = 0x00;
+        self.memory[NR44] = 0xBF;
+        self.memory[NR50] = 0x77;
+        self.memory[NR51] = 0xF3;
+        self.memory[NR52] = 0xF1;
+        self.memory[LCDC] = 0x91;
+        self.memory[SCY] = 0x00;
+        self.memory[SCX] = 0x00;
+        self.memory[LYC] = 0x00;
+        self.memory[BGP] = 0xFC;
+        self.memory[OBP0] = 0xFF;
+        self.memory[OBP1] = 0xFF;
+        self.memory[WY] = 0x00;
+        self.memory[WX] = 0x00;
+        self.memory[IE] = 0x00;
+    }
+
     /// Sets a `u8` value in memory.
     ///
     /// ```
@@ -132,3 +171,37 @@ impl Display for Memory {
         )
     }
 }
+
+// Semantically significant memory addresses
+const TIMA: usize = 0xFF05;
+const TMA: usize = 0xFF06;
+const TAC: usize = 0xFF07;
+const IF: usize = 0xFF0F;
+const NR10: usize = 0xFF10;
+const NR11: usize = 0xFF11;
+const NR12: usize = 0xFF12;
+const NR14: usize = 0xFF14;
+const NR21: usize = 0xFF16;
+const NR22: usize = 0xFF17;
+const NR24: usize = 0xFF19;
+const NR30: usize = 0xFF1A;
+const NR31: usize = 0xFF1B;
+const NR32: usize = 0xFF1C;
+const NR34: usize = 0xFF1E;
+const NR41: usize = 0xFF20;
+const NR42: usize = 0xFF21;
+const NR43: usize = 0xFF22;
+const NR44: usize = 0xFF23;
+const NR50: usize = 0xFF24;
+const NR51: usize = 0xFF25;
+const NR52: usize = 0xFF26;
+const LCDC: usize = 0xFF40;
+const SCY: usize = 0xFF42;
+const SCX: usize = 0xFF43;
+const LYC: usize = 0xFF45;
+const BGP: usize = 0xFF47;
+const OBP0: usize = 0xFF48;
+const OBP1: usize = 0xFF49;
+const WY: usize = 0xFF4A;
+const WX: usize = 0xFF4B;
+const IE: usize = 0xFFFF;

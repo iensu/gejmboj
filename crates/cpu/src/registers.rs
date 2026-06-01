@@ -94,6 +94,20 @@ impl Registers {
         }
     }
 
+    /// Resets the registers to expected value at start
+    ///
+    /// References:
+    /// - <https://gbdev.io/pandocs/Power_Up_Sequence.html#cpu-registers>
+    /// - <https://gbdev.io/pandocs/The_Cartridge_Header.html#0100-0103--entry-point>
+    pub fn reset(&mut self) {
+        self.set_double(&DoubleRegister::AF, 0x01B0);
+        self.set_double(&DoubleRegister::BC, 0x0013);
+        self.set_double(&DoubleRegister::DE, 0x00D8);
+        self.set_double(&DoubleRegister::HL, 0x014D);
+        self.SP = 0xFFFE;
+        self.PC = 0x0100;
+    }
+
     /// Sets the value of a `SingleRegister`.
     ///
     /// ## Examples
