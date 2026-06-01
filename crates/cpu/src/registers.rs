@@ -519,7 +519,7 @@ PC:{:04x?} SP:{:04x?}
 }
 
 /// Represents an 8-bit general purpose register.
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum SingleRegister {
     A,
     B,
@@ -534,14 +534,14 @@ pub enum SingleRegister {
 impl From<(u8, u8, u8)> for SingleRegister {
     fn from(x: (u8, u8, u8)) -> Self {
         match (x.0 > 0, x.1 > 0, x.2 > 0) {
-            (false, false, false) => SingleRegister::B,
-            (false, false, true) => SingleRegister::C,
-            (false, true, false) => SingleRegister::D,
-            (false, true, true) => SingleRegister::E,
-            (true, false, false) => SingleRegister::H,
-            (true, false, true) => SingleRegister::L,
-            (true, true, false) => SingleRegister::F,
-            (true, true, true) => SingleRegister::A,
+            (false, false, false) => Self::B,
+            (false, false, true) => Self::C,
+            (false, true, false) => Self::D,
+            (false, true, true) => Self::E,
+            (true, false, false) => Self::H,
+            (true, false, true) => Self::L,
+            (true, true, false) => Self::F,
+            (true, true, true) => Self::A,
         }
     }
 }
@@ -551,21 +551,21 @@ impl TryFrom<u8> for SingleRegister {
 
     fn try_from(value: u8) -> Result<Self, Self::Error> {
         match value & 0b111 {
-            0b000 => Ok(SingleRegister::B),
-            0b001 => Ok(SingleRegister::C),
-            0b010 => Ok(SingleRegister::D),
-            0b011 => Ok(SingleRegister::E),
-            0b100 => Ok(SingleRegister::H),
-            0b101 => Ok(SingleRegister::L),
-            0b110 => Ok(SingleRegister::F),
-            0b111 => Ok(SingleRegister::A),
+            0b000 => Ok(Self::B),
+            0b001 => Ok(Self::C),
+            0b010 => Ok(Self::D),
+            0b011 => Ok(Self::E),
+            0b100 => Ok(Self::H),
+            0b101 => Ok(Self::L),
+            0b110 => Ok(Self::F),
+            0b111 => Ok(Self::A),
             _ => Err(CpuError::SingleRegisterParseError(value)),
         }
     }
 }
 
 /// Represents a 16-bit general purpose register.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum DoubleRegister {
     AF,
     BC,
@@ -577,11 +577,11 @@ pub enum DoubleRegister {
 impl From<(u8, u8, u8)> for DoubleRegister {
     fn from(x: (u8, u8, u8)) -> Self {
         match (x.0 > 0, x.1 > 0, x.2 > 0) {
-            (false | true, false, false) => DoubleRegister::BC,
-            (false | true, false, true) => DoubleRegister::DE,
-            (false | true, true, false) => DoubleRegister::HL,
-            (false, true, true) => DoubleRegister::SP,
-            (true, true, true) => DoubleRegister::AF,
+            (false | true, false, false) => Self::BC,
+            (false | true, false, true) => Self::DE,
+            (false | true, true, false) => Self::HL,
+            (false, true, true) => Self::SP,
+            (true, true, true) => Self::AF,
         }
     }
 }
