@@ -1,8 +1,6 @@
-[package]
-name = "gejmboj"
-version = "0.1.0"
-authors = ["Jens Östlund <jostlund@gmail.com>"]
-edition = "2018"
-
 [workspace]
-members = ["gejmboj_cpu"]
+resolver = "2"
+members = [
+    "crates/app"
+  , "crates/cpu"
+]
