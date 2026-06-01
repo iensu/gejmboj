@@ -3,4 +3,13 @@ name = "gejmboj_app"
 version = "0.1.0"
 edition = "2024"
 
+[[bin]]
+name = "gejmboj"
+path = "src/main.rs"
+
 [dependencies]
+cpu = { path = "../cpu", package = "gejmboj_cpu" }
+
+log = { workspace = true }
+
+env_logger = { version = "0.11.10" }

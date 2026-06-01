@@ -4,3 +4,6 @@ members = [
     "crates/app"
   , "crates/cpu"
 ]
+
+[workspace.dependencies]
+log = { version = "0.4.30" }
