@@ -139,7 +139,8 @@ instruction_group! {
         LD_A_FROM_HL_INC() [1] => {
             let address = registers.get_double(&DoubleRegister::HL);
             let value = memory.get(address.into());
-            registers.set_double(&DoubleRegister::HL, address + 1);
+            let (address, _) = u16::overflowing_add(address, 1);
+            registers.set_double(&DoubleRegister::HL, address);
             registers.set_single(&SingleRegister::A, value);
             Ok(2)
         }
