@@ -37,17 +37,11 @@ A GameBoy emulator.
           };
         in
         {
-          apps.${name} = {
-            type = "app";
-            program = "${self.pkgs.${system}.${name}}/bin/${name}";
-          };
-          packages.${name} = package;
-          defaultPackage = self.packages.${system}.${name};
-
           devShell = with pkgs; pkgs.mkShell {
             buildInputs = [
               rustBinaries
               rust-analyzer
+              xxd
             ];
             RUST_SRC_PATH = rustPlatform.rustLibSrc;
             RUST_LOG = "debug";
