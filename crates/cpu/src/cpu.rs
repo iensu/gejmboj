@@ -5,7 +5,7 @@ use crate::{
 };
 
 #[allow(non_snake_case)]
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct CpuFlags {
     /// Interrupt Master Enable
     ///
@@ -23,7 +23,7 @@ impl Default for CpuFlags {
 }
 
 impl CpuFlags {
-    #[must_use] 
+    #[must_use]
     pub fn new() -> Self {
         Self {
             IME: false,
@@ -43,7 +43,7 @@ impl Default for CPU {
 }
 
 impl CPU {
-    #[must_use] 
+    #[must_use]
     pub fn new() -> Self {
         Self {
             flags: CpuFlags::new(),
@@ -77,8 +77,9 @@ impl CPU {
 mod test {
 
     use super::*;
-    use instructions::misc;
     use instructions::Instruction;
+    use instructions::control_flow;
+    use instructions::misc;
 
     #[test]
     fn cpu_tick_executes_instructiona() {
@@ -133,5 +134,28 @@ mod test {
             },
             cpu.flags
         );
+    }
+
+    #[test]
+    fn pc_remains_unchanged_after_jr_fe_instructions() {
+        let mut registers = Registers::new();
+        let mut memory = Memory::new();
+        let mut cpu = CPU::new();
+
+        let jr_fe = 0xFE_18; // as BE bytes
+
+        let prev_pc = registers.PC;
+
+        memory.set_u16(0x0000, jr_fe);
+
+        let (_, instruction) = cpu
+            .tick(&mut registers, &mut memory)
+            .expect("Failed to execute JR instruction");
+
+        assert_eq!(
+            Instruction::ControlFlow(control_flow::ControlFlow::JR(0xFE)),
+            instruction
+        );
+        assert_eq!(prev_pc, registers.PC);
     }
 }

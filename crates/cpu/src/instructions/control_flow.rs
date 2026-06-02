@@ -55,9 +55,12 @@ instruction_group! {
             let offset = (*operand).cast_signed();
 
             if offset >= 0 {
-                registers.PC += u16::from(offset.unsigned_abs());
+                let (val, _) = u16::overflowing_add(registers.PC, offset.unsigned_abs().into());
+                registers.PC = val;
+
             } else {
-                registers.PC -= u16::from(offset.unsigned_abs());
+                let (val, _) = u16::overflowing_sub(registers.PC, offset.unsigned_abs().into());
+                registers.PC = val;
             }
 
             Ok(3)
@@ -91,9 +94,11 @@ instruction_group! {
                 let offset = (*operand).cast_signed();
 
                 if offset >= 0 {
-                    registers.PC += u16::from(offset.unsigned_abs());
+                    let (val, _) = u16::overflowing_add(registers.PC, offset.unsigned_abs().into());
+                    registers.PC = val;
                 } else {
-                    registers.PC -= u16::from(offset.unsigned_abs());
+                    let (val, _) = u16::overflowing_sub(registers.PC, offset.unsigned_abs().into());
+                    registers.PC = val;
                 }
 
                 Ok(3)
@@ -222,10 +227,10 @@ crate::instruction_tests! {
     }
 
     jr_can_wrap_around(registers, memory, cpu_flags) => {
-        let instruction = ControlFlow::JR(0xFE);
-        registers.PC = 0x0200;
+        let instruction = ControlFlow::JR(0xAA);
+        registers.PC = 0x000F;
         instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        assert_eq!(0x0200, registers.PC + instruction.length());
+        assert_eq!(0xFFBB, registers.PC + instruction.length());
     }
 
     jr_zilog_manual_example_one(registers, memory, cpu_flags) => {
@@ -267,12 +272,12 @@ crate::instruction_tests! {
     }
 
     jrc_can_wrap_around(registers, memory, cpu_flags) => {
-        let instruction = ControlFlow::JRC(0xFE, Condition::Zero);
-        registers.PC = 0x0200;
+        let instruction = ControlFlow::JRC(0xAA, Condition::Zero);
+        registers.PC = 0x000F;
         registers.set_zero(true);
 
         instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        assert_eq!(0x0200, registers.PC + instruction.length());
+        assert_eq!(0xFFBB, registers.PC + instruction.length());
     }
 
     jrc_zilog_manual_example_one(registers, memory, cpu_flags) => {

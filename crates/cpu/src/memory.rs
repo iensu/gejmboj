@@ -128,7 +128,7 @@ impl Memory {
         u16::from_le_bytes([lo, hi])
     }
 
-    /// Sets a `u16` value in memory.
+    /// Sets a `u16` value in memory as LE bytes.
     ///
     /// ```
     /// # use gejmboj_cpu::memory::Memory;
