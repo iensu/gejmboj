@@ -41,10 +41,10 @@ pub enum Condition {
 impl Condition {
     pub fn parse(c1: u8, c2: u8) -> Result<Self, CpuError> {
         match (c1, c2) {
-            (0, 0) => Ok(Self::Carry),
-            (0, 1) => Ok(Self::NoCarry),
-            (1, 0) => Ok(Self::Zero),
-            (1, 1) => Ok(Self::NotZero),
+            (0, 0) => Ok(Self::NotZero),
+            (0, 1) => Ok(Self::Zero),
+            (1, 0) => Ok(Self::NoCarry),
+            (1, 1) => Ok(Self::Carry),
             _ => Err(CpuError::Error(format!(
                 "Unknown instruction condition ({c1}, {c2})"
             ))),
@@ -325,14 +325,14 @@ mod tests {
             (0b1100_1101, I::ControlFlow(CF::CALL(0))),
             (0b1110_1001, I::ControlFlow(CF::JP_HL())),
             (0b0001_1000, I::ControlFlow(CF::JR(0))),
-            (0b1100_0010, I::ControlFlow(CF::JPC(0, C::Carry))),
-            (0b1101_1010, I::ControlFlow(CF::JPC(0, C::NotZero))),
-            (0b1100_0000, I::ControlFlow(CF::RETC(C::Carry))),
-            (0b1101_1000, I::ControlFlow(CF::RETC(C::NotZero))),
-            (0b0010_0000, I::ControlFlow(CF::JRC(0, C::Carry))),
-            (0b0011_1000, I::ControlFlow(CF::JRC(0, C::NotZero))),
-            (0b1101_1100, I::ControlFlow(CF::CALLC(0, C::NotZero))),
-            (0b1100_0100, I::ControlFlow(CF::CALLC(0, C::Carry))),
+            (0b1100_0010, I::ControlFlow(CF::JPC(0, C::NotZero))),
+            (0b1101_1010, I::ControlFlow(CF::JPC(0, C::Carry))),
+            (0b1100_0000, I::ControlFlow(CF::RETC(C::NotZero))),
+            (0b1101_1000, I::ControlFlow(CF::RETC(C::Carry))),
+            (0b0010_0000, I::ControlFlow(CF::JRC(0, C::NotZero))),
+            (0b0011_1000, I::ControlFlow(CF::JRC(0, C::Carry))),
+            (0b1101_1100, I::ControlFlow(CF::CALLC(0, C::Carry))),
+            (0b1100_0100, I::ControlFlow(CF::CALLC(0, C::NotZero))),
             (0b1100_0111, I::ControlFlow(CF::RST(0b1100_0111))),
             (0b1111_1111, I::ControlFlow(CF::RST(0b1111_1111))),
             // Load 8-bit instructions
