@@ -20,6 +20,8 @@
 
 use std::fmt::Display;
 
+use crate::errors::CpuError;
+
 pub struct Memory {
     memory: Vec<u8>,
 }
@@ -76,6 +78,23 @@ impl Memory {
         self.memory[WY] = 0x00;
         self.memory[WX] = 0x00;
         self.memory[IE] = 0x00;
+    }
+
+    /// Load bytes into memory starting at 0x0000.
+    ///
+    /// Returns an error if the `data` size exceeds the maximum memory size.
+    pub fn load(&mut self, data: &[u8]) -> Result<(), CpuError> {
+        let data_size = data.len();
+        if data_size > 0x8000 {
+            return Err(CpuError::MemoryExceeded {
+                size: data_size,
+                max: 0x8000,
+            });
+        }
+
+        self.memory[..data.len()].copy_from_slice(data);
+
+        Ok(())
     }
 
     /// Sets a `u8` value in memory.

@@ -10,6 +10,7 @@ pub enum CpuError {
     UnsupportedSingleRegister(SingleRegister),
     UnknownInstruction(u8),
     SingleRegisterParseError(u8),
+    MemoryExceeded { size: usize, max: usize },
 }
 
 impl Display for CpuError {
@@ -22,6 +23,12 @@ impl Display for CpuError {
             }
             Self::SingleRegisterParseError(x) => {
                 write!(f, "No single register matching {x:08b}")
+            }
+            Self::MemoryExceeded { size, max } => {
+                write!(
+                    f,
+                    "Memory exceeded, actual size: {size:04X}, max: {max:04X}"
+                )
             }
         }
     }

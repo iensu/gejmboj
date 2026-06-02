@@ -25,13 +25,23 @@ fn main() -> AppResult<()> {
 
     registers.reset();
     memory.reset();
+    memory.load(&rom_bytes)?;
+
+    let mut instruction_count = 0;
 
     loop {
+        instruction_count += 1;
+
         let prev_pc = registers.PC;
 
-        let (location, instruction) = cpu.tick(&mut registers, &mut memory)?;
+        let (location, instruction) = cpu.tick(&mut registers, &mut memory).inspect_err(|e| {
+            eprintln!(
+                "INSTR NO: {instruction_count}, PC: {:04X}, {e}",
+                registers.PC
+            );
+        })?;
 
-        debug!("Executed instruction [{location:04X}] {instruction:?}");
+        debug!("Executed instruction [{instruction_count:08}] ({location:04X}) {instruction:?}");
 
         // Detect self-jump (jr $FE), PC remains unchanged across instruction ticks.
         if registers.PC == prev_pc {

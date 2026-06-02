@@ -152,6 +152,12 @@ instruction_group! {
             registers.set_double(&DoubleRegister::HL, address + 1);
             Ok(2)
         }
+
+        /// Load immediate data into register
+        LD_IMM(r: SingleRegister, operand: u8) [2] => {
+            registers.set_single(r, *operand);
+            Ok(2)
+        }
     }
 }
 

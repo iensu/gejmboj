@@ -13,12 +13,12 @@ pub mod misc;
 pub mod rotate_shift;
 mod utils;
 
-use alu_16bit::ALU16Bit;
 use alu_8bit::ALU8Bit;
+use alu_16bit::ALU16Bit;
 use bit::Bit;
 use control_flow::ControlFlow;
-use load_16bit::Load16Bit;
 use load_8bit::Load8Bit;
+use load_16bit::Load16Bit;
 use misc::Misc;
 use rotate_shift::RotateShift;
 use utils::into_bits;
@@ -30,7 +30,7 @@ combine_instructions! {
     Instruction(ALU16Bit, ALU8Bit, Bit, ControlFlow, Load8Bit, Load16Bit, Misc, RotateShift)
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum Condition {
     Carry,
     NoCarry,
@@ -41,10 +41,10 @@ pub enum Condition {
 impl Condition {
     pub fn parse(c1: u8, c2: u8) -> Result<Self, CpuError> {
         match (c1, c2) {
-            (0, 0) => Ok(Condition::Carry),
-            (0, 1) => Ok(Condition::NoCarry),
-            (1, 0) => Ok(Condition::Zero),
-            (1, 1) => Ok(Condition::NotZero),
+            (0, 0) => Ok(Self::Carry),
+            (0, 1) => Ok(Self::NoCarry),
+            (1, 0) => Ok(Self::Zero),
+            (1, 1) => Ok(Self::NotZero),
             _ => Err(CpuError::Error(format!(
                 "Unknown instruction condition ({c1}, {c2})"
             ))),
@@ -54,10 +54,10 @@ impl Condition {
     #[must_use]
     pub fn is_fulfilled(&self, registers: &Registers) -> bool {
         match self {
-            Condition::Carry => registers.is_carry(),
-            Condition::NoCarry => !registers.is_carry(),
-            Condition::Zero => registers.is_zero(),
-            Condition::NotZero => !registers.is_zero(),
+            Self::Carry => registers.is_carry(),
+            Self::NoCarry => !registers.is_carry(),
+            Self::Zero => registers.is_zero(),
+            Self::NotZero => !registers.is_zero(),
         }
     }
 }
@@ -209,6 +209,10 @@ pub fn decode(opcode: u8, pc: u16, memory: &Memory) -> Result<Instruction, CpuEr
         (0, 1, x1, y1, z1, x2, y2, z2) => Ok(Instruction::Load8Bit(Load8Bit::LD(
             (x1, y1, z1).into(),
             (x2, y2, z2).into(),
+        ))),
+        (0, 0, a, b, c, 1, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LD_IMM(
+            (a, b, c).into(),
+            get_8bit_operand(pc, memory),
         ))),
 
         // 16 bit load instructions
