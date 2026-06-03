@@ -30,7 +30,7 @@ combine_instructions! {
     Instruction(ALU16Bit, ALU8Bit, Bit, ControlFlow, Load8Bit, Load16Bit, Misc, RotateShift)
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Condition {
     Carry,
     NoCarry,
