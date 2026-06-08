@@ -50,7 +50,6 @@ fn main() -> AppResult<()> {
 
         if let (c, 0x81) = (memory.get(SB), memory.get(SC)) {
             let c = c as char;
-            debug!("Got char: {c} [binary: {:08b}]", c as u8);
             if c != '\0' {
                 message.push(c);
             }
@@ -59,11 +58,6 @@ fn main() -> AppResult<()> {
 
         // Detect self-jump (jr $FE), PC remains unchanged across instruction ticks.
         if registers.PC == prev_pc {
-            break;
-        }
-
-        if instruction_count > 100_000 {
-            println!("Max instruction count exceeded, breaking...");
             break;
         }
     }

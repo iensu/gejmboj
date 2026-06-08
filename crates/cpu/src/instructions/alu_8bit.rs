@@ -2,8 +2,8 @@ use crate::{
     errors::CpuError,
     instruction_group,
     registers::{
-        DoubleRegister, Registers, SingleRegister, MASK_FLAG_CARRY, MASK_FLAG_HALF_CARRY,
-        MASK_FLAG_NEGATIVE, MASK_FLAG_ZERO,
+        DoubleRegister, MASK_FLAG_CARRY, MASK_FLAG_HALF_CARRY, MASK_FLAG_NEGATIVE, MASK_FLAG_ZERO,
+        Registers, SingleRegister,
     },
 };
 

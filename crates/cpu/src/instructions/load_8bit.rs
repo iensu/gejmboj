@@ -47,7 +47,8 @@ instruction_group! {
 
         /// Load data at address pointed to by DE into A
         LD_DE_TO_A() [1] => {
-            let value = memory.get(registers.get_double(&DoubleRegister::DE).into());
+            let location = registers.get_double(&DoubleRegister::DE).into();
+            let value = memory.get(location);
             registers.set_single(&SingleRegister::A, value);
             Ok(2)
         }

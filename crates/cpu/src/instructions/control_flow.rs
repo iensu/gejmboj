@@ -110,8 +110,7 @@ instruction_group! {
         /// Unconditional call of the function at operand address.
         CALL(operand: u16) [3] => {
             let sp = registers.decrement_sp();
-            let next_pc = registers.PC + 3;
-            memory.set_u16(sp.into(), next_pc);
+            memory.set_u16(sp.into(), registers.PC);
             registers.PC = *operand;
 
             Ok(6)
