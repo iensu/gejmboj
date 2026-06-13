@@ -7,8 +7,11 @@ instruction_group! {
 
         /// Loads data from register `r2` into `r1`.
         LD(r1: SingleRegister, r2: SingleRegister) [1] => {
-            let value = registers.get_single(r2);
-            registers.set_single(r1, value);
+            if r1 != r2 {
+                let value = registers.get_single(r2);
+                registers.set_single(r1, value);
+            }
+
             Ok(1)
         }
 
@@ -176,6 +179,19 @@ crate::instruction_tests! {
         assert_eq!(42, registers.get_single(&SingleRegister::B));
         assert_eq!(1, cycles);
     }
+
+    load_data_from_same_register(registers, memory, cpu_flags) => {
+        let instruction = Load8Bit::LD(SingleRegister::B, SingleRegister::B);
+        registers.set_single(&SingleRegister::B, 42);
+
+        assert_eq!(42, registers.get_single(&SingleRegister::B));
+
+        let cycles = instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+
+        assert_eq!(42, registers.get_single(&SingleRegister::B));
+        assert_eq!(1, cycles);
+    }
+
 
     loads_data_pointed_to_by_hl_into_register(registers, memory, cpu_flags) => {
         let instruction = Load8Bit::LD_FROM_HL(SingleRegister::B);
