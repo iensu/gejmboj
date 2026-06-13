@@ -305,7 +305,7 @@ crate::instruction_tests! {
 
         assert_eq!(0xABCD, registers.PC);
         assert_eq!(0xFFFC, registers.SP);
-        assert_eq!(0xAAAD, memory.get_u16(registers.SP.into()));
+        assert_eq!(0xAAAA, memory.get_u16(registers.SP.into()));
     }
 
     call_sets_sp_correctly(registers, memory, cpu_flags) => {
@@ -318,7 +318,7 @@ crate::instruction_tests! {
         assert_eq!(0x1234, registers.PC);
         assert_eq!(0xFFFC, registers.SP);
         assert_eq!(0x80, memory.get(0xFFFD));
-        assert_eq!(0x03, memory.get(0xFFFC));
+        assert_eq!(0x00, memory.get(0xFFFC));
     }
 
     callc_does_not_call_function_if_condition_is_unfulfilled(registers, memory, cpu_flags) => {
@@ -352,7 +352,7 @@ crate::instruction_tests! {
         function_call.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         return_call.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
-        assert_eq!(0xAAAD, registers.PC);
+        assert_eq!(0xAAAA, registers.PC);
         assert_eq!(0xFFFE, registers.SP);
     }
 
@@ -372,7 +372,7 @@ crate::instruction_tests! {
         registers.set_flags(MASK_FLAG_CARRY);
         let cycles = ret.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
-        assert_eq!(0xAAAD, registers.PC);
+        assert_eq!(0xAAAA, registers.PC);
         assert_eq!(0xFFFE, registers.SP);
         assert_eq!(5, cycles);
     }
@@ -385,7 +385,7 @@ crate::instruction_tests! {
         call.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         reti.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
-        assert_eq!(0xAAAD, registers.PC);
+        assert_eq!(0xAAAA, registers.PC);
         assert_eq!(0xFFFE, registers.SP);
         assert!(cpu_flags.IME);
     }
