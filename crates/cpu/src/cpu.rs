@@ -1,7 +1,10 @@
 //! Sharp SM83 CPU implementation
 
 use crate::{
-    errors::CpuError, instructions, instructions::Instruction, memory::Memory, registers::Registers,
+    errors::CpuError,
+    instructions::{self, Instruction},
+    memory::Memory,
+    registers::{Registers, SingleRegister},
 };
 
 #[allow(non_snake_case)]
@@ -34,6 +37,7 @@ impl CpuFlags {
 
 pub struct CPU {
     flags: CpuFlags,
+    out: Option<Box<dyn std::io::Write>>,
 }
 
 impl Default for CPU {
@@ -47,6 +51,15 @@ impl CPU {
     pub fn new() -> Self {
         Self {
             flags: CpuFlags::new(),
+            out: None,
+        }
+    }
+
+    #[must_use]
+    pub fn new_with_trace(out: Box<dyn std::io::Write>) -> Self {
+        Self {
+            flags: CpuFlags::new(),
+            out: Some(out),
         }
     }
 
@@ -60,6 +73,10 @@ impl CPU {
 
         let instruction = instructions::decode(opcode, registers.PC, memory)?;
 
+        if let Some(out) = self.out.as_mut() {
+            Self::gameboy_doctor_output(out, registers, memory);
+        }
+
         registers.PC += instruction.length();
 
         if self.flags.IME_scheduled {
@@ -70,6 +87,33 @@ impl CPU {
         instruction.execute(registers, memory, &mut self.flags)?;
 
         Ok((instruction_location, instruction))
+    }
+
+    #[allow(unused)]
+    fn gameboy_doctor_output(
+        w: &mut Box<dyn std::io::Write>,
+        registers: &Registers,
+        memory: &Memory,
+    ) {
+        let pc = registers.PC as usize;
+        writeln!(
+            w,
+            "A:{:02X} F:{:02X} B:{:02X} C:{:02X} D:{:02X} E:{:02X} H:{:02X} L:{:02X} SP:{:04X} PC:{:04X} PCMEM:{:02X},{:02X},{:02X},{:02X}",
+            registers.get_single(&SingleRegister::A),
+            registers.get_single(&SingleRegister::F),
+            registers.get_single(&SingleRegister::B),
+            registers.get_single(&SingleRegister::C),
+            registers.get_single(&SingleRegister::D),
+            registers.get_single(&SingleRegister::E),
+            registers.get_single(&SingleRegister::H),
+            registers.get_single(&SingleRegister::L),
+            registers.SP,
+            registers.PC,
+            memory.get(pc),
+            memory.get(pc + 1),
+            memory.get(pc + 2),
+            memory.get(pc + 3),
+        );
     }
 }
 
