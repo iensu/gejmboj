@@ -305,7 +305,7 @@
 <a href=#305 id=305 data-nosnippet>305</a>
 <a href=#306 id=306 data-nosnippet>306</a>        <span class="macro">assert_eq!</span>(<span class="number">0xABCD</span>, registers.PC);
 <a href=#307 id=307 data-nosnippet>307</a>        <span class="macro">assert_eq!</span>(<span class="number">0xFFFC</span>, registers.SP);
-<a href=#308 id=308 data-nosnippet>308</a>        <span class="macro">assert_eq!</span>(<span class="number">0xAAAD</span>, memory.get_u16(registers.SP.into()));
+<a href=#308 id=308 data-nosnippet>308</a>        <span class="macro">assert_eq!</span>(<span class="number">0xAAAA</span>, memory.get_u16(registers.SP.into()));
 <a href=#309 id=309 data-nosnippet>309</a>    }
 <a href=#310 id=310 data-nosnippet>310</a>
 <a href=#311 id=311 data-nosnippet>311</a>    call_sets_sp_correctly(registers, memory, cpu_flags) =&gt; {
@@ -318,7 +318,7 @@
 <a href=#318 id=318 data-nosnippet>318</a>        <span class="macro">assert_eq!</span>(<span class="number">0x1234</span>, registers.PC);
 <a href=#319 id=319 data-nosnippet>319</a>        <span class="macro">assert_eq!</span>(<span class="number">0xFFFC</span>, registers.SP);
 <a href=#320 id=320 data-nosnippet>320</a>        <span class="macro">assert_eq!</span>(<span class="number">0x80</span>, memory.get(<span class="number">0xFFFD</span>));
-<a href=#321 id=321 data-nosnippet>321</a>        <span class="macro">assert_eq!</span>(<span class="number">0x03</span>, memory.get(<span class="number">0xFFFC</span>));
+<a href=#321 id=321 data-nosnippet>321</a>        <span class="macro">assert_eq!</span>(<span class="number">0x00</span>, memory.get(<span class="number">0xFFFC</span>));
 <a href=#322 id=322 data-nosnippet>322</a>    }
 <a href=#323 id=323 data-nosnippet>323</a>
 <a href=#324 id=324 data-nosnippet>324</a>    callc_does_not_call_function_if_condition_is_unfulfilled(registers, memory, cpu_flags) =&gt; {
@@ -352,7 +352,7 @@
 <a href=#352 id=352 data-nosnippet>352</a>        function_call.execute(<span class="kw-2">&amp;mut </span>registers, <span class="kw-2">&amp;mut </span>memory, <span class="kw-2">&amp;mut </span>cpu_flags).unwrap();
 <a href=#353 id=353 data-nosnippet>353</a>        return_call.execute(<span class="kw-2">&amp;mut </span>registers, <span class="kw-2">&amp;mut </span>memory, <span class="kw-2">&amp;mut </span>cpu_flags).unwrap();
 <a href=#354 id=354 data-nosnippet>354</a>
-<a href=#355 id=355 data-nosnippet>355</a>        <span class="macro">assert_eq!</span>(<span class="number">0xAAAD</span>, registers.PC);
+<a href=#355 id=355 data-nosnippet>355</a>        <span class="macro">assert_eq!</span>(<span class="number">0xAAAA</span>, registers.PC);
 <a href=#356 id=356 data-nosnippet>356</a>        <span class="macro">assert_eq!</span>(<span class="number">0xFFFE</span>, registers.SP);
 <a href=#357 id=357 data-nosnippet>357</a>    }
 <a href=#358 id=358 data-nosnippet>358</a>
@@ -372,7 +372,7 @@
 <a href=#372 id=372 data-nosnippet>372</a>        registers.set_flags(MASK_FLAG_CARRY);
 <a href=#373 id=373 data-nosnippet>373</a>        <span class="kw">let </span>cycles = ret.execute(<span class="kw-2">&amp;mut </span>registers, <span class="kw-2">&amp;mut </span>memory, <span class="kw-2">&amp;mut </span>cpu_flags).unwrap();
 <a href=#374 id=374 data-nosnippet>374</a>
-<a href=#375 id=375 data-nosnippet>375</a>        <span class="macro">assert_eq!</span>(<span class="number">0xAAAD</span>, registers.PC);
+<a href=#375 id=375 data-nosnippet>375</a>        <span class="macro">assert_eq!</span>(<span class="number">0xAAAA</span>, registers.PC);
 <a href=#376 id=376 data-nosnippet>376</a>        <span class="macro">assert_eq!</span>(<span class="number">0xFFFE</span>, registers.SP);
 <a href=#377 id=377 data-nosnippet>377</a>        <span class="macro">assert_eq!</span>(<span class="number">5</span>, cycles);
 <a href=#378 id=378 data-nosnippet>378</a>    }
@@ -385,7 +385,7 @@
 <a href=#385 id=385 data-nosnippet>385</a>        call.execute(<span class="kw-2">&amp;mut </span>registers, <span class="kw-2">&amp;mut </span>memory, <span class="kw-2">&amp;mut </span>cpu_flags).unwrap();
 <a href=#386 id=386 data-nosnippet>386</a>        reti.execute(<span class="kw-2">&amp;mut </span>registers, <span class="kw-2">&amp;mut </span>memory, <span class="kw-2">&amp;mut </span>cpu_flags).unwrap();
 <a href=#387 id=387 data-nosnippet>387</a>
-<a href=#388 id=388 data-nosnippet>388</a>        <span class="macro">assert_eq!</span>(<span class="number">0xAAAD</span>, registers.PC);
+<a href=#388 id=388 data-nosnippet>388</a>        <span class="macro">assert_eq!</span>(<span class="number">0xAAAA</span>, registers.PC);
 <a href=#389 id=389 data-nosnippet>389</a>        <span class="macro">assert_eq!</span>(<span class="number">0xFFFE</span>, registers.SP);
 <a href=#390 id=390 data-nosnippet>390</a>        <span class="macro">assert!</span>(cpu_flags.IME);
 <a href=#391 id=391 data-nosnippet>391</a>    }
