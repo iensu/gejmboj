@@ -344,8 +344,8 @@ impl AluOp {
                 if result == 0 {
                     flags |= MASK_FLAG_ZERO; // Set Z
                 }
-                // Check if the 5th bit has changed in the result
-                if result != 0 && (result & 0x10) != (a & 0x10) {
+                // Check if the low nibble of a is less than the low nibble of the operand
+                if (a & 0x0F) < (operand & 0x0F) {
                     flags |= MASK_FLAG_HALF_CARRY; // Set H
                 }
                 if is_carry {
