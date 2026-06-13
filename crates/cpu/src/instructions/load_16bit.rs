@@ -1,5 +1,5 @@
 use crate::instruction_group;
-use crate::registers::DoubleRegister;
+use crate::registers::{DoubleRegister, SingleRegister};
 
 instruction_group! {
     /// 16-bit load instructions.
@@ -28,8 +28,15 @@ instruction_group! {
         /// Push data from 16-bit register to stack memory
         PUSH(r: DoubleRegister) [1] => {
             let sp = registers.decrement_sp();
-            let value = registers.get_double(r);
-            memory.set_u16(sp.into(), value);
+            if r == &DoubleRegister::AF {
+                let a = registers.get_single(&SingleRegister::A);
+                let flags = registers.get_single(&SingleRegister::F);
+                let value = u16::from_be_bytes([a, flags]);
+                memory.set_u16(sp.into(), value);
+            } else {
+                let value = registers.get_double(r);
+                memory.set_u16(sp.into(), value);
+            }
             Ok(4)
         }
 
@@ -39,6 +46,7 @@ instruction_group! {
             let value = memory.get_u16(sp.into());
             registers.set_double(r, value);
             registers.increment_sp();
+
             Ok(3)
         }
     }
