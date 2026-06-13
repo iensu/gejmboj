@@ -68,7 +68,7 @@
 <a href=#68 id=68 data-nosnippet>68</a>        registers: <span class="kw-2">&amp;mut </span>Registers,
 <a href=#69 id=69 data-nosnippet>69</a>        memory: <span class="kw-2">&amp;mut </span>Memory,
 <a href=#70 id=70 data-nosnippet>70</a>    ) -&gt; <span class="prelude-ty">Result</span>&lt;(u16, Instruction), CpuError&gt; {
-<a href=#71 id=71 data-nosnippet>71</a>        <span class="kw">let </span>opcode = memory.get(registers.PC.into());
+<a href=#71 id=71 data-nosnippet>71</a>        <span class="kw">let </span>opcode = memory.get(registers.PC);
 <a href=#72 id=72 data-nosnippet>72</a>        <span class="kw">let </span>instruction_location = registers.PC;
 <a href=#73 id=73 data-nosnippet>73</a>
 <a href=#74 id=74 data-nosnippet>74</a>        <span class="kw">let </span>instruction = instructions::decode(opcode, registers.PC, memory)<span class="question-mark">?</span>;
@@ -95,7 +95,7 @@
 <a href=#95 id=95 data-nosnippet>95</a>        registers: <span class="kw-2">&amp;</span>Registers,
 <a href=#96 id=96 data-nosnippet>96</a>        memory: <span class="kw-2">&amp;</span>Memory,
 <a href=#97 id=97 data-nosnippet>97</a>    ) {
-<a href=#98 id=98 data-nosnippet>98</a>        <span class="kw">let </span>pc = registers.PC <span class="kw">as </span>usize;
+<a href=#98 id=98 data-nosnippet>98</a>        <span class="kw">let </span>pc = registers.PC;
 <a href=#99 id=99 data-nosnippet>99</a>        <span class="macro">writeln!</span>(
 <a href=#100 id=100 data-nosnippet>100</a>            w,
 <a href=#101 id=101 data-nosnippet>101</a>            <span class="string">"A:{:02X} F:{:02X} B:{:02X} C:{:02X} D:{:02X} E:{:02X} H:{:02X} L:{:02X} SP:{:04X} PC:{:04X} PCMEM:{:02X},{:02X},{:02X},{:02X}"</span>,

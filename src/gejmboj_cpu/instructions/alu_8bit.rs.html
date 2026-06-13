@@ -31,7 +31,7 @@
 <a href=#31 id=31 data-nosnippet>31</a>
 <a href=#32 id=32 data-nosnippet>32</a>        <span class="doccomment">/// Add value of `(HL)` to `A`
 <a href=#33 id=33 data-nosnippet>33</a>        </span>ADD_HL() [<span class="number">1</span>] =&gt; {
-<a href=#34 id=34 data-nosnippet>34</a>            <span class="kw">let </span>operand = memory.get(registers.get_double(<span class="kw-2">&amp;</span>DoubleRegister::HL).into());
+<a href=#34 id=34 data-nosnippet>34</a>            <span class="kw">let </span>operand = memory.get(registers.get_double(<span class="kw-2">&amp;</span>DoubleRegister::HL));
 <a href=#35 id=35 data-nosnippet>35</a>            perform_calculation(<span class="kw-2">&amp;</span>AluOp::Add, registers, operand, <span class="bool-val">false</span>);
 <a href=#36 id=36 data-nosnippet>36</a>
 <a href=#37 id=37 data-nosnippet>37</a>            <span class="prelude-val">Ok</span>(<span class="number">2</span>)
@@ -57,7 +57,7 @@
 <a href=#57 id=57 data-nosnippet>57</a>
 <a href=#58 id=58 data-nosnippet>58</a>        <span class="doccomment">/// Add value of `(HL)` and Carry to `A`
 <a href=#59 id=59 data-nosnippet>59</a>        </span>ADC_HL() [<span class="number">1</span>] =&gt; {
-<a href=#60 id=60 data-nosnippet>60</a>            <span class="kw">let </span>operand = memory.get(registers.get_double(<span class="kw-2">&amp;</span>DoubleRegister::HL).into());
+<a href=#60 id=60 data-nosnippet>60</a>            <span class="kw">let </span>operand = memory.get(registers.get_double(<span class="kw-2">&amp;</span>DoubleRegister::HL));
 <a href=#61 id=61 data-nosnippet>61</a>            perform_calculation(<span class="kw-2">&amp;</span>AluOp::Add, registers, operand, <span class="bool-val">true</span>);
 <a href=#62 id=62 data-nosnippet>62</a>
 <a href=#63 id=63 data-nosnippet>63</a>            <span class="prelude-val">Ok</span>(<span class="number">2</span>)
@@ -85,7 +85,7 @@
 <a href=#85 id=85 data-nosnippet>85</a>
 <a href=#86 id=86 data-nosnippet>86</a>        <span class="doccomment">/// Subtract value of `(HL)` from A
 <a href=#87 id=87 data-nosnippet>87</a>        </span>SUB_HL() [<span class="number">1</span>] =&gt; {
-<a href=#88 id=88 data-nosnippet>88</a>            <span class="kw">let </span>operand = memory.get(registers.get_double(<span class="kw-2">&amp;</span>DoubleRegister::HL).into());
+<a href=#88 id=88 data-nosnippet>88</a>            <span class="kw">let </span>operand = memory.get(registers.get_double(<span class="kw-2">&amp;</span>DoubleRegister::HL));
 <a href=#89 id=89 data-nosnippet>89</a>
 <a href=#90 id=90 data-nosnippet>90</a>            perform_calculation(<span class="kw-2">&amp;</span>AluOp::Sub, registers, operand, <span class="bool-val">false</span>);
 <a href=#91 id=91 data-nosnippet>91</a>
@@ -114,7 +114,7 @@
 <a href=#114 id=114 data-nosnippet>114</a>
 <a href=#115 id=115 data-nosnippet>115</a>        <span class="doccomment">/// Subtract value of `(HL)` and Carry from A
 <a href=#116 id=116 data-nosnippet>116</a>        </span>SBC_HL() [<span class="number">1</span>] =&gt; {
-<a href=#117 id=117 data-nosnippet>117</a>            <span class="kw">let </span>operand = memory.get(registers.get_double(<span class="kw-2">&amp;</span>DoubleRegister::HL).into());
+<a href=#117 id=117 data-nosnippet>117</a>            <span class="kw">let </span>operand = memory.get(registers.get_double(<span class="kw-2">&amp;</span>DoubleRegister::HL));
 <a href=#118 id=118 data-nosnippet>118</a>            perform_calculation(<span class="kw-2">&amp;</span>AluOp::Sub, registers, operand, <span class="bool-val">true</span>);
 <a href=#119 id=119 data-nosnippet>119</a>
 <a href=#120 id=120 data-nosnippet>120</a>            <span class="prelude-val">Ok</span>(<span class="number">2</span>)
@@ -140,7 +140,7 @@
 <a href=#140 id=140 data-nosnippet>140</a>
 <a href=#141 id=141 data-nosnippet>141</a>        <span class="doccomment">/// Logical AND between `(HL)` and `A`
 <a href=#142 id=142 data-nosnippet>142</a>        </span>AND_HL() [<span class="number">1</span>] =&gt; {
-<a href=#143 id=143 data-nosnippet>143</a>            <span class="kw">let </span>operand = memory.get(registers.get_double(<span class="kw-2">&amp;</span>DoubleRegister::HL).into());
+<a href=#143 id=143 data-nosnippet>143</a>            <span class="kw">let </span>operand = memory.get(registers.get_double(<span class="kw-2">&amp;</span>DoubleRegister::HL));
 <a href=#144 id=144 data-nosnippet>144</a>            perform_calculation(<span class="kw-2">&amp;</span>AluOp::And, registers, operand, <span class="bool-val">false</span>);
 <a href=#145 id=145 data-nosnippet>145</a>
 <a href=#146 id=146 data-nosnippet>146</a>            <span class="prelude-val">Ok</span>(<span class="number">2</span>)
@@ -167,7 +167,7 @@
 <a href=#167 id=167 data-nosnippet>167</a>
 <a href=#168 id=168 data-nosnippet>168</a>        <span class="doccomment">/// Logical OR between `(HL)` and `A`
 <a href=#169 id=169 data-nosnippet>169</a>        </span>OR_HL() [<span class="number">1</span>] =&gt; {
-<a href=#170 id=170 data-nosnippet>170</a>            <span class="kw">let </span>operand = memory.get(registers.get_double(<span class="kw-2">&amp;</span>DoubleRegister::HL).into());
+<a href=#170 id=170 data-nosnippet>170</a>            <span class="kw">let </span>operand = memory.get(registers.get_double(<span class="kw-2">&amp;</span>DoubleRegister::HL));
 <a href=#171 id=171 data-nosnippet>171</a>            perform_calculation(<span class="kw-2">&amp;</span>AluOp::Or, registers, operand, <span class="bool-val">false</span>);
 <a href=#172 id=172 data-nosnippet>172</a>
 <a href=#173 id=173 data-nosnippet>173</a>            <span class="prelude-val">Ok</span>(<span class="number">2</span>)
@@ -194,7 +194,7 @@
 <a href=#194 id=194 data-nosnippet>194</a>
 <a href=#195 id=195 data-nosnippet>195</a>        <span class="doccomment">/// Logical XOR between `(HL)` and `A`
 <a href=#196 id=196 data-nosnippet>196</a>        </span>XOR_HL() [<span class="number">1</span>] =&gt; {
-<a href=#197 id=197 data-nosnippet>197</a>            <span class="kw">let </span>operand = memory.get(registers.get_double(<span class="kw-2">&amp;</span>DoubleRegister::HL).into());
+<a href=#197 id=197 data-nosnippet>197</a>            <span class="kw">let </span>operand = memory.get(registers.get_double(<span class="kw-2">&amp;</span>DoubleRegister::HL));
 <a href=#198 id=198 data-nosnippet>198</a>            perform_calculation(<span class="kw-2">&amp;</span>AluOp::Xor, registers, operand, <span class="bool-val">false</span>);
 <a href=#199 id=199 data-nosnippet>199</a>
 <a href=#200 id=200 data-nosnippet>200</a>            <span class="prelude-val">Ok</span>(<span class="number">2</span>)
