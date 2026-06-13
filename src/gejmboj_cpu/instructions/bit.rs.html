@@ -69,7 +69,7 @@
 <a href=#69 id=69 data-nosnippet>69</a>                registers.set_single(<span class="kw-2">&amp;</span>r, new_value);
 <a href=#70 id=70 data-nosnippet>70</a>                <span class="prelude-val">Ok</span>(<span class="number">2</span>)
 <a href=#71 id=71 data-nosnippet>71</a>            } <span class="kw">else </span>{
-<a href=#72 id=72 data-nosnippet>72</a>                memory.set(registers.get_double(<span class="kw-2">&amp;</span>DoubleRegister::HL).into(), new_value);
+<a href=#72 id=72 data-nosnippet>72</a>                memory.set(registers.get_double(<span class="kw-2">&amp;</span>DoubleRegister::HL), new_value);
 <a href=#73 id=73 data-nosnippet>73</a>                <span class="prelude-val">Ok</span>(<span class="number">4</span>)
 <a href=#74 id=74 data-nosnippet>74</a>            }
 <a href=#75 id=75 data-nosnippet>75</a>        }
@@ -84,7 +84,7 @@
 <a href=#84 id=84 data-nosnippet>84</a>                registers.set_single(<span class="kw-2">&amp;</span>r, new_value);
 <a href=#85 id=85 data-nosnippet>85</a>                <span class="prelude-val">Ok</span>(<span class="number">2</span>)
 <a href=#86 id=86 data-nosnippet>86</a>            } <span class="kw">else </span>{
-<a href=#87 id=87 data-nosnippet>87</a>                memory.set(registers.get_double(<span class="kw-2">&amp;</span>DoubleRegister::HL).into(), new_value);
+<a href=#87 id=87 data-nosnippet>87</a>                memory.set(registers.get_double(<span class="kw-2">&amp;</span>DoubleRegister::HL), new_value);
 <a href=#88 id=88 data-nosnippet>88</a>                <span class="prelude-val">Ok</span>(<span class="number">4</span>)
 <a href=#89 id=89 data-nosnippet>89</a>            }
 <a href=#90 id=90 data-nosnippet>90</a>        }
