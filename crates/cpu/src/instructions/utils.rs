@@ -28,7 +28,7 @@ pub fn get_register_value(
 ) -> (u8, Option<SingleRegister>) {
     match into_bits(operand) {
         (_, _, _, _, _, 1, 1, 0) => {
-            let value = memory.get(registers.get_double(&DoubleRegister::HL).into());
+            let value = memory.get(registers.get_double(&DoubleRegister::HL));
             (value, None)
         }
         (_, _, _, _, _, a, b, c) => {

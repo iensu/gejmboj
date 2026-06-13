@@ -110,7 +110,7 @@ instruction_group! {
         /// Unconditional call of the function at operand address.
         CALL(operand: u16) [3] => {
             let sp = registers.decrement_sp();
-            memory.set_u16(sp.into(), registers.PC);
+            memory.set_u16(sp, registers.PC);
             registers.PC = *operand;
 
             Ok(6)
@@ -121,7 +121,7 @@ instruction_group! {
             if condition.is_fulfilled(registers) {
                 let sp = registers.decrement_sp();
 
-                memory.set_u16(sp.into(), registers.PC);
+                memory.set_u16(sp, registers.PC);
                 registers.PC = *operand;
 
                 Ok(6)
@@ -132,7 +132,7 @@ instruction_group! {
 
         /// Unconditional return from function.
         RET() [1] => {
-            registers.PC = memory.get_u16(registers.SP.into());
+            registers.PC = memory.get_u16(registers.SP);
             registers.increment_sp();
             Ok(4)
         }
@@ -140,7 +140,7 @@ instruction_group! {
         /// Conditionally return from function.
         RETC(condition: Condition) [1] => {
             if condition.is_fulfilled(registers) {
-                registers.PC = memory.get_u16(registers.SP.into());
+                registers.PC = memory.get_u16(registers.SP);
                 registers.increment_sp();
                 Ok(5)
             } else {
@@ -150,7 +150,7 @@ instruction_group! {
 
         /// Unconditional return from a function which enables interrupts
         RETI() [1] => {
-            registers.PC = memory.get_u16(registers.SP.into());
+            registers.PC = memory.get_u16(registers.SP);
             registers.increment_sp();
             cpu_flags.IME = true;
             Ok(4)
@@ -170,7 +170,7 @@ instruction_group! {
         /// * `0x38`
         RST(opcode: u8) [1] => {
             let sp = registers.decrement_sp();
-            memory.set_u16(sp.into(), registers.PC);
+            memory.set_u16(sp, registers.PC);
             registers.PC = get_reset_address(*opcode);
             Ok(4)
         }
@@ -305,7 +305,7 @@ crate::instruction_tests! {
 
         assert_eq!(0xABCD, registers.PC);
         assert_eq!(0xFFFC, registers.SP);
-        assert_eq!(0xAAAA, memory.get_u16(registers.SP.into()));
+        assert_eq!(0xAAAA, memory.get_u16(registers.SP));
     }
 
     call_sets_sp_correctly(registers, memory, cpu_flags) => {

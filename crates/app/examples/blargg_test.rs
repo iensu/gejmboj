@@ -1,4 +1,4 @@
-use std::{env, fs};
+use std::{env, fmt::Write, fs};
 
 use cpu::{
     cpu::CPU,
@@ -8,8 +8,8 @@ use cpu::{
 };
 use log::debug;
 
-const SB: usize = 0xFF01;
-const SC: usize = 0xFF02;
+const SB: u16 = 0xFF01;
+const SC: u16 = 0xFF02;
 
 fn main() {
     env_logger::init();
@@ -101,7 +101,7 @@ fn print_test_result(message: &str) {
     }
 }
 
-fn bytes_to_instructions(bytes: &Vec<u8>) -> Vec<Instruction> {
+fn bytes_to_instructions(bytes: &[u8]) -> Vec<Instruction> {
     let mut pc: u16 = 0;
 
     let mut result: Vec<Instruction> = Vec::new();
@@ -120,6 +120,9 @@ fn bytes_to_instructions(bytes: &Vec<u8>) -> Vec<Instruction> {
     result
 }
 
-fn to_byte_string(bytes: &Vec<u8>) -> String {
-    bytes.iter().map(|b| format!("{b:02X} ")).collect()
+fn to_byte_string(bytes: &[u8]) -> String {
+    bytes.iter().fold(String::new(), |mut out, b| {
+        let _ = write!(out, "{b:02X} ");
+        out
+    })
 }

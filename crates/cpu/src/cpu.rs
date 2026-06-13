@@ -68,7 +68,7 @@ impl CPU {
         registers: &mut Registers,
         memory: &mut Memory,
     ) -> Result<(u16, Instruction), CpuError> {
-        let opcode = memory.get(registers.PC.into());
+        let opcode = memory.get(registers.PC);
         let instruction_location = registers.PC;
 
         let instruction = instructions::decode(opcode, registers.PC, memory)?;
@@ -95,7 +95,7 @@ impl CPU {
         registers: &Registers,
         memory: &Memory,
     ) {
-        let pc = registers.PC as usize;
+        let pc = registers.PC;
         writeln!(
             w,
             "A:{:02X} F:{:02X} B:{:02X} C:{:02X} D:{:02X} E:{:02X} H:{:02X} L:{:02X} SP:{:04X} PC:{:04X} PCMEM:{:02X},{:02X},{:02X},{:02X}",
@@ -117,6 +117,7 @@ impl CPU {
     }
 }
 
+#[allow(clippy::unusual_byte_groupings)]
 #[cfg(test)]
 mod test {
 
@@ -205,11 +206,6 @@ mod test {
 
     #[test]
     fn retc_instruction_works() {
-        test_retc_instruction(0b110_00_000, Condition::NotZero);
-        test_retc_instruction(0b110_01_000, Condition::Zero);
-        test_retc_instruction(0b110_10_000, Condition::NoCarry);
-        test_retc_instruction(0b110_11_000, Condition::Carry);
-
         fn test_retc_instruction(instruction_byte: u8, cond: Condition) {
             let sp = 0x1234;
             let location = 0xAABB;
@@ -225,7 +221,7 @@ mod test {
             }
 
             registers.SP = sp; // Update SP
-            memory.set_u16(sp as usize, location); // Update SP pointer
+            memory.set_u16(sp, location); // Update SP pointer
 
             let (_, instruction) = cpu.tick(&mut registers, &mut memory).unwrap();
 
@@ -246,7 +242,7 @@ mod test {
             }
 
             registers.SP = sp; // Update SP!
-            memory.set_u16(sp as usize, location); // Update SP pointer
+            memory.set_u16(sp, location); // Update SP pointer
 
             let prev_pc = registers.PC;
 
@@ -258,15 +254,15 @@ mod test {
             );
             assert_eq!(prev_pc + instruction.length(), registers.PC);
         }
+
+        test_retc_instruction(0b110_00_000, Condition::NotZero);
+        test_retc_instruction(0b110_01_000, Condition::Zero);
+        test_retc_instruction(0b110_10_000, Condition::NoCarry);
+        test_retc_instruction(0b110_11_000, Condition::Carry);
     }
 
     #[test]
     fn jrc_instruction_works() {
-        test_jrc_instruction(0b001_00_000, Condition::NotZero);
-        test_jrc_instruction(0b001_01_000, Condition::Zero);
-        test_jrc_instruction(0b001_10_000, Condition::NoCarry);
-        test_jrc_instruction(0b001_11_000, Condition::Carry);
-
         fn test_jrc_instruction(instruction_byte: u8, cond: Condition) {
             let operand = 20;
 
@@ -289,7 +285,7 @@ mod test {
                 instruction
             );
             assert_eq!(
-                prev_pc + operand as u16 + instruction.length(),
+                prev_pc + u16::from(operand) + instruction.length(),
                 registers.PC
             );
 
@@ -313,15 +309,15 @@ mod test {
             );
             assert_eq!(prev_pc + instruction.length(), registers.PC,);
         }
+
+        test_jrc_instruction(0b001_00_000, Condition::NotZero);
+        test_jrc_instruction(0b001_01_000, Condition::Zero);
+        test_jrc_instruction(0b001_10_000, Condition::NoCarry);
+        test_jrc_instruction(0b001_11_000, Condition::Carry);
     }
 
     #[test]
     fn jpc_instruction_works() {
-        test_jpc_instruction(0b110_00_010, Condition::NotZero);
-        test_jpc_instruction(0b110_01_010, Condition::Zero);
-        test_jpc_instruction(0b110_10_010, Condition::NoCarry);
-        test_jpc_instruction(0b110_11_010, Condition::Carry);
-
         fn test_jpc_instruction(instruction_byte: u8, cond: Condition) {
             let operand = 0xAABB;
 
@@ -363,6 +359,11 @@ mod test {
             );
             assert_eq!(prev_pc + instruction.length(), registers.PC,);
         }
+
+        test_jpc_instruction(0b110_00_010, Condition::NotZero);
+        test_jpc_instruction(0b110_01_010, Condition::Zero);
+        test_jpc_instruction(0b110_10_010, Condition::NoCarry);
+        test_jpc_instruction(0b110_11_010, Condition::Carry);
     }
 
     #[derive(Copy, Clone)]
@@ -383,7 +384,7 @@ mod test {
         registers.reset();
         memory.reset();
 
-        let location = registers.PC as usize;
+        let location = registers.PC;
         memory.set(location, instruction);
 
         match operand {

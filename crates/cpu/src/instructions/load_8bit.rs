@@ -18,7 +18,7 @@ instruction_group! {
         /// Loads data pointed to by HL into `r`.
         LD_FROM_HL(r: SingleRegister) [1] => {
             let location = registers.get_double(&DoubleRegister::HL);
-            let value = memory.get(location.into());
+            let value = memory.get(location);
             registers.set_single(r, value);
             Ok(2)
         }
@@ -27,7 +27,7 @@ instruction_group! {
         LD_TO_HL(r: SingleRegister) [1] => {
             let value = registers.get_single(r);
             let location = registers.get_double(&DoubleRegister::HL);
-            memory.set(location.into(), value);
+            memory.set(location, value);
             Ok(2)
         }
 
@@ -39,20 +39,20 @@ instruction_group! {
 
         /// Load the value of `operand` into the location pointed to by `HL`
         LD_N_TO_HL(operand: u8) [2] => {
-            memory.set(registers.get_double(&DoubleRegister::HL).into(), *operand);
+            memory.set(registers.get_double(&DoubleRegister::HL), *operand);
             Ok(3)
         }
 
         /// Load data at address pointed to by BC into A
         LD_BC_TO_A() [1] => {
-            let value = memory.get(registers.get_double(&DoubleRegister::BC).into());
+            let value = memory.get(registers.get_double(&DoubleRegister::BC));
             registers.set_single(&SingleRegister::A, value);
             Ok(2)
         }
 
         /// Load data at address pointed to by DE into A
         LD_DE_TO_A() [1] => {
-            let location = registers.get_double(&DoubleRegister::DE).into();
+            let location = registers.get_double(&DoubleRegister::DE);
             let value = memory.get(location);
             registers.set_single(&SingleRegister::A, value);
             Ok(2)
@@ -61,7 +61,7 @@ instruction_group! {
         /// Load A into into address pointed to by BC
         LD_A_TO_BC() [1] => {
             memory.set(
-                registers.get_double(&DoubleRegister::BC).into(),
+                registers.get_double(&DoubleRegister::BC),
                 registers.get_single(&SingleRegister::A)
             );
             Ok(2)
@@ -70,7 +70,7 @@ instruction_group! {
         /// Load A into into address pointed to by DE
         LD_A_TO_DE() [1] => {
             memory.set(
-                registers.get_double(&DoubleRegister::DE).into(),
+                registers.get_double(&DoubleRegister::DE),
                 registers.get_single(&SingleRegister::A)
             );
             Ok(2)
@@ -78,14 +78,14 @@ instruction_group! {
 
         /// Load data at `address` into A
         LD_TO_A(address: u16) [3] => {
-            let value = memory.get((*address).into());
+            let value = memory.get(*address );
             registers.set_single(&SingleRegister::A, value);
             Ok(4)
         }
 
         /// Load data in A into address at `address`
         LD_FROM_A(address: u16) [3] => {
-            memory.set((*address).into(), registers.get_single(&SingleRegister::A));
+            memory.set(*address , registers.get_single(&SingleRegister::A));
             Ok(4)
         }
 
@@ -93,7 +93,7 @@ instruction_group! {
         LDH_C_TO_A() [1] => {
             let lo = registers.get_single(&SingleRegister::C);
             let address = u16::from_le_bytes([lo, 0xFF]);
-            let value = memory.get(address.into());
+            let value = memory.get(address);
             registers.set_single(&SingleRegister::A, value);
             Ok(2)
         }
@@ -103,13 +103,13 @@ instruction_group! {
             let value = registers.get_single(&SingleRegister::A);
             let lo = registers.get_single(&SingleRegister::C);
             let address = u16::from_le_bytes([lo, 0xFF]);
-            memory.set(address.into(), value);
+            memory.set(address, value);
             Ok(2)
         }
 
         /// Load data to A from the address at `0xFF00` + `operand`
         LDH_TO_A(operand: u8) [2] => {
-            let address = (0xFF00 | u16::from(*operand)) as usize;
+            let address = 0xFF00 | u16::from(*operand);
             let value = memory.get(address);
             registers.set_single(&SingleRegister::A, value);
             Ok(3)
@@ -119,14 +119,14 @@ instruction_group! {
         LDH_FROM_A(operand: u8) [2] => {
             let address = u16::from_le_bytes([*operand, 0xFF]);
             let value = registers.get_single(&SingleRegister::A);
-            memory.set(address.into(), value);
+            memory.set(address, value);
             Ok(3)
         }
 
         /// Load data to A from the address at HL, value at HL is decremented.
         LD_A_FROM_HL_DEC() [1] => {
             let address = registers.get_double(&DoubleRegister::HL);
-            let value = memory.get(address.into());
+            let value = memory.get(address);
             registers.set_double(&DoubleRegister::HL, address - 1);
             registers.set_single(&SingleRegister::A, value);
             Ok(2)
@@ -136,7 +136,7 @@ instruction_group! {
         LD_A_TO_HL_DEC() [1] => {
             let address = registers.get_double(&DoubleRegister::HL);
             let value = registers.get_single(&SingleRegister::A);
-            memory.set(address.into(), value);
+            memory.set(address, value);
             registers.set_double(&DoubleRegister::HL, address - 1);
             Ok(2)
         }
@@ -144,7 +144,7 @@ instruction_group! {
         /// Load data to A from the address at HL, value at HL is incremented.
         LD_A_FROM_HL_INC() [1] => {
             let address = registers.get_double(&DoubleRegister::HL);
-            let value = memory.get(address.into());
+            let value = memory.get(address);
             let (address, _) = u16::overflowing_add(address, 1);
             registers.set_double(&DoubleRegister::HL, address);
             registers.set_single(&SingleRegister::A, value);
@@ -155,7 +155,7 @@ instruction_group! {
         LD_A_TO_HL_INC() [1] => {
             let address = registers.get_double(&DoubleRegister::HL);
             let value = registers.get_single(&SingleRegister::A);
-            memory.set(address.into(), value);
+            memory.set(address, value);
             registers.set_double(&DoubleRegister::HL, address + 1);
             Ok(2)
         }

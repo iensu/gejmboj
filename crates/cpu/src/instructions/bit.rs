@@ -69,7 +69,7 @@ instruction_group! {
                 registers.set_single(&r, new_value);
                 Ok(2)
             } else {
-                memory.set(registers.get_double(&DoubleRegister::HL).into(), new_value);
+                memory.set(registers.get_double(&DoubleRegister::HL), new_value);
                 Ok(4)
             }
         }
@@ -84,7 +84,7 @@ instruction_group! {
                 registers.set_single(&r, new_value);
                 Ok(2)
             } else {
-                memory.set(registers.get_double(&DoubleRegister::HL).into(), new_value);
+                memory.set(registers.get_double(&DoubleRegister::HL), new_value);
                 Ok(4)
             }
         }
@@ -213,10 +213,10 @@ crate::instruction_tests! {
             (0b11_110_110, 0b0100_0000),
             (0b11_111_110, 0b1000_0000)
         ] {
-            memory.set(registers.get_double(&DoubleRegister::HL).into(), 0);
+            memory.set(registers.get_double(&DoubleRegister::HL), 0);
             Bit::SET(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
-            assert_eq!(expected, memory.get(registers.get_double(&DoubleRegister::HL).into()));
+            assert_eq!(expected, memory.get(registers.get_double(&DoubleRegister::HL)));
         }
     }
 
@@ -270,11 +270,11 @@ crate::instruction_tests! {
                                         (0b10_101_110, 0b1101_1111),
                                         (0b10_110_110, 0b1011_1111),
                                         (0b10_111_110, 0b0111_1111)] {
-            memory.set(registers.get_double(&DoubleRegister::HL).into(), 0xFF);
+            memory.set(registers.get_double(&DoubleRegister::HL), 0xFF);
 
             Bit::RES(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
-            assert_eq!(expected, memory.get(registers.get_double(&DoubleRegister::HL).into()));
+            assert_eq!(expected, memory.get(registers.get_double(&DoubleRegister::HL)));
         }
     }
 

@@ -278,7 +278,7 @@ instruction_group! {
                 registers.set_single(&r, result);
                 Ok(2)
             } else {
-                memory.set(registers.get_double(&DoubleRegister::HL).into(), result);
+                memory.set(registers.get_double(&DoubleRegister::HL), result);
                 Ok(4)
             }
         }
@@ -308,7 +308,7 @@ instruction_group! {
                 registers.set_single(&r, result);
                 Ok(2)
             } else {
-                memory.set(registers.get_double(&DoubleRegister::HL).into(), result);
+                memory.set(registers.get_double(&DoubleRegister::HL), result);
                 Ok(4)
             }
         }
@@ -335,7 +335,7 @@ instruction_group! {
                 registers.set_single(&r, result);
                 Ok(2)
             } else {
-                memory.set(registers.get_double(&DoubleRegister::HL).into(), result);
+                memory.set(registers.get_double(&DoubleRegister::HL), result);
                 Ok(4)
             }
         }
@@ -365,7 +365,7 @@ instruction_group! {
                 registers.set_single(&r, result);
                 Ok(2)
             } else {
-                memory.set(registers.get_double(&DoubleRegister::HL).into(), result);
+                memory.set(registers.get_double(&DoubleRegister::HL), result);
                 Ok(4)
             }
         }
@@ -392,7 +392,7 @@ instruction_group! {
                 registers.set_single(&r, result);
                 Ok(2)
             } else {
-                memory.set(registers.get_double(&DoubleRegister::HL).into(), result);
+                memory.set(registers.get_double(&DoubleRegister::HL), result);
                 Ok(4)
             }
         }
@@ -419,7 +419,7 @@ instruction_group! {
                 registers.set_single(&r, result);
                 Ok(2)
             } else {
-                memory.set(registers.get_double(&DoubleRegister::HL).into(), result);
+                memory.set(registers.get_double(&DoubleRegister::HL), result);
                 Ok(4)
             }
         }
@@ -446,7 +446,7 @@ instruction_group! {
                 registers.set_single(&r, result);
                 Ok(2)
             } else {
-                memory.set(registers.get_double(&DoubleRegister::HL).into(), result);
+                memory.set(registers.get_double(&DoubleRegister::HL), result);
                 Ok(4)
             }
         }
@@ -475,7 +475,7 @@ instruction_group! {
                 registers.set_single(&r, result);
                 Ok(2)
             } else {
-                memory.set(registers.get_double(&DoubleRegister::HL).into(), result);
+                memory.set(registers.get_double(&DoubleRegister::HL), result);
                 Ok(4)
             }
         }
@@ -628,7 +628,7 @@ crate::instruction_tests! {
 
         for operand in 0..8 {
             if operand == 0b110 {
-                memory.set(registers.get_double(&DoubleRegister::HL).into(), value);
+                memory.set(registers.get_double(&DoubleRegister::HL), value);
             } else {
                 registers.set_single(&operand.try_into().unwrap(), value);
             }
@@ -636,7 +636,7 @@ crate::instruction_tests! {
             RotateShift::RLC(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
             if operand == 0b110 {
-                assert_eq!(expected, memory.get(registers.get_double(&DoubleRegister::HL).into()), "Incorrect result for (HL)");
+                assert_eq!(expected, memory.get(registers.get_double(&DoubleRegister::HL)), "Incorrect result for (HL)");
             } else {
                 let r: SingleRegister = operand.try_into().unwrap();
                 assert_eq!(expected, registers.get_single(&r), "Incorrect result for register {r:?}");
@@ -679,7 +679,7 @@ crate::instruction_tests! {
 
         for operand in 0..8 {
             if operand == 0b110 {
-                memory.set(registers.get_double(&DoubleRegister::HL).into(), value);
+                memory.set(registers.get_double(&DoubleRegister::HL), value);
             } else {
                 registers.set_single(&operand.try_into().unwrap(), value);
             }
@@ -687,7 +687,7 @@ crate::instruction_tests! {
             RotateShift::RRC(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
             if operand == 0b110 {
-                assert_eq!(expected, memory.get(registers.get_double(&DoubleRegister::HL).into()), "Incorrect result for (HL)");
+                assert_eq!(expected, memory.get(registers.get_double(&DoubleRegister::HL)), "Incorrect result for (HL)");
             } else {
                 let r: SingleRegister = operand.try_into().unwrap();
                 assert_eq!(expected, registers.get_single(&r), "Incorrect result for register {r:?}");
@@ -729,7 +729,7 @@ crate::instruction_tests! {
 
         for operand in 0..8 {
             if operand == 0b110 {
-                memory.set(registers.get_double(&DoubleRegister::HL).into(), value);
+                memory.set(registers.get_double(&DoubleRegister::HL), value);
             } else {
                 registers.set_single(&operand.try_into().unwrap(), value);
             }
@@ -737,7 +737,7 @@ crate::instruction_tests! {
             RotateShift::RL(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
             if operand == 0b110 {
-                assert_eq!(expected, memory.get(registers.get_double(&DoubleRegister::HL).into()), "Incorrect result for (HL)");
+                assert_eq!(expected, memory.get(registers.get_double(&DoubleRegister::HL)), "Incorrect result for (HL)");
             } else {
                 let r: SingleRegister = operand.try_into().unwrap();
                 assert_eq!(expected, registers.get_single(&r), "Incorrect result for register {r:?}");
@@ -787,7 +787,7 @@ crate::instruction_tests! {
 
         for operand in 0..8 {
             if operand == 0b110 {
-                memory.set(registers.get_double(&DoubleRegister::HL).into(), value);
+                memory.set(registers.get_double(&DoubleRegister::HL), value);
             } else {
                 registers.set_single(&operand.try_into().unwrap(), value);
             }
@@ -795,7 +795,7 @@ crate::instruction_tests! {
             RotateShift::RR(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
             if operand == 0b110 {
-                assert_eq!(expected, memory.get(registers.get_double(&DoubleRegister::HL).into()), "Incorrect result for (HL)");
+                assert_eq!(expected, memory.get(registers.get_double(&DoubleRegister::HL)), "Incorrect result for (HL)");
             } else {
                 let r: SingleRegister = operand.try_into().unwrap();
                 assert_eq!(expected, registers.get_single(&r), "Incorrect result for register {r:?}");
@@ -844,7 +844,7 @@ crate::instruction_tests! {
 
         for operand in 0..8 {
             if operand == 0b110 {
-                memory.set(registers.get_double(&DoubleRegister::HL).into(), value);
+                memory.set(registers.get_double(&DoubleRegister::HL), value);
             } else {
                 registers.set_single(&operand.try_into().unwrap(), value);
             }
@@ -852,7 +852,7 @@ crate::instruction_tests! {
             RotateShift::SLA(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
             if operand == 0b110 {
-                assert_eq!(expected, memory.get(registers.get_double(&DoubleRegister::HL).into()), "Incorrect result for (HL)");
+                assert_eq!(expected, memory.get(registers.get_double(&DoubleRegister::HL)), "Incorrect result for (HL)");
             } else {
                 let r: SingleRegister = operand.try_into().unwrap();
                 assert_eq!(expected, registers.get_single(&r), "Incorrect result for register {r:?}");
@@ -881,7 +881,7 @@ crate::instruction_tests! {
 
     sla_sets_the_correct_values(registers, memory, cpu_flags) => {
         registers.set_single(&SingleRegister::D, 0x80);
-        memory.set(registers.get_double(&DoubleRegister::HL).into(), 0xFF);
+        memory.set(registers.get_double(&DoubleRegister::HL), 0xFF);
 
         RotateShift::SLA(0b010).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0, registers.get_single(&SingleRegister::D));
@@ -891,7 +891,7 @@ crate::instruction_tests! {
         assert!(!registers.is_negative());
 
         RotateShift::SLA(0b110).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        assert_eq!(0xfe, memory.get(registers.get_double(&DoubleRegister::HL).into()));
+        assert_eq!(0xfe, memory.get(registers.get_double(&DoubleRegister::HL)));
         assert!(registers.is_carry());
         assert!(!registers.is_zero());
         assert!(!registers.is_half_carry());
@@ -918,7 +918,7 @@ crate::instruction_tests! {
 
         for operand in 0..8 {
             if operand == 0b110 {
-                memory.set(registers.get_double(&DoubleRegister::HL).into(), value);
+                memory.set(registers.get_double(&DoubleRegister::HL), value);
             } else {
                 registers.set_single(&operand.try_into().unwrap(), value);
             }
@@ -926,7 +926,7 @@ crate::instruction_tests! {
             RotateShift::SRA(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
             if operand == 0b110 {
-                assert_eq!(expected, memory.get(registers.get_double(&DoubleRegister::HL).into()), "Incorrect result for (HL)");
+                assert_eq!(expected, memory.get(registers.get_double(&DoubleRegister::HL)), "Incorrect result for (HL)");
             } else {
                 let r: SingleRegister = operand.try_into().unwrap();
                 assert_eq!(expected, registers.get_single(&r), "Incorrect result for register {r:?}");
@@ -944,7 +944,7 @@ crate::instruction_tests! {
 
         for operand in 0..8 {
             if operand == 0b110 {
-                memory.set(registers.get_double(&DoubleRegister::HL).into(), value);
+                memory.set(registers.get_double(&DoubleRegister::HL), value);
             } else {
                 registers.set_single(&operand.try_into().unwrap(), value);
             }
@@ -952,7 +952,7 @@ crate::instruction_tests! {
             RotateShift::SRA(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
             if operand == 0b110 {
-                assert_eq!(expected, memory.get(registers.get_double(&DoubleRegister::HL).into()), "Incorrect result for (HL)");
+                assert_eq!(expected, memory.get(registers.get_double(&DoubleRegister::HL)), "Incorrect result for (HL)");
             } else {
                 let r: SingleRegister = operand.try_into().unwrap();
                 assert_eq!(expected, registers.get_single(&r), "Incorrect result for register {r:?}");
@@ -999,7 +999,7 @@ crate::instruction_tests! {
 
         for operand in 0..8 {
             if operand == 0b110 {
-                memory.set(registers.get_double(&DoubleRegister::HL).into(), value);
+                memory.set(registers.get_double(&DoubleRegister::HL), value);
             } else {
                 registers.set_single(&operand.try_into().unwrap(), value);
             }
@@ -1007,7 +1007,7 @@ crate::instruction_tests! {
             RotateShift::SRL(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
             if operand == 0b110 {
-                assert_eq!(expected, memory.get(registers.get_double(&DoubleRegister::HL).into()), "Incorrect result for (HL)");
+                assert_eq!(expected, memory.get(registers.get_double(&DoubleRegister::HL)), "Incorrect result for (HL)");
             } else {
                 let r: SingleRegister = operand.try_into().unwrap();
                 assert_eq!(expected, registers.get_single(&r), "Incorrect result for register {r:?}");
@@ -1025,7 +1025,7 @@ crate::instruction_tests! {
 
         for operand in 0..8 {
             if operand == 0b110 {
-                memory.set(registers.get_double(&DoubleRegister::HL).into(), value);
+                memory.set(registers.get_double(&DoubleRegister::HL), value);
             } else {
                 registers.set_single(&operand.try_into().unwrap(), value);
             }
@@ -1033,7 +1033,7 @@ crate::instruction_tests! {
             RotateShift::SRL(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
             if operand == 0b110 {
-                assert_eq!(expected, memory.get(registers.get_double(&DoubleRegister::HL).into()), "Incorrect result for (HL)");
+                assert_eq!(expected, memory.get(registers.get_double(&DoubleRegister::HL)), "Incorrect result for (HL)");
             } else {
                 let r: SingleRegister = operand.try_into().unwrap();
                 assert_eq!(expected, registers.get_single(&r), "Incorrect result for register {r:?}");
@@ -1080,7 +1080,7 @@ crate::instruction_tests! {
 
         for operand in 0..8 {
             if operand == 0b110 {
-                memory.set(registers.get_double(&DoubleRegister::HL).into(), value);
+                memory.set(registers.get_double(&DoubleRegister::HL), value);
             } else {
                 registers.set_single(&operand.try_into().unwrap(), value);
             }
@@ -1088,7 +1088,7 @@ crate::instruction_tests! {
             RotateShift::SWAP(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
             if operand == 0b110 {
-                assert_eq!(expected, memory.get(registers.get_double(&DoubleRegister::HL).into()), "Incorrect result for (HL)");
+                assert_eq!(expected, memory.get(registers.get_double(&DoubleRegister::HL)), "Incorrect result for (HL)");
             } else {
                 let r: SingleRegister = operand.try_into().unwrap();
                 assert_eq!(expected, registers.get_single(&r), "Incorrect result for register {r:?}");

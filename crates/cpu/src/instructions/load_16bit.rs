@@ -14,7 +14,7 @@ instruction_group! {
         /// Loads value from SP into address
         LD_FROM_SP(address: u16) [3] => {
             let value = registers.get_double(&DoubleRegister::SP);
-            memory.set_u16((*address).into(), value);
+            memory.set_u16(*address, value);
             Ok(5)
         }
 
@@ -32,10 +32,10 @@ instruction_group! {
                 let a = registers.get_single(&SingleRegister::A);
                 let flags = registers.get_single(&SingleRegister::F);
                 let value = u16::from_be_bytes([a, flags]);
-                memory.set_u16(sp.into(), value);
+                memory.set_u16(sp, value);
             } else {
                 let value = registers.get_double(r);
-                memory.set_u16(sp.into(), value);
+                memory.set_u16(sp, value);
             }
             Ok(4)
         }
@@ -43,7 +43,7 @@ instruction_group! {
         /// Pop data from stack memory to 16-bit register
         POP(r: DoubleRegister) [1] => {
             let sp = registers.get_double(&DoubleRegister::SP);
-            let value = memory.get_u16(sp.into());
+            let value = memory.get_u16(sp);
             registers.set_double(r, value);
             registers.increment_sp();
 
@@ -163,7 +163,7 @@ mod tests {
         let sp = registers.get_double(&DoubleRegister::SP);
         assert_eq!(4, cycles);
         assert_eq!(stack_pointer_start_address - 2, sp);
-        assert_eq!(0x1122, memory.get_u16(sp.into()));
+        assert_eq!(0x1122, memory.get_u16(sp));
 
         let cycles = Load16Bit::PUSH(DoubleRegister::DE)
             .execute(&mut registers, &mut memory, &mut cpu_flags)
@@ -171,7 +171,7 @@ mod tests {
         let sp = registers.get_double(&DoubleRegister::SP);
         assert_eq!(4, cycles);
         assert_eq!(stack_pointer_start_address - 4, sp);
-        assert_eq!(0x3344, memory.get_u16(sp.into()));
+        assert_eq!(0x3344, memory.get_u16(sp));
 
         let cycles = Load16Bit::PUSH(DoubleRegister::HL)
             .execute(&mut registers, &mut memory, &mut cpu_flags)
@@ -179,7 +179,7 @@ mod tests {
         let sp = registers.get_double(&DoubleRegister::SP);
         assert_eq!(4, cycles);
         assert_eq!(stack_pointer_start_address - 6, sp);
-        assert_eq!(0x5566, memory.get_u16(sp.into()));
+        assert_eq!(0x5566, memory.get_u16(sp));
     }
 
     #[test]
@@ -199,14 +199,14 @@ mod tests {
         let sp = registers.get_double(&DoubleRegister::SP);
         assert_eq!(4, cycles);
         assert_eq!(stack_pointer_start_address - 2, sp);
-        assert_eq!(0x7780, memory.get_u16(sp.into()));
+        assert_eq!(0x7780, memory.get_u16(sp));
     }
 
     #[test]
     fn pop_stack_memory_to_bc_register() {
         let (mut registers, mut memory, mut cpu_flags) = setup();
         let sp = registers.decrement_sp();
-        memory.set_u16(sp.into(), 0xABCD);
+        memory.set_u16(sp, 0xABCD);
         let cycles = Load16Bit::POP(DoubleRegister::BC)
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
@@ -220,7 +220,7 @@ mod tests {
     fn pop_stack_memory_to_de_register() {
         let (mut registers, mut memory, mut cpu_flags) = setup();
         let sp = registers.decrement_sp();
-        memory.set_u16(sp.into(), 0xABCD);
+        memory.set_u16(sp, 0xABCD);
         let cycles = Load16Bit::POP(DoubleRegister::DE)
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
@@ -234,7 +234,7 @@ mod tests {
     fn pop_stack_memory_to_hl_register() {
         let (mut registers, mut memory, mut cpu_flags) = setup();
         let sp = registers.decrement_sp();
-        memory.set_u16(sp.into(), 0xABCD);
+        memory.set_u16(sp, 0xABCD);
         let cycles = Load16Bit::POP(DoubleRegister::HL)
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
@@ -248,7 +248,7 @@ mod tests {
     fn pop_stack_memory_to_af_register() {
         let (mut registers, mut memory, mut cpu_flags) = setup();
         let sp = registers.decrement_sp();
-        memory.set_u16(sp.into(), 0xABCD);
+        memory.set_u16(sp, 0xABCD);
         let cycles = Load16Bit::POP(DoubleRegister::AF)
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
@@ -263,7 +263,7 @@ mod tests {
     fn pop_stack_memory_to_af_register_sets_flags_register() {
         let (mut registers, mut memory, mut cpu_flags) = setup();
         let sp = registers.decrement_sp();
-        memory.set_u16(sp.into(), 0b1111_1111_1010_0000);
+        memory.set_u16(sp, 0b1111_1111_1010_0000);
         let cycles = Load16Bit::POP(DoubleRegister::AF)
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();

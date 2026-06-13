@@ -108,9 +108,8 @@ impl Memory {
     ///
     /// assert_eq!(value, memory.get(0));
     /// ```
-    // TODO: usize -> u16
-    pub fn set(&mut self, location: usize, value: u8) {
-        self.memory[location] = value;
+    pub fn set(&mut self, location: u16, value: u8) {
+        self.memory[location as usize] = value;
     }
 
     /// Gets a `u8` value from memory.
@@ -124,10 +123,9 @@ impl Memory {
     ///
     /// assert_eq!(value, memory.get(0));
     /// ```
-    // TODO: usize -> u16
     #[must_use]
-    pub fn get(&self, location: usize) -> u8 {
-        self.memory[location]
+    pub fn get(&self, location: u16) -> u8 {
+        self.memory[location as usize]
     }
 
     /// Gets a `u16` value from memory.
@@ -141,9 +139,8 @@ impl Memory {
     ///
     /// assert_eq!(value, memory.get_u16(42));
     /// ```
-    // TODO: usize -> u16
     #[must_use]
-    pub fn get_u16(&self, location: usize) -> u16 {
+    pub fn get_u16(&self, location: u16) -> u16 {
         let lo = self.get(location);
         let hi = self.get(location + 1);
 
@@ -161,8 +158,7 @@ impl Memory {
     ///
     /// assert_eq!(value, memory.get_u16(0));
     /// ```
-    // TODO: usize -> u16
-    pub fn set_u16(&mut self, location: usize, value: u16) {
+    pub fn set_u16(&mut self, location: u16, value: u16) {
         let [lo, hi] = value.to_le_bytes();
 
         self.set(location, lo);

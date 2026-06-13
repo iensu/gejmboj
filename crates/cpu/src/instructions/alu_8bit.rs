@@ -31,7 +31,7 @@ instruction_group! {
 
         /// Add value of `(HL)` to `A`
         ADD_HL() [1] => {
-            let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
+            let operand = memory.get(registers.get_double(&DoubleRegister::HL));
             perform_calculation(&AluOp::Add, registers, operand, false);
 
             Ok(2)
@@ -57,7 +57,7 @@ instruction_group! {
 
         /// Add value of `(HL)` and Carry to `A`
         ADC_HL() [1] => {
-            let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
+            let operand = memory.get(registers.get_double(&DoubleRegister::HL));
             perform_calculation(&AluOp::Add, registers, operand, true);
 
             Ok(2)
@@ -85,7 +85,7 @@ instruction_group! {
 
         /// Subtract value of `(HL)` from A
         SUB_HL() [1] => {
-            let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
+            let operand = memory.get(registers.get_double(&DoubleRegister::HL));
 
             perform_calculation(&AluOp::Sub, registers, operand, false);
 
@@ -114,7 +114,7 @@ instruction_group! {
 
         /// Subtract value of `(HL)` and Carry from A
         SBC_HL() [1] => {
-            let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
+            let operand = memory.get(registers.get_double(&DoubleRegister::HL));
             perform_calculation(&AluOp::Sub, registers, operand, true);
 
             Ok(2)
@@ -140,7 +140,7 @@ instruction_group! {
 
         /// Logical AND between `(HL)` and `A`
         AND_HL() [1] => {
-            let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
+            let operand = memory.get(registers.get_double(&DoubleRegister::HL));
             perform_calculation(&AluOp::And, registers, operand, false);
 
             Ok(2)
@@ -167,7 +167,7 @@ instruction_group! {
 
         /// Logical OR between `(HL)` and `A`
         OR_HL() [1] => {
-            let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
+            let operand = memory.get(registers.get_double(&DoubleRegister::HL));
             perform_calculation(&AluOp::Or, registers, operand, false);
 
             Ok(2)
@@ -194,7 +194,7 @@ instruction_group! {
 
         /// Logical XOR between `(HL)` and `A`
         XOR_HL() [1] => {
-            let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
+            let operand = memory.get(registers.get_double(&DoubleRegister::HL));
             perform_calculation(&AluOp::Xor, registers, operand, false);
 
             Ok(2)
@@ -230,7 +230,7 @@ instruction_group! {
 
         /// Compare `(HL)` and `A`
         CP_HL() [1] => {
-            let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
+            let operand = memory.get(registers.get_double(&DoubleRegister::HL));
             let a = registers.get_single(&SingleRegister::A);
 
             let (_, flags) = AluOp::Cp.calculate(a, operand);
@@ -263,12 +263,12 @@ instruction_group! {
         ///
         /// The Carry flag is unaffected by this instruction.
         INC_HL() [1] => {
-            let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
+            let operand = memory.get(registers.get_double(&DoubleRegister::HL));
             let (result, flags) = AluOp::Add.calculate(operand, 1);
             // Set Carry if already set, otherwise reset
             let flags = if registers.is_carry() { flags | MASK_FLAG_CARRY } else { flags & 0b1110_0000 };
 
-            memory.set(registers.get_double(&DoubleRegister::HL).into(), result);
+            memory.set(registers.get_double(&DoubleRegister::HL), result);
             registers.set_flags(flags);
 
             Ok(3)
@@ -297,12 +297,12 @@ instruction_group! {
         ///
         /// The Carry flag is unaffected by this instruction.
         DEC_HL() [1] => {
-            let operand = memory.get(registers.get_double(&DoubleRegister::HL).into());
+            let operand = memory.get(registers.get_double(&DoubleRegister::HL));
             let (result, flags) = AluOp::Sub.calculate(operand, 1);
             // Set Carry if already set, otherwise reset
             let flags = if registers.is_carry() { flags | MASK_FLAG_CARRY } else { flags & 0b1110_0000 };
 
-            memory.set(registers.get_double(&DoubleRegister::HL).into(), result);
+            memory.set(registers.get_double(&DoubleRegister::HL), result);
             registers.set_flags(flags);
 
             Ok(3)
@@ -481,7 +481,7 @@ crate::instruction_tests! {
 
     addhl_adds_hl_to_a(registers, memory, cpu_flags) => {
         registers.set_single(&SingleRegister::A, 40);
-        memory.set(registers.get_double(&DoubleRegister::HL).into(), 2);
+        memory.set(registers.get_double(&DoubleRegister::HL), 2);
 
         ALU8Bit::ADD_HL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
@@ -503,7 +503,7 @@ crate::instruction_tests! {
         assert_eq!(0b0011_0000, registers.get_flags(), "Incorrect flags");
 
         registers.set_single(&SingleRegister::A, 0x3C);
-        memory.set(registers.get_double(&DoubleRegister::HL).into(), 0x12);
+        memory.set(registers.get_double(&DoubleRegister::HL), 0x12);
 
         ALU8Bit::ADD_HL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0x4E, registers.get_single(&SingleRegister::A), "Wrong result");
@@ -563,7 +563,7 @@ crate::instruction_tests! {
 
     adchl_adds_register_plus_carry_to_a(registers, memory, cpu_flags) => {
         registers.set_single(&SingleRegister::A, 40);
-        memory.set(registers.get_double(&DoubleRegister::HL).into(), 2);
+        memory.set(registers.get_double(&DoubleRegister::HL), 2);
         registers.set_flags(MASK_FLAG_CARRY);
 
         ALU8Bit::ADC_HL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
@@ -631,7 +631,7 @@ crate::instruction_tests! {
 
     sub_handles_flags_correctly(registers, memory, cpu_flags) => {
         registers.set_single(&SingleRegister::E, 0x3E);
-        memory.set(registers.get_double(&DoubleRegister::HL).into(), 0x40);
+        memory.set(registers.get_double(&DoubleRegister::HL), 0x40);
         registers.set_single(&SingleRegister::A, 0x3E);
 
         ALU8Bit::SUB(SingleRegister::E).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
@@ -667,7 +667,7 @@ crate::instruction_tests! {
 
     sbc_computes_and_handles_flags_correctly(registers, memory, cpu_flags) => {
         registers.set_single(&SingleRegister::H, 0x2A);
-        memory.set(registers.get_double(&DoubleRegister::HL).into(), 0x4F);
+        memory.set(registers.get_double(&DoubleRegister::HL), 0x4F);
         registers.set_single(&SingleRegister::A, 0x3B);
         registers.set_flags(0b0001_0000);
 
@@ -757,7 +757,7 @@ crate::instruction_tests! {
     }
 
     or_computes_and_handles_flags_correctly(registers, memory, cpu_flags) => {
-        memory.set(registers.get_double(&DoubleRegister::HL).into(), 0x0F);
+        memory.set(registers.get_double(&DoubleRegister::HL), 0x0F);
         registers.set_single(&SingleRegister::A, 0x5A);
 
         ALU8Bit::OR(SingleRegister::A).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
@@ -799,7 +799,7 @@ crate::instruction_tests! {
     }
 
     xor_computes_and_handles_flags_correctly(registers, memory, cpu_flags) => {
-        memory.set(registers.get_double(&DoubleRegister::HL).into(), 0x8A);
+        memory.set(registers.get_double(&DoubleRegister::HL), 0x8A);
         registers.set_single(&SingleRegister::A, 0xFF);
 
         ALU8Bit::XOR(SingleRegister::A).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
@@ -841,7 +841,7 @@ crate::instruction_tests! {
     }
 
     cp_handles_flags_correctly(registers, memory, cpu_flags) => {
-        memory.set(registers.get_double(&DoubleRegister::HL).into(), 0x40);
+        memory.set(registers.get_double(&DoubleRegister::HL), 0x40);
         registers.set_single(&SingleRegister::B, 0x2F);
         registers.set_single(&SingleRegister::A, 0x3C);
 
@@ -875,7 +875,7 @@ crate::instruction_tests! {
     }
 
     inc_handles_flags_correctly(registers, memory, cpu_flags) => {
-        memory.set(registers.get_double(&DoubleRegister::HL).into(), 0x50);
+        memory.set(registers.get_double(&DoubleRegister::HL), 0x50);
         registers.set_single(&SingleRegister::A, 0xFF);
 
         ALU8Bit::INC(SingleRegister::A).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
@@ -883,7 +883,7 @@ crate::instruction_tests! {
         assert_eq!(0b1010_0000, registers.get_flags(), "Inc sets incorrect flags");
 
         ALU8Bit::INC_HL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        assert_eq!(0x51, memory.get(registers.get_double(&DoubleRegister::HL).into()), "IncHL sets wrong result");
+        assert_eq!(0x51, memory.get(registers.get_double(&DoubleRegister::HL)), "IncHL sets wrong result");
         assert_eq!(0b0000_0000, registers.get_flags(), "IncHL sets incorrect flags");
 
         registers.set_flags(MASK_FLAG_CARRY);
@@ -913,7 +913,7 @@ crate::instruction_tests! {
     }
 
     dec_handles_flags_correctly(registers, memory, cpu_flags) => {
-        memory.set(registers.get_double(&DoubleRegister::HL).into(), 0x00);
+        memory.set(registers.get_double(&DoubleRegister::HL), 0x00);
         registers.set_single(&SingleRegister::A, 0x01);
         registers.set_single(&SingleRegister::C, 0x02);
 
@@ -922,7 +922,7 @@ crate::instruction_tests! {
         assert_eq!(0b1100_0000, registers.get_flags(), "Dec sets incorrect flags");
 
         ALU8Bit::DEC_HL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        assert_eq!(0xFF, memory.get(registers.get_double(&DoubleRegister::HL).into()), "DecHL sets wrong result");
+        assert_eq!(0xFF, memory.get(registers.get_double(&DoubleRegister::HL)), "DecHL sets wrong result");
         assert_eq!(0b0110_0000, registers.get_flags(), "DecHL sets incorrect flags");
 
         registers.set_flags(MASK_FLAG_CARRY);
