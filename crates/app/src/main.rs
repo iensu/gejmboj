@@ -9,9 +9,6 @@ use log::debug;
 
 mod error;
 
-const SB: usize = 0xFF01;
-const SC: usize = 0xFF02;
-
 fn main() -> AppResult<()> {
     env_logger::init();
 
@@ -32,8 +29,6 @@ fn main() -> AppResult<()> {
 
     let mut instruction_count = 0;
 
-    let mut message: Vec<char> = Vec::new();
-
     loop {
         instruction_count += 1;
 
@@ -48,23 +43,11 @@ fn main() -> AppResult<()> {
 
         debug!("Executed instruction [{instruction_count:08}] ({location:04X}) {instruction:?}");
 
-        if let (c, 0x81) = (memory.get(SB), memory.get(SC)) {
-            let c = c as char;
-            if c != '\0' {
-                message.push(c);
-            }
-            memory.set(SC, 0);
-        }
-
         // Detect self-jump (jr $FE), PC remains unchanged across instruction ticks.
         if registers.PC == prev_pc {
             break;
         }
     }
-
-    let message: String = message.into_iter().collect();
-
-    println!("Got message: {message}");
 
     Ok(())
 }
