@@ -17,7 +17,8 @@ instruction_group! {
 
         /// Loads data pointed to by HL into `r`.
         LD_FROM_HL(r: SingleRegister) [1] => {
-            let value = memory.get(registers.get_double(&DoubleRegister::HL).into());
+            let location = registers.get_double(&DoubleRegister::HL);
+            let value = memory.get(location.into());
             registers.set_single(r, value);
             Ok(2)
         }
@@ -25,7 +26,8 @@ instruction_group! {
         /// Loads data in `r` into location pointed to by HL.
         LD_TO_HL(r: SingleRegister) [1] => {
             let value = registers.get_single(r);
-            memory.set(registers.get_double(&DoubleRegister::HL).into(), value);
+            let location = registers.get_double(&DoubleRegister::HL);
+            memory.set(location.into(), value);
             Ok(2)
         }
 
