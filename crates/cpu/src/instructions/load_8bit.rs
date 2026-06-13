@@ -109,8 +109,8 @@ instruction_group! {
 
         /// Load data to A from the address at `0xFF00` + `operand`
         LDH_TO_A(operand: u8) [2] => {
-            let address = u16::from_le_bytes([*operand, 0xFF]);
-            let value = memory.get(address.into());
+            let address = (0xFF00 | u16::from(*operand)) as usize;
+            let value = memory.get(address);
             registers.set_single(&SingleRegister::A, value);
             Ok(3)
         }
