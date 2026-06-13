@@ -344,8 +344,8 @@
 <a href=#344 id=344 data-nosnippet>344</a>                <span class="kw">if </span>result == <span class="number">0 </span>{
 <a href=#345 id=345 data-nosnippet>345</a>                    flags |= MASK_FLAG_ZERO; <span class="comment">// Set Z
 <a href=#346 id=346 data-nosnippet>346</a>                </span>}
-<a href=#347 id=347 data-nosnippet>347</a>                <span class="comment">// Check if the 5th bit has changed in the result
-<a href=#348 id=348 data-nosnippet>348</a>                </span><span class="kw">if </span>result != <span class="number">0 </span>&amp;&amp; (result &amp; <span class="number">0x10</span>) != (a &amp; <span class="number">0x10</span>) {
+<a href=#347 id=347 data-nosnippet>347</a>                <span class="comment">// Check if the low nibble of a is less than the low nibble of the operand
+<a href=#348 id=348 data-nosnippet>348</a>                </span><span class="kw">if </span>(a &amp; <span class="number">0x0F</span>) &lt; (operand &amp; <span class="number">0x0F</span>) {
 <a href=#349 id=349 data-nosnippet>349</a>                    flags |= MASK_FLAG_HALF_CARRY; <span class="comment">// Set H
 <a href=#350 id=350 data-nosnippet>350</a>                </span>}
 <a href=#351 id=351 data-nosnippet>351</a>                <span class="kw">if </span>is_carry {

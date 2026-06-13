@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":["SB","SC"],"fn":["main"],"mod":["error"]};
+window.SIDEBAR_ITEMS = {"fn":["main"],"mod":["error"]};
