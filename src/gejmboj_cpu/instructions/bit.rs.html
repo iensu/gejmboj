@@ -213,10 +213,10 @@
 <a href=#213 id=213 data-nosnippet>213</a>            (<span class="number">0b11_110_110</span>, <span class="number">0b0100_0000</span>),
 <a href=#214 id=214 data-nosnippet>214</a>            (<span class="number">0b11_111_110</span>, <span class="number">0b1000_0000</span>)
 <a href=#215 id=215 data-nosnippet>215</a>        ] {
-<a href=#216 id=216 data-nosnippet>216</a>            memory.set(registers.get_double(<span class="kw-2">&amp;</span>DoubleRegister::HL).into(), <span class="number">0</span>);
+<a href=#216 id=216 data-nosnippet>216</a>            memory.set(registers.get_double(<span class="kw-2">&amp;</span>DoubleRegister::HL), <span class="number">0</span>);
 <a href=#217 id=217 data-nosnippet>217</a>            Bit::SET(operand).execute(<span class="kw-2">&amp;mut </span>registers, <span class="kw-2">&amp;mut </span>memory, <span class="kw-2">&amp;mut </span>cpu_flags).unwrap();
 <a href=#218 id=218 data-nosnippet>218</a>
-<a href=#219 id=219 data-nosnippet>219</a>            <span class="macro">assert_eq!</span>(expected, memory.get(registers.get_double(<span class="kw-2">&amp;</span>DoubleRegister::HL).into()));
+<a href=#219 id=219 data-nosnippet>219</a>            <span class="macro">assert_eq!</span>(expected, memory.get(registers.get_double(<span class="kw-2">&amp;</span>DoubleRegister::HL)));
 <a href=#220 id=220 data-nosnippet>220</a>        }
 <a href=#221 id=221 data-nosnippet>221</a>    }
 <a href=#222 id=222 data-nosnippet>222</a>
@@ -270,11 +270,11 @@
 <a href=#270 id=270 data-nosnippet>270</a>                                        (<span class="number">0b10_101_110</span>, <span class="number">0b1101_1111</span>),
 <a href=#271 id=271 data-nosnippet>271</a>                                        (<span class="number">0b10_110_110</span>, <span class="number">0b1011_1111</span>),
 <a href=#272 id=272 data-nosnippet>272</a>                                        (<span class="number">0b10_111_110</span>, <span class="number">0b0111_1111</span>)] {
-<a href=#273 id=273 data-nosnippet>273</a>            memory.set(registers.get_double(<span class="kw-2">&amp;</span>DoubleRegister::HL).into(), <span class="number">0xFF</span>);
+<a href=#273 id=273 data-nosnippet>273</a>            memory.set(registers.get_double(<span class="kw-2">&amp;</span>DoubleRegister::HL), <span class="number">0xFF</span>);
 <a href=#274 id=274 data-nosnippet>274</a>
 <a href=#275 id=275 data-nosnippet>275</a>            Bit::RES(operand).execute(<span class="kw-2">&amp;mut </span>registers, <span class="kw-2">&amp;mut </span>memory, <span class="kw-2">&amp;mut </span>cpu_flags).unwrap();
 <a href=#276 id=276 data-nosnippet>276</a>
-<a href=#277 id=277 data-nosnippet>277</a>            <span class="macro">assert_eq!</span>(expected, memory.get(registers.get_double(<span class="kw-2">&amp;</span>DoubleRegister::HL).into()));
+<a href=#277 id=277 data-nosnippet>277</a>            <span class="macro">assert_eq!</span>(expected, memory.get(registers.get_double(<span class="kw-2">&amp;</span>DoubleRegister::HL)));
 <a href=#278 id=278 data-nosnippet>278</a>        }
 <a href=#279 id=279 data-nosnippet>279</a>    }
 <a href=#280 id=280 data-nosnippet>280</a>

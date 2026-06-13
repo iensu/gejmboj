@@ -305,7 +305,7 @@
 <a href=#305 id=305 data-nosnippet>305</a>
 <a href=#306 id=306 data-nosnippet>306</a>        <span class="macro">assert_eq!</span>(<span class="number">0xABCD</span>, registers.PC);
 <a href=#307 id=307 data-nosnippet>307</a>        <span class="macro">assert_eq!</span>(<span class="number">0xFFFC</span>, registers.SP);
-<a href=#308 id=308 data-nosnippet>308</a>        <span class="macro">assert_eq!</span>(<span class="number">0xAAAA</span>, memory.get_u16(registers.SP.into()));
+<a href=#308 id=308 data-nosnippet>308</a>        <span class="macro">assert_eq!</span>(<span class="number">0xAAAA</span>, memory.get_u16(registers.SP));
 <a href=#309 id=309 data-nosnippet>309</a>    }
 <a href=#310 id=310 data-nosnippet>310</a>
 <a href=#311 id=311 data-nosnippet>311</a>    call_sets_sp_correctly(registers, memory, cpu_flags) =&gt; {

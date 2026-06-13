@@ -163,7 +163,7 @@
 <a href=#163 id=163 data-nosnippet>163</a>        <span class="kw">let </span>sp = registers.get_double(<span class="kw-2">&amp;</span>DoubleRegister::SP);
 <a href=#164 id=164 data-nosnippet>164</a>        <span class="macro">assert_eq!</span>(<span class="number">4</span>, cycles);
 <a href=#165 id=165 data-nosnippet>165</a>        <span class="macro">assert_eq!</span>(stack_pointer_start_address - <span class="number">2</span>, sp);
-<a href=#166 id=166 data-nosnippet>166</a>        <span class="macro">assert_eq!</span>(<span class="number">0x1122</span>, memory.get_u16(sp.into()));
+<a href=#166 id=166 data-nosnippet>166</a>        <span class="macro">assert_eq!</span>(<span class="number">0x1122</span>, memory.get_u16(sp));
 <a href=#167 id=167 data-nosnippet>167</a>
 <a href=#168 id=168 data-nosnippet>168</a>        <span class="kw">let </span>cycles = Load16Bit::PUSH(DoubleRegister::DE)
 <a href=#169 id=169 data-nosnippet>169</a>            .execute(<span class="kw-2">&amp;mut </span>registers, <span class="kw-2">&amp;mut </span>memory, <span class="kw-2">&amp;mut </span>cpu_flags)
@@ -171,7 +171,7 @@
 <a href=#171 id=171 data-nosnippet>171</a>        <span class="kw">let </span>sp = registers.get_double(<span class="kw-2">&amp;</span>DoubleRegister::SP);
 <a href=#172 id=172 data-nosnippet>172</a>        <span class="macro">assert_eq!</span>(<span class="number">4</span>, cycles);
 <a href=#173 id=173 data-nosnippet>173</a>        <span class="macro">assert_eq!</span>(stack_pointer_start_address - <span class="number">4</span>, sp);
-<a href=#174 id=174 data-nosnippet>174</a>        <span class="macro">assert_eq!</span>(<span class="number">0x3344</span>, memory.get_u16(sp.into()));
+<a href=#174 id=174 data-nosnippet>174</a>        <span class="macro">assert_eq!</span>(<span class="number">0x3344</span>, memory.get_u16(sp));
 <a href=#175 id=175 data-nosnippet>175</a>
 <a href=#176 id=176 data-nosnippet>176</a>        <span class="kw">let </span>cycles = Load16Bit::PUSH(DoubleRegister::HL)
 <a href=#177 id=177 data-nosnippet>177</a>            .execute(<span class="kw-2">&amp;mut </span>registers, <span class="kw-2">&amp;mut </span>memory, <span class="kw-2">&amp;mut </span>cpu_flags)
@@ -179,7 +179,7 @@
 <a href=#179 id=179 data-nosnippet>179</a>        <span class="kw">let </span>sp = registers.get_double(<span class="kw-2">&amp;</span>DoubleRegister::SP);
 <a href=#180 id=180 data-nosnippet>180</a>        <span class="macro">assert_eq!</span>(<span class="number">4</span>, cycles);
 <a href=#181 id=181 data-nosnippet>181</a>        <span class="macro">assert_eq!</span>(stack_pointer_start_address - <span class="number">6</span>, sp);
-<a href=#182 id=182 data-nosnippet>182</a>        <span class="macro">assert_eq!</span>(<span class="number">0x5566</span>, memory.get_u16(sp.into()));
+<a href=#182 id=182 data-nosnippet>182</a>        <span class="macro">assert_eq!</span>(<span class="number">0x5566</span>, memory.get_u16(sp));
 <a href=#183 id=183 data-nosnippet>183</a>    }
 <a href=#184 id=184 data-nosnippet>184</a>
 <a href=#185 id=185 data-nosnippet>185</a>    <span class="attr">#[test]
@@ -199,14 +199,14 @@
 <a href=#199 id=199 data-nosnippet>199</a>        <span class="kw">let </span>sp = registers.get_double(<span class="kw-2">&amp;</span>DoubleRegister::SP);
 <a href=#200 id=200 data-nosnippet>200</a>        <span class="macro">assert_eq!</span>(<span class="number">4</span>, cycles);
 <a href=#201 id=201 data-nosnippet>201</a>        <span class="macro">assert_eq!</span>(stack_pointer_start_address - <span class="number">2</span>, sp);
-<a href=#202 id=202 data-nosnippet>202</a>        <span class="macro">assert_eq!</span>(<span class="number">0x7780</span>, memory.get_u16(sp.into()));
+<a href=#202 id=202 data-nosnippet>202</a>        <span class="macro">assert_eq!</span>(<span class="number">0x7780</span>, memory.get_u16(sp));
 <a href=#203 id=203 data-nosnippet>203</a>    }
 <a href=#204 id=204 data-nosnippet>204</a>
 <a href=#205 id=205 data-nosnippet>205</a>    <span class="attr">#[test]
 <a href=#206 id=206 data-nosnippet>206</a>    </span><span class="kw">fn </span>pop_stack_memory_to_bc_register() {
 <a href=#207 id=207 data-nosnippet>207</a>        <span class="kw">let </span>(<span class="kw-2">mut </span>registers, <span class="kw-2">mut </span>memory, <span class="kw-2">mut </span>cpu_flags) = setup();
 <a href=#208 id=208 data-nosnippet>208</a>        <span class="kw">let </span>sp = registers.decrement_sp();
-<a href=#209 id=209 data-nosnippet>209</a>        memory.set_u16(sp.into(), <span class="number">0xABCD</span>);
+<a href=#209 id=209 data-nosnippet>209</a>        memory.set_u16(sp, <span class="number">0xABCD</span>);
 <a href=#210 id=210 data-nosnippet>210</a>        <span class="kw">let </span>cycles = Load16Bit::POP(DoubleRegister::BC)
 <a href=#211 id=211 data-nosnippet>211</a>            .execute(<span class="kw-2">&amp;mut </span>registers, <span class="kw-2">&amp;mut </span>memory, <span class="kw-2">&amp;mut </span>cpu_flags)
 <a href=#212 id=212 data-nosnippet>212</a>            .unwrap();
@@ -220,7 +220,7 @@
 <a href=#220 id=220 data-nosnippet>220</a>    </span><span class="kw">fn </span>pop_stack_memory_to_de_register() {
 <a href=#221 id=221 data-nosnippet>221</a>        <span class="kw">let </span>(<span class="kw-2">mut </span>registers, <span class="kw-2">mut </span>memory, <span class="kw-2">mut </span>cpu_flags) = setup();
 <a href=#222 id=222 data-nosnippet>222</a>        <span class="kw">let </span>sp = registers.decrement_sp();
-<a href=#223 id=223 data-nosnippet>223</a>        memory.set_u16(sp.into(), <span class="number">0xABCD</span>);
+<a href=#223 id=223 data-nosnippet>223</a>        memory.set_u16(sp, <span class="number">0xABCD</span>);
 <a href=#224 id=224 data-nosnippet>224</a>        <span class="kw">let </span>cycles = Load16Bit::POP(DoubleRegister::DE)
 <a href=#225 id=225 data-nosnippet>225</a>            .execute(<span class="kw-2">&amp;mut </span>registers, <span class="kw-2">&amp;mut </span>memory, <span class="kw-2">&amp;mut </span>cpu_flags)
 <a href=#226 id=226 data-nosnippet>226</a>            .unwrap();
@@ -234,7 +234,7 @@
 <a href=#234 id=234 data-nosnippet>234</a>    </span><span class="kw">fn </span>pop_stack_memory_to_hl_register() {
 <a href=#235 id=235 data-nosnippet>235</a>        <span class="kw">let </span>(<span class="kw-2">mut </span>registers, <span class="kw-2">mut </span>memory, <span class="kw-2">mut </span>cpu_flags) = setup();
 <a href=#236 id=236 data-nosnippet>236</a>        <span class="kw">let </span>sp = registers.decrement_sp();
-<a href=#237 id=237 data-nosnippet>237</a>        memory.set_u16(sp.into(), <span class="number">0xABCD</span>);
+<a href=#237 id=237 data-nosnippet>237</a>        memory.set_u16(sp, <span class="number">0xABCD</span>);
 <a href=#238 id=238 data-nosnippet>238</a>        <span class="kw">let </span>cycles = Load16Bit::POP(DoubleRegister::HL)
 <a href=#239 id=239 data-nosnippet>239</a>            .execute(<span class="kw-2">&amp;mut </span>registers, <span class="kw-2">&amp;mut </span>memory, <span class="kw-2">&amp;mut </span>cpu_flags)
 <a href=#240 id=240 data-nosnippet>240</a>            .unwrap();
@@ -248,7 +248,7 @@
 <a href=#248 id=248 data-nosnippet>248</a>    </span><span class="kw">fn </span>pop_stack_memory_to_af_register() {
 <a href=#249 id=249 data-nosnippet>249</a>        <span class="kw">let </span>(<span class="kw-2">mut </span>registers, <span class="kw-2">mut </span>memory, <span class="kw-2">mut </span>cpu_flags) = setup();
 <a href=#250 id=250 data-nosnippet>250</a>        <span class="kw">let </span>sp = registers.decrement_sp();
-<a href=#251 id=251 data-nosnippet>251</a>        memory.set_u16(sp.into(), <span class="number">0xABCD</span>);
+<a href=#251 id=251 data-nosnippet>251</a>        memory.set_u16(sp, <span class="number">0xABCD</span>);
 <a href=#252 id=252 data-nosnippet>252</a>        <span class="kw">let </span>cycles = Load16Bit::POP(DoubleRegister::AF)
 <a href=#253 id=253 data-nosnippet>253</a>            .execute(<span class="kw-2">&amp;mut </span>registers, <span class="kw-2">&amp;mut </span>memory, <span class="kw-2">&amp;mut </span>cpu_flags)
 <a href=#254 id=254 data-nosnippet>254</a>            .unwrap();
@@ -263,7 +263,7 @@
 <a href=#263 id=263 data-nosnippet>263</a>    </span><span class="kw">fn </span>pop_stack_memory_to_af_register_sets_flags_register() {
 <a href=#264 id=264 data-nosnippet>264</a>        <span class="kw">let </span>(<span class="kw-2">mut </span>registers, <span class="kw-2">mut </span>memory, <span class="kw-2">mut </span>cpu_flags) = setup();
 <a href=#265 id=265 data-nosnippet>265</a>        <span class="kw">let </span>sp = registers.decrement_sp();
-<a href=#266 id=266 data-nosnippet>266</a>        memory.set_u16(sp.into(), <span class="number">0b1111_1111_1010_0000</span>);
+<a href=#266 id=266 data-nosnippet>266</a>        memory.set_u16(sp, <span class="number">0b1111_1111_1010_0000</span>);
 <a href=#267 id=267 data-nosnippet>267</a>        <span class="kw">let </span>cycles = Load16Bit::POP(DoubleRegister::AF)
 <a href=#268 id=268 data-nosnippet>268</a>            .execute(<span class="kw-2">&amp;mut </span>registers, <span class="kw-2">&amp;mut </span>memory, <span class="kw-2">&amp;mut </span>cpu_flags)
 <a href=#269 id=269 data-nosnippet>269</a>            .unwrap();

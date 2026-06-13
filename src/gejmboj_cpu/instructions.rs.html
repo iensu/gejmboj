@@ -272,7 +272,7 @@
 <a href=#272 id=272 data-nosnippet>272</a>            (<span class="number">0b0011_0111</span>, I::RotateShift(RS::SWAP(<span class="number">0b0011_0111</span>))),
 <a href=#273 id=273 data-nosnippet>273</a>            (<span class="number">0b0011_1111</span>, I::RotateShift(RS::SRL(<span class="number">0b0011_1111</span>))),
 <a href=#274 id=274 data-nosnippet>274</a>        ] {
-<a href=#275 id=275 data-nosnippet>275</a>            memory.set((pc <span class="kw">as </span>usize) + <span class="number">1</span>, operand);
+<a href=#275 id=275 data-nosnippet>275</a>            memory.set(pc + <span class="number">1</span>, operand);
 <a href=#276 id=276 data-nosnippet>276</a>
 <a href=#277 id=277 data-nosnippet>277</a>            <span class="macro">assert_eq!</span>(
 <a href=#278 id=278 data-nosnippet>278</a>                instruction,
@@ -293,7 +293,7 @@
 <a href=#293 id=293 data-nosnippet>293</a>            (<span class="number">0b1100_1111</span>, I::Bit(Bit::SET(<span class="number">0b1100_1111</span>))),
 <a href=#294 id=294 data-nosnippet>294</a>            (<span class="number">0b1001_0111</span>, I::Bit(Bit::RES(<span class="number">0b1001_0111</span>))),
 <a href=#295 id=295 data-nosnippet>295</a>        ] {
-<a href=#296 id=296 data-nosnippet>296</a>            memory.set((pc <span class="kw">as </span>usize) + <span class="number">1</span>, operand);
+<a href=#296 id=296 data-nosnippet>296</a>            memory.set(pc + <span class="number">1</span>, operand);
 <a href=#297 id=297 data-nosnippet>297</a>
 <a href=#298 id=298 data-nosnippet>298</a>            <span class="macro">assert_eq!</span>(
 <a href=#299 id=299 data-nosnippet>299</a>                instruction,
