@@ -31,7 +31,7 @@ use super::utils::{self, get_register_value};
 use crate::{
     errors::CpuError,
     instruction_group,
-    registers::{DoubleRegister, SingleRegister, MASK_FLAG_CARRY, MASK_FLAG_ZERO},
+    registers::{DoubleRegister, MASK_FLAG_CARRY, MASK_FLAG_ZERO, SingleRegister},
 };
 
 /// Decodes the `operand` into a `RotateShift` instruction.
@@ -139,7 +139,10 @@ impl Op {
 
         if config.add_carry && flags & MASK_FLAG_CARRY > 0 {
             result |= from_carry;
+        } else if config.add_carry {
+            result &= !from_carry;
         }
+
         if config.repeat_tail {
             result |= tail_bit;
         }
@@ -353,7 +356,7 @@ instruction_group! {
             let (value, register) = get_register_value(registers, memory, *operand);
             let (result, flags) = Op::RotateRight(value).execute(
                 registers.get_flags() & MASK_FLAG_CARRY,
-                &OpConfig::builder().add_carry().set_z().build()
+                &OpConfig::builder().add_carry().set_z().add_carry().build()
             );
 
             registers.set_flags(flags);
@@ -757,7 +760,7 @@ crate::instruction_tests! {
         registers.set_flags(MASK_FLAG_CARRY);
         RotateShift::RL(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0b0000_0001, registers.get_single(&SingleRegister::B), "C flag not moved to m0");
-        println!("Flags: {:08b}", registers.get_flags());
+
         assert!(!registers.is_carry(), "C flag was still set");
         registers.clear();
     }
