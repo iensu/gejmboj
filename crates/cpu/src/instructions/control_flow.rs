@@ -169,6 +169,8 @@ instruction_group! {
         /// * `0x30`
         /// * `0x38`
         RST(opcode: u8) [1] => {
+            let sp = registers.decrement_sp();
+            memory.set_u16(sp.into(), registers.PC);
             registers.PC = get_reset_address(*opcode);
             Ok(4)
         }
