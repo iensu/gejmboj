@@ -54,19 +54,9 @@ instruction_group! {
 
 #[cfg(test)]
 mod tests {
-    use crate::cpu::CpuFlags;
-    use crate::memory::Memory;
-    use crate::registers::*;
-
     use super::*;
-
-    fn setup() -> (Registers, Memory, CpuFlags) {
-        let r = Registers::new();
-        let m = Memory::new();
-        let c = CpuFlags::new();
-
-        (r, m, c)
-    }
+    use crate::registers::*;
+    use crate::test_utils::setup;
 
     #[test]
     fn load_16_bit_data_to_registers() {

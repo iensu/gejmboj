@@ -182,8 +182,16 @@ fn get_reset_address(opcode: u8) -> u16 {
 }
 
 #[cfg(test)]
-crate::instruction_tests! {
-    jp_jumps_to_address(registers, memory, cpu_flags) => {
+mod tests {
+    use super::*;
+    #[allow(unused_imports)]
+    use crate::registers::*;
+    use crate::test_utils::setup;
+
+    #[test]
+    fn jp_jumps_to_address() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let instruction = ControlFlow::JP(0xBADA);
 
         assert_eq!(0, registers.PC);
@@ -191,7 +199,10 @@ crate::instruction_tests! {
         assert_eq!(0xBADA, registers.PC);
     }
 
-    jpc_jumps_to_location_if_condition_if_fulfilled(registers, memory, cpu_flags) => {
+    #[test]
+    fn jpc_jumps_to_location_if_condition_if_fulfilled() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let instruction = ControlFlow::JPC(0xBADA, Condition::Carry);
 
         let mut cycles = instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
@@ -204,7 +215,10 @@ crate::instruction_tests! {
         assert_eq!(4, cycles);
     }
 
-    jp_hl_jumps_to_location_in_register_hl(registers, memory, cpu_flags) => {
+    #[test]
+    fn jp_hl_jumps_to_location_in_register_hl() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let instruction = ControlFlow::JP_HL();
 
         registers.set_double(&DoubleRegister::HL, 0xBADA);
@@ -212,7 +226,10 @@ crate::instruction_tests! {
         assert_eq!(0xBADA, registers.PC);
     }
 
-    jr_jumps_to_current_plus_offset_steps(registers, memory, cpu_flags) => {
+    #[test]
+    fn jr_jumps_to_current_plus_offset_steps() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let instruction = ControlFlow::JR(0x40);
         registers.PC = 0x0200;
 
@@ -220,35 +237,50 @@ crate::instruction_tests! {
         assert_eq!(0x0242, registers.PC + instruction.length());
     }
 
-    jr_continues_if_passed_zero(registers, memory, cpu_flags) => {
+    #[test]
+    fn jr_continues_if_passed_zero() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let instruction = ControlFlow::JR(0x00);
         registers.PC = 0x0200;
         instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0x0202, registers.PC + instruction.length());
     }
 
-    jr_can_wrap_around(registers, memory, cpu_flags) => {
+    #[test]
+    fn jr_can_wrap_around() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let instruction = ControlFlow::JR(0xAA);
         registers.PC = 0x000F;
         instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0xFFBB, registers.PC + instruction.length());
     }
 
-    jr_zilog_manual_example_one(registers, memory, cpu_flags) => {
+    #[test]
+    fn jr_zilog_manual_example_one() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let instruction = ControlFlow::JR(0x03);
         registers.PC = 0x480;
         instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0x485, registers.PC + instruction.length());
     }
 
-    jr_zilog_manual_example_two(registers, memory, cpu_flags) => {
+    #[test]
+    fn jr_zilog_manual_example_two() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let instruction = ControlFlow::JR(0xFA);
         registers.PC = 0x480;
         instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0x47C, registers.PC + instruction.length());
     }
 
-    jrc_jumps_to_offset_if_condition_is_fulfilled(registers, memory, cpu_flags) => {
+    #[test]
+    fn jrc_jumps_to_offset_if_condition_is_fulfilled() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let instruction = ControlFlow::JRC(0x40, Condition::Zero);
         registers.PC = 0x0200;
 
@@ -263,7 +295,10 @@ crate::instruction_tests! {
         assert_eq!(3, cycles);
     }
 
-    jrc_continues_if_passed_zero(registers, memory, cpu_flags) => {
+    #[test]
+    fn jrc_continues_if_passed_zero() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let instruction = ControlFlow::JRC(0x00, Condition::Zero);
         registers.PC = 0x0200;
         registers.set_zero(true);
@@ -272,7 +307,10 @@ crate::instruction_tests! {
         assert_eq!(0x0202, registers.PC + instruction.length());
     }
 
-    jrc_can_wrap_around(registers, memory, cpu_flags) => {
+    #[test]
+    fn jrc_can_wrap_around() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let instruction = ControlFlow::JRC(0xAA, Condition::Zero);
         registers.PC = 0x000F;
         registers.set_zero(true);
@@ -281,7 +319,10 @@ crate::instruction_tests! {
         assert_eq!(0xFFBB, registers.PC + instruction.length());
     }
 
-    jrc_zilog_manual_example_one(registers, memory, cpu_flags) => {
+    #[test]
+    fn jrc_zilog_manual_example_one() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let instruction = ControlFlow::JRC(0x03, Condition::Zero);
         registers.PC = 0x480;
         registers.set_zero(true);
@@ -289,7 +330,10 @@ crate::instruction_tests! {
         assert_eq!(0x485, registers.PC + instruction.length());
     }
 
-    jrc_zilog_manual_example_two(registers, memory, cpu_flags) => {
+    #[test]
+    fn jrc_zilog_manual_example_two() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let instruction = ControlFlow::JRC(0xFA, Condition::Zero);
         registers.PC = 0x480;
         registers.set_zero(true);
@@ -298,7 +342,10 @@ crate::instruction_tests! {
         assert_eq!(0x47C, registers.PC + instruction.length());
     }
 
-    call_calls_function_at_operand(registers, memory, cpu_flags) => {
+    #[test]
+    fn call_calls_function_at_operand() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let instruction = ControlFlow::CALL(0xABCD);
         registers.PC = 0xAAAA;
         instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
@@ -308,7 +355,10 @@ crate::instruction_tests! {
         assert_eq!(0xAAAA, memory.get_u16(registers.SP));
     }
 
-    call_sets_sp_correctly(registers, memory, cpu_flags) => {
+    #[test]
+    fn call_sets_sp_correctly() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.PC = 0x8000;
         registers.SP = 0xFFFE;
         memory.set_u16(0x8001, 0x1234);
@@ -321,7 +371,10 @@ crate::instruction_tests! {
         assert_eq!(0x00, memory.get(0xFFFC));
     }
 
-    callc_does_not_call_function_if_condition_is_unfulfilled(registers, memory, cpu_flags) => {
+    #[test]
+    fn callc_does_not_call_function_if_condition_is_unfulfilled() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let instruction = ControlFlow::CALLC(0xABCD, Condition::Carry);
         registers.PC = 0xAAAA;
 
@@ -332,7 +385,10 @@ crate::instruction_tests! {
         assert_eq!(3, cycles);
     }
 
-    callc_calls_function_if_condition_is_unfulfilled(registers, memory, cpu_flags) => {
+    #[test]
+    fn callc_calls_function_if_condition_is_unfulfilled() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let instruction = ControlFlow::CALLC(0xABCD, Condition::Carry);
         registers.PC = 0xAAAA;
         registers.set_flags(MASK_FLAG_CARRY);
@@ -344,7 +400,10 @@ crate::instruction_tests! {
         assert_eq!(6, cycles);
     }
 
-    ret_returns_from_function_call(registers, memory, cpu_flags) => {
+    #[test]
+    fn ret_returns_from_function_call() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let function_call = ControlFlow::CALL(0xABCD);
         let return_call = ControlFlow::RET();
 
@@ -356,7 +415,10 @@ crate::instruction_tests! {
         assert_eq!(0xFFFE, registers.SP);
     }
 
-    retc_returns_from_call_if_condition_is_fulfilled(registers, memory, cpu_flags) => {
+    #[test]
+    fn retc_returns_from_call_if_condition_is_fulfilled() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.PC = 0xAAAA;
 
         let call = ControlFlow::CALL(0xABCD);
@@ -377,7 +439,10 @@ crate::instruction_tests! {
         assert_eq!(5, cycles);
     }
 
-    reti_returns_from_a_function_and_enables_interrupts(registers, memory, cpu_flags) => {
+    #[test]
+    fn reti_returns_from_a_function_and_enables_interrupts() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let call = ControlFlow::CALL(0xABCD);
         let reti = ControlFlow::RETI();
 
@@ -390,7 +455,10 @@ crate::instruction_tests! {
         assert!(cpu_flags.IME);
     }
 
-    rst_calls_function_at_reset_address(registers, memory, cpu_flags) => {
+    #[test]
+    fn rst_calls_function_at_reset_address() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let instruction = ControlFlow::RST(0b1101_0111);
 
         instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();

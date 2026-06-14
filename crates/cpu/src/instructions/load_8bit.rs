@@ -169,8 +169,16 @@ instruction_group! {
 }
 
 #[cfg(test)]
-crate::instruction_tests! {
-    load_data_from_register_r2_into_register_r1(registers, memory, cpu_flags) => {
+mod tests {
+    use super::*;
+    #[allow(unused_imports)]
+    use crate::registers::*;
+    use crate::test_utils::setup;
+
+    #[test]
+    fn load_data_from_register_r2_into_register_r1() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let instruction = Load8Bit::LD(SingleRegister::B, SingleRegister::E);
         registers.set_single(&SingleRegister::E, 42);
 
@@ -182,7 +190,10 @@ crate::instruction_tests! {
         assert_eq!(1, cycles);
     }
 
-    load_data_from_same_register(registers, memory, cpu_flags) => {
+    #[test]
+    fn load_data_from_same_register() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let instruction = Load8Bit::LD(SingleRegister::B, SingleRegister::B);
         registers.set_single(&SingleRegister::B, 42);
 
@@ -195,7 +206,10 @@ crate::instruction_tests! {
     }
 
 
-    loads_data_pointed_to_by_hl_into_register(registers, memory, cpu_flags) => {
+    #[test]
+    fn loads_data_pointed_to_by_hl_into_register() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let instruction = Load8Bit::LD_FROM_HL(SingleRegister::B);
 
         memory.set(0x9000, 42);
@@ -207,7 +221,10 @@ crate::instruction_tests! {
         assert_eq!(2, cycles);
     }
 
-    loads_data_in_register_into_location_at_hl(registers, memory, cpu_flags) => {
+    #[test]
+    fn loads_data_in_register_into_location_at_hl() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let instruction = Load8Bit::LD_TO_HL(SingleRegister::B);
 
         registers.set_single(&SingleRegister::B, 42);
@@ -219,7 +236,10 @@ crate::instruction_tests! {
         assert_eq!(2, cycles);
     }
 
-    loads_operand_into_register(registers, memory, cpu_flags) => {
+    #[test]
+    fn loads_operand_into_register() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let instruction = Load8Bit::LD_N(SingleRegister::B, 0x42);
         let cycles = instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
@@ -227,7 +247,10 @@ crate::instruction_tests! {
         assert_eq!(0x42, registers.get_single(&SingleRegister::B));
     }
 
-    load_value_into_hl_location(registers, memory, cpu_flags) => {
+    #[test]
+    fn load_value_into_hl_location() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let instruction = Load8Bit::LD_N_TO_HL(0x42);
         registers.set_double(&DoubleRegister::HL, 0x9000);
 

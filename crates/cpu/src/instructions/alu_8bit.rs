@@ -398,14 +398,25 @@ impl AluOp {
 }
 
 #[cfg(test)]
-crate::instruction_tests! {
-    add_takes_one_machine_cycle(registers, memory, cpu_flags) => {
+mod tests {
+    use super::*;
+    #[allow(unused_imports)]
+    use crate::registers::*;
+    use crate::test_utils::setup;
+
+    #[test]
+    fn add_takes_one_machine_cycle() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let cycles = ALU8Bit::ADD(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
         assert_eq!(1, cycles);
     }
 
-    add_adds_value_of_register_to_a(registers, memory, cpu_flags) => {
+    #[test]
+    fn add_adds_value_of_register_to_a() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_single(&SingleRegister::A, 1);
         registers.set_single(&SingleRegister::B, 2);
 
@@ -414,7 +425,10 @@ crate::instruction_tests! {
         assert_eq!(3, registers.get_single(&SingleRegister::A));
     }
 
-    add_sets_z_flag_if_result_is_zero(registers, memory, cpu_flags) => {
+    #[test]
+    fn add_sets_z_flag_if_result_is_zero() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         assert_eq!(0b0000_0000, registers.get_flags());
 
         registers.set_single(&SingleRegister::A, 0);
@@ -425,7 +439,10 @@ crate::instruction_tests! {
         assert_eq!(0b1000_0000, registers.get_flags());
     }
 
-    add_sets_h_flag_if_carry_from_bit_3(registers, memory, cpu_flags) => {
+    #[test]
+    fn add_sets_h_flag_if_carry_from_bit_3() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_single(&SingleRegister::A, 0b0000_0111);
         registers.set_single(&SingleRegister::B, 0b0000_1001);
 
@@ -434,7 +451,10 @@ crate::instruction_tests! {
         assert_eq!(0b0010_0000, registers.get_flags());
     }
 
-    add_sets_c_flag_if_carry_from_bit_7(registers, memory, cpu_flags) => {
+    #[test]
+    fn add_sets_c_flag_if_carry_from_bit_7() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_single(&SingleRegister::A, 0b1111_0000);
         registers.set_single(&SingleRegister::B, 0b0001_0001);
 
@@ -443,7 +463,10 @@ crate::instruction_tests! {
         assert_eq!(0b0001_0000, registers.get_flags());
     }
 
-    add_handles_overflow(registers, memory, cpu_flags) => {
+    #[test]
+    fn add_handles_overflow() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_single(&SingleRegister::A, 252);
         registers.set_single(&SingleRegister::B, 8);
 
@@ -452,20 +475,29 @@ crate::instruction_tests! {
         assert_eq!(4, registers.get_single(&SingleRegister::A));
     }
 
-    add_does_not_support_the_f_register(registers, memory, cpu_flags) => {
+    #[test]
+    fn add_does_not_support_the_f_register() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let result = ALU8Bit::ADD(SingleRegister::F).execute(&mut registers, &mut memory, &mut cpu_flags);
         let expected = Err(crate::errors::CpuError::UnsupportedSingleRegister(SingleRegister::F));
 
         assert_eq!(expected, result);
     }
 
-    addn_takes_2_machine_cycles(registers, memory, cpu_flags) => {
+    #[test]
+    fn addn_takes_2_machine_cycles() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let cycles = ALU8Bit::ADD_N(0xAB).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
         assert_eq!(2, cycles);
     }
 
-    addn_adds_operand_to_a(registers, memory, cpu_flags) => {
+    #[test]
+    fn addn_adds_operand_to_a() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_single(&SingleRegister::A, 40);
 
         ALU8Bit::ADD_N(2).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
@@ -473,13 +505,19 @@ crate::instruction_tests! {
         assert_eq!(42, registers.get_single(&SingleRegister::A));
     }
 
-    addhl_takes_2_machine_cycles(registers, memory, cpu_flags) => {
+    #[test]
+    fn addhl_takes_2_machine_cycles() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let cycles = ALU8Bit::ADD_HL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
         assert_eq!(2, cycles);
     }
 
-    addhl_adds_hl_to_a(registers, memory, cpu_flags) => {
+    #[test]
+    fn addhl_adds_hl_to_a() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_single(&SingleRegister::A, 40);
         memory.set(registers.get_double(&DoubleRegister::HL), 2);
 
@@ -488,7 +526,10 @@ crate::instruction_tests! {
         assert_eq!(42, registers.get_single(&SingleRegister::A));
     }
 
-    add_handles_flags_correctly(registers, memory, cpu_flags) => {
+    #[test]
+    fn add_handles_flags_correctly() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_single(&SingleRegister::A, 0x3A);
         registers.set_single(&SingleRegister::B, 0xC6);
 
@@ -510,13 +551,19 @@ crate::instruction_tests! {
         assert_eq!(0b0000_0000, registers.get_flags(), "Incorrect flags");
     }
 
-    adc_takes_1_machine_cycle(registers, memory, cpu_flags) => {
+    #[test]
+    fn adc_takes_1_machine_cycle() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let cycles = ALU8Bit::ADC(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
         assert_eq!(1, cycles);
     }
 
-    adc_adds_register_plus_carry_to_a(registers, memory, cpu_flags) => {
+    #[test]
+    fn adc_adds_register_plus_carry_to_a() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_single(&SingleRegister::A, 40);
         registers.set_single(&SingleRegister::B, 2);
         registers.set_flags(MASK_FLAG_CARRY);
@@ -533,13 +580,19 @@ crate::instruction_tests! {
         assert_eq!(42, registers.get_single(&SingleRegister::A));
     }
 
-    adcn_takes_2_machine_cycles(registers, memory, cpu_flags) => {
+    #[test]
+    fn adcn_takes_2_machine_cycles() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let cycles = ALU8Bit::ADC_N(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
         assert_eq!(2, cycles);
     }
 
-    adcn_adds_register_plus_carry_to_a(registers, memory, cpu_flags) => {
+    #[test]
+    fn adcn_adds_register_plus_carry_to_a() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_single(&SingleRegister::A, 40);
         registers.set_flags(MASK_FLAG_CARRY);
 
@@ -555,13 +608,19 @@ crate::instruction_tests! {
         assert_eq!(42, registers.get_single(&SingleRegister::A));
     }
 
-    adchl_takes_2_machine_cycles(registers, memory, cpu_flags) => {
+    #[test]
+    fn adchl_takes_2_machine_cycles() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let cycles = ALU8Bit::ADC_HL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
         assert_eq!(2, cycles);
     }
 
-    adchl_adds_register_plus_carry_to_a(registers, memory, cpu_flags) => {
+    #[test]
+    fn adchl_adds_register_plus_carry_to_a() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_single(&SingleRegister::A, 40);
         memory.set(registers.get_double(&DoubleRegister::HL), 2);
         registers.set_flags(MASK_FLAG_CARRY);
@@ -578,13 +637,19 @@ crate::instruction_tests! {
         assert_eq!(42, registers.get_single(&SingleRegister::A));
     }
 
-    sub_takes_1_machine_cycle(registers, memory, cpu_flags) => {
+    #[test]
+    fn sub_takes_1_machine_cycle() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let cycles = ALU8Bit::SUB(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
         assert_eq!(1, cycles);
     }
 
-    sub_subtracts_register_from_a(registers, memory, cpu_flags) => {
+    #[test]
+    fn sub_subtracts_register_from_a() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_single(&SingleRegister::A, 45);
         registers.set_single(&SingleRegister::B, 3);
 
@@ -593,7 +658,10 @@ crate::instruction_tests! {
         assert_eq!(42, registers.get_single(&SingleRegister::A));
     }
 
-    sub_sets_the_negative_flag(registers, memory, cpu_flags) => {
+    #[test]
+    fn sub_sets_the_negative_flag() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         assert!(!registers.is_negative());
 
         ALU8Bit::SUB(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
@@ -601,7 +669,10 @@ crate::instruction_tests! {
         assert!(registers.is_negative());
     }
 
-    sub_sets_the_zero_flag_if_result_is_zero(registers, memory, cpu_flags) => {
+    #[test]
+    fn sub_sets_the_zero_flag_if_result_is_zero() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         assert!(!registers.is_zero());
 
         ALU8Bit::SUB(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
@@ -609,7 +680,10 @@ crate::instruction_tests! {
         assert!(registers.is_zero());
     }
 
-    sub_resets_the_zero_flag_if_result_is_non_zero(registers, memory, cpu_flags) => {
+    #[test]
+    fn sub_resets_the_zero_flag_if_result_is_non_zero() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_single(&SingleRegister::A, 45);
         registers.set_single(&SingleRegister::B, 3);
 
@@ -620,7 +694,10 @@ crate::instruction_tests! {
         assert!(!registers.is_zero());
     }
 
-    sub_handles_overflow(registers, memory, cpu_flags) => {
+    #[test]
+    fn sub_handles_overflow() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_single(&SingleRegister::A, 10);
         registers.set_single(&SingleRegister::B, 15);
 
@@ -629,7 +706,10 @@ crate::instruction_tests! {
         assert_eq!(251, registers.get_single(&SingleRegister::A));
     }
 
-    sub_handles_flags_correctly(registers, memory, cpu_flags) => {
+    #[test]
+    fn sub_handles_flags_correctly() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_single(&SingleRegister::E, 0x3E);
         memory.set(registers.get_double(&DoubleRegister::HL), 0x40);
         registers.set_single(&SingleRegister::A, 0x3E);
@@ -651,7 +731,10 @@ crate::instruction_tests! {
         assert_eq!(0b0101_0000, registers.get_flags(), "SubN sets incorrect flags");
     }
 
-    sbc_takes_the_correct_amount_of_machine_cycles(registers, memory, cpu_flags) => {
+    #[test]
+    fn sbc_takes_the_correct_amount_of_machine_cycles() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let cycles = ALU8Bit::SBC(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
         assert_eq!(1, cycles, "Incorrect machine cycle count for Sbc");
@@ -665,7 +748,10 @@ crate::instruction_tests! {
         assert_eq!(2, cycles, "Incorrect machine cycle count for SbcHL");
     }
 
-    sbc_computes_and_handles_flags_correctly(registers, memory, cpu_flags) => {
+    #[test]
+    fn sbc_computes_and_handles_flags_correctly() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_single(&SingleRegister::H, 0x2A);
         memory.set(registers.get_double(&DoubleRegister::HL), 0x4F);
         registers.set_single(&SingleRegister::A, 0x3B);
@@ -692,7 +778,10 @@ crate::instruction_tests! {
         assert_eq!(0b0101_0000, registers.get_flags(), "SbcHL sets incorrect flags: {:08b}", registers.get_flags());
     }
 
-    and_takes_the_correct_amount_of_machine_cycles(registers, memory, cpu_flags) => {
+    #[test]
+    fn and_takes_the_correct_amount_of_machine_cycles() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let cycles = ALU8Bit::AND(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
         assert_eq!(1, cycles, "Incorrect machine cycle count for And");
@@ -706,14 +795,20 @@ crate::instruction_tests! {
         assert_eq!(2, cycles, "Incorrect machine cycle count for AndHL");
     }
 
-    and_does_not_support_the_f_register(registers, memory, cpu_flags) => {
+    #[test]
+    fn and_does_not_support_the_f_register() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let result = ALU8Bit::AND(SingleRegister::F).execute(&mut registers, &mut memory, &mut cpu_flags);
         let expected = Err(crate::errors::CpuError::UnsupportedSingleRegister(SingleRegister::F));
 
         assert_eq!(expected, result);
     }
 
-    and_computes_and_handles_flags_correctly(registers, memory, cpu_flags) => {
+    #[test]
+    fn and_computes_and_handles_flags_correctly() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_single(&SingleRegister::A, 0x5A);
         registers.set_single(&SingleRegister::L, 0x3F);
 
@@ -735,7 +830,10 @@ crate::instruction_tests! {
         assert_eq!(0b1010_0000, registers.get_flags(), "AndHL sets incorrect flags");
     }
 
-    or_takes_the_correct_amount_of_machine_cycles(registers, memory, cpu_flags) => {
+    #[test]
+    fn or_takes_the_correct_amount_of_machine_cycles() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let cycles = ALU8Bit::OR(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
         assert_eq!(1, cycles, "Incorrect machine cycle count for Or");
@@ -749,14 +847,20 @@ crate::instruction_tests! {
         assert_eq!(2, cycles, "Incorrect machine cycle count for OrHL");
     }
 
-    or_does_not_support_the_f_register(registers, memory, cpu_flags) => {
+    #[test]
+    fn or_does_not_support_the_f_register() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let result = ALU8Bit::OR(SingleRegister::F).execute(&mut registers, &mut memory, &mut cpu_flags);
         let expected = Err(crate::errors::CpuError::UnsupportedSingleRegister(SingleRegister::F));
 
         assert_eq!(expected, result);
     }
 
-    or_computes_and_handles_flags_correctly(registers, memory, cpu_flags) => {
+    #[test]
+    fn or_computes_and_handles_flags_correctly() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         memory.set(registers.get_double(&DoubleRegister::HL), 0x0F);
         registers.set_single(&SingleRegister::A, 0x5A);
 
@@ -777,7 +881,10 @@ crate::instruction_tests! {
         assert_eq!(0b0000_0000, registers.get_flags(), "OrHL sets incorrect flags");
     }
 
-    xor_takes_the_correct_amount_of_machine_cycles(registers, memory, cpu_flags) => {
+    #[test]
+    fn xor_takes_the_correct_amount_of_machine_cycles() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let cycles = ALU8Bit::XOR(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
         assert_eq!(1, cycles, "Incorrect machine cycle count for Xor");
@@ -791,14 +898,20 @@ crate::instruction_tests! {
         assert_eq!(2, cycles, "Incorrect machine cycle count for XorHL");
     }
 
-    xor_does_not_support_the_f_register(registers, memory, cpu_flags) => {
+    #[test]
+    fn xor_does_not_support_the_f_register() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let result = ALU8Bit::XOR(SingleRegister::F).execute(&mut registers, &mut memory, &mut cpu_flags);
         let expected = Err(crate::errors::CpuError::UnsupportedSingleRegister(SingleRegister::F));
 
         assert_eq!(expected, result);
     }
 
-    xor_computes_and_handles_flags_correctly(registers, memory, cpu_flags) => {
+    #[test]
+    fn xor_computes_and_handles_flags_correctly() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         memory.set(registers.get_double(&DoubleRegister::HL), 0x8A);
         registers.set_single(&SingleRegister::A, 0xFF);
 
@@ -819,7 +932,10 @@ crate::instruction_tests! {
         assert_eq!(0b0000_0000, registers.get_flags(), "XorHL sets incorrect flags");
     }
 
-    cp_takes_the_correct_amount_of_machine_cycles(registers, memory, cpu_flags) => {
+    #[test]
+    fn cp_takes_the_correct_amount_of_machine_cycles() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let cycles = ALU8Bit::CP(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
         assert_eq!(1, cycles, "Incorrect machine cycle count for Cp");
@@ -833,14 +949,20 @@ crate::instruction_tests! {
         assert_eq!(2, cycles, "Incorrect machine cycle count for CpHL");
     }
 
-    cp_does_not_support_the_f_register(registers, memory, cpu_flags) => {
+    #[test]
+    fn cp_does_not_support_the_f_register() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let result = ALU8Bit::CP(SingleRegister::F).execute(&mut registers, &mut memory, &mut cpu_flags);
         let expected = Err(crate::errors::CpuError::UnsupportedSingleRegister(SingleRegister::F));
 
         assert_eq!(expected, result);
     }
 
-    cp_handles_flags_correctly(registers, memory, cpu_flags) => {
+    #[test]
+    fn cp_handles_flags_correctly() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         memory.set(registers.get_double(&DoubleRegister::HL), 0x40);
         registers.set_single(&SingleRegister::B, 0x2F);
         registers.set_single(&SingleRegister::A, 0x3C);
@@ -857,7 +979,10 @@ crate::instruction_tests! {
         assert_eq!(0b0101_0000, registers.get_flags(), "CpHL sets incorrect flags");
     }
 
-    inc_takes_the_correct_amount_of_machine_cycles(registers, memory, cpu_flags) => {
+    #[test]
+    fn inc_takes_the_correct_amount_of_machine_cycles() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let cycles = ALU8Bit::INC(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
         assert_eq!(1, cycles, "Incorrect machine cycle count for Inc");
@@ -867,14 +992,20 @@ crate::instruction_tests! {
         assert_eq!(3, cycles, "Incorrect machine cycle count for IncHL");
     }
 
-    inc_does_not_support_the_f_register(registers, memory, cpu_flags) => {
+    #[test]
+    fn inc_does_not_support_the_f_register() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let result = ALU8Bit::INC(SingleRegister::F).execute(&mut registers, &mut memory, &mut cpu_flags);
         let expected = Err(crate::errors::CpuError::UnsupportedSingleRegister(SingleRegister::F));
 
         assert_eq!(expected, result);
     }
 
-    inc_handles_flags_correctly(registers, memory, cpu_flags) => {
+    #[test]
+    fn inc_handles_flags_correctly() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         memory.set(registers.get_double(&DoubleRegister::HL), 0x50);
         registers.set_single(&SingleRegister::A, 0xFF);
 
@@ -895,7 +1026,10 @@ crate::instruction_tests! {
         assert_eq!(0b0001_0000, registers.get_flags(), "IncHL did not maintain Carry flag");
     }
 
-    dec_takes_the_correct_amount_of_machine_cycles(registers, memory, cpu_flags) => {
+    #[test]
+    fn dec_takes_the_correct_amount_of_machine_cycles() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let cycles = ALU8Bit::DEC(SingleRegister::B).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
         assert_eq!(1, cycles, "Incorrect machine cycle count for Dec");
@@ -905,14 +1039,20 @@ crate::instruction_tests! {
         assert_eq!(3, cycles, "Incorrect machine cycle count for DecHL");
     }
 
-    dec_does_not_support_the_f_register(registers, memory, cpu_flags) => {
+    #[test]
+    fn dec_does_not_support_the_f_register() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let result = ALU8Bit::DEC(SingleRegister::F).execute(&mut registers, &mut memory, &mut cpu_flags);
         let expected = Err(crate::errors::CpuError::UnsupportedSingleRegister(SingleRegister::F));
 
         assert_eq!(expected, result);
     }
 
-    dec_handles_flags_correctly(registers, memory, cpu_flags) => {
+    #[test]
+    fn dec_handles_flags_correctly() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         memory.set(registers.get_double(&DoubleRegister::HL), 0x00);
         registers.set_single(&SingleRegister::A, 0x01);
         registers.set_single(&SingleRegister::C, 0x02);

@@ -152,8 +152,16 @@ instruction_group! {
 }
 
 #[cfg(test)]
-crate::instruction_tests! {
-    di_disables_interrupt_handling(registers, memory, cpu_flags) => {
+mod tests {
+    use super::*;
+    #[allow(unused_imports)]
+    use crate::registers::*;
+    use crate::test_utils::setup;
+
+    #[test]
+    fn di_disables_interrupt_handling() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         cpu_flags.IME = true;
         let cycles = Misc::DI().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
@@ -161,7 +169,10 @@ crate::instruction_tests! {
         assert!(!cpu_flags.IME);
     }
 
-    ei_schedules_interrupt_handling(registers, memory, cpu_flags) => {
+    #[test]
+    fn ei_schedules_interrupt_handling() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         assert!(!cpu_flags.IME_scheduled);
 
         let cycles = Misc::EI().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
@@ -170,13 +181,19 @@ crate::instruction_tests! {
         assert!(cpu_flags.IME_scheduled);
     }
 
-    ccf_takes_one_machine_cycle(registers, memory, cpu_flags) => {
+    #[test]
+    fn ccf_takes_one_machine_cycle() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let cycles = Misc::CCF().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
         assert_eq!(1, cycles);
     }
 
-    ccf_clears_the_negative_and_half_carry_flags(registers, memory, cpu_flags) => {
+    #[test]
+    fn ccf_clears_the_negative_and_half_carry_flags() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_flags(0b1111_0000);
 
         Misc::CCF().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
@@ -184,7 +201,10 @@ crate::instruction_tests! {
         assert_eq!(0b1000_0000, registers.get_flags());
     }
 
-    ccf_flips_the_carry_flag(registers, memory, cpu_flags) => {
+    #[test]
+    fn ccf_flips_the_carry_flag() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_flags(MASK_FLAG_CARRY);
 
         Misc::CCF().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
@@ -196,13 +216,19 @@ crate::instruction_tests! {
         assert_eq!(0b0001_0000, registers.get_flags());
     }
 
-    scf_takes_one_machine_cycle(registers, memory, cpu_flags) => {
+    #[test]
+    fn scf_takes_one_machine_cycle() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let cycles = Misc::SCF().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
         assert_eq!(1, cycles);
     }
 
-    scf_clears_the_negative_and_half_carry_flags(registers, memory, cpu_flags) => {
+    #[test]
+    fn scf_clears_the_negative_and_half_carry_flags() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_flags(0b1111_0000);
 
         Misc::SCF().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
@@ -214,7 +240,10 @@ crate::instruction_tests! {
         assert_eq!(0b1001_0000, registers.get_flags());
     }
 
-    scf_sets_the_carry_flag(registers, memory, cpu_flags) => {
+    #[test]
+    fn scf_sets_the_carry_flag() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_flags(0b0000_0000);
 
         Misc::SCF().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
@@ -227,13 +256,19 @@ crate::instruction_tests! {
     }
 
 
-    daa_takes_one_machine_cycle(registers, memory, cpu_flags) => {
+    #[test]
+    fn daa_takes_one_machine_cycle() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let cycles = Misc::DAA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
         assert_eq!(1, cycles);
     }
 
-    daa_clears_the_half_carry_flag(registers, memory, cpu_flags) => {
+    #[test]
+    fn daa_clears_the_half_carry_flag() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_flags(MASK_FLAG_HALF_CARRY);
 
         Misc::DAA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
@@ -247,7 +282,10 @@ crate::instruction_tests! {
         assert_eq!(0, h_flag);
     }
 
-    daa_flips_sets_the_zero_flag(registers, memory, cpu_flags) => {
+    #[test]
+    fn daa_flips_sets_the_zero_flag() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_single(&SingleRegister::A, 0);
 
         Misc::DAA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
@@ -261,7 +299,10 @@ crate::instruction_tests! {
         assert_eq!(0b0000_0000, registers.get_flags());
     }
 
-    daa_example_test(registers, memory, cpu_flags) => {
+    #[test]
+    fn daa_example_test() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         use crate::instructions::alu_8bit::{ALU8Bit};
 
         registers.set_single(&SingleRegister::A, 0x45);
@@ -283,13 +324,19 @@ crate::instruction_tests! {
         assert_eq!(0x4Bu8.wrapping_add(0xFA), registers.get_single(&SingleRegister::A));
     }
 
-    cpl_takes_one_machine_cycle(registers, memory, cpu_flags) => {
+    #[test]
+    fn cpl_takes_one_machine_cycle() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let cycles = Misc::CPL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
         assert_eq!(1, cycles);
     }
 
-    cpl_sets_the_negative_and_half_carry_flags(registers, memory, cpu_flags) => {
+    #[test]
+    fn cpl_sets_the_negative_and_half_carry_flags() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_flags(0b0000_0000);
 
         Misc::CPL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
@@ -301,7 +348,10 @@ crate::instruction_tests! {
         assert_eq!(0b0110_0000, registers.get_flags());
     }
 
-    cpl_flips_all_bits_in_the_a_register(registers, memory, cpu_flags) => {
+    #[test]
+    fn cpl_flips_all_bits_in_the_a_register() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_single(&SingleRegister::A, 0b0000_0000);
 
         Misc::CPL().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();

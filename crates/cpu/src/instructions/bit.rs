@@ -94,6 +94,9 @@ instruction_group! {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[allow(unused_imports)]
+    use crate::registers::*;
+    use crate::test_utils::setup;
 
     #[test]
     fn get_bit_mask_works() {
@@ -110,12 +113,11 @@ mod tests {
             assert_eq!(expected, get_bit_mask(operand));
         }
     }
-}
 
-#[cfg(test)]
-crate::instruction_tests! {
+    #[test]
+    fn bit_returns_the_correct_number_of_machine_cycles() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
 
-    bit_returns_the_correct_number_of_machine_cycles(registers, memory, cpu_flags) => {
         for operand in 0..8 {
             let cycles = Bit::BIT(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
@@ -127,7 +129,10 @@ crate::instruction_tests! {
         }
     }
 
-    bit_sets_zero_flag_to_zero_if_specified_bit_is_one(registers, memory, cpu_flags) => {
+    #[test]
+    fn bit_sets_zero_flag_to_zero_if_specified_bit_is_one() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_single(&SingleRegister::A, 0x80);
 
         Bit::BIT(0b01_111_111).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
@@ -135,7 +140,10 @@ crate::instruction_tests! {
         assert!(!registers.is_zero());
     }
 
-    bit_sets_zero_flag_to_one_if_specified_bit_is_zero(registers, memory, cpu_flags) => {
+    #[test]
+    fn bit_sets_zero_flag_to_one_if_specified_bit_is_zero() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_single(&SingleRegister::L, 0xEF);
 
         Bit::BIT(0b01_100_101).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
@@ -143,13 +151,19 @@ crate::instruction_tests! {
         assert!(registers.is_zero());
     }
 
-    bit_sets_the_half_carry_flag(registers, memory, cpu_flags) => {
+    #[test]
+    fn bit_sets_the_half_carry_flag() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         Bit::BIT(0b01_111_111).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
         assert!(registers.is_half_carry());
     }
 
-    bit_resets_the_negative_flag(registers, memory, cpu_flags) => {
+    #[test]
+    fn bit_resets_the_negative_flag() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_flags(MASK_FLAG_NEGATIVE);
 
         Bit::BIT(0b01_111_111).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
@@ -157,7 +171,10 @@ crate::instruction_tests! {
         assert!(!registers.is_negative());
     }
 
-    bit_leaves_carry_flag_unchanged(registers, memory, cpu_flags) => {
+    #[test]
+    fn bit_leaves_carry_flag_unchanged() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_flags(MASK_FLAG_CARRY);
 
         Bit::BIT(0b01_111_111).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
@@ -171,7 +188,10 @@ crate::instruction_tests! {
         assert!(!registers.is_carry());
     }
 
-    set_returns_the_correct_number_of_machine_cycles(registers, memory, cpu_flags) => {
+    #[test]
+    fn set_returns_the_correct_number_of_machine_cycles() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         for operand in 0..8 {
             let cycles = Bit::SET(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
@@ -183,7 +203,10 @@ crate::instruction_tests! {
         }
     }
 
-    set_sets_the_specified_bit_to_one_in_the_register(registers, memory, cpu_flags) => {
+    #[test]
+    fn set_sets_the_specified_bit_to_one_in_the_register() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         for (operand, expected) in [
             (0b11_000_111, 0b0000_0001),
             (0b11_001_111, 0b0000_0010),
@@ -200,7 +223,10 @@ crate::instruction_tests! {
         }
     }
 
-    set_sets_the_specified_bit_to_one_in_memory(registers, memory, cpu_flags) => {
+    #[test]
+    fn set_sets_the_specified_bit_to_one_in_memory() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_double(&DoubleRegister::HL, 0xABCD);
 
         for (operand, expected) in [
@@ -220,7 +246,10 @@ crate::instruction_tests! {
         }
     }
 
-    set_leaves_all_flags_unchanged(registers, memory, cpu_flags) => {
+    #[test]
+    fn set_leaves_all_flags_unchanged() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         for flags in [0xF0, 0x00] {
             registers.set_flags(flags);
 
@@ -230,7 +259,10 @@ crate::instruction_tests! {
         }
     }
 
-    res_returns_the_correct_number_of_machine_cycles(registers, memory, cpu_flags) => {
+    #[test]
+    fn res_returns_the_correct_number_of_machine_cycles() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         for operand in 0..8 {
             let cycles = Bit::RES(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
@@ -242,7 +274,10 @@ crate::instruction_tests! {
         }
     }
 
-    res_resets_the_specified_bit_to_zero_in_the_register(registers, memory, cpu_flags) => {
+    #[test]
+    fn res_resets_the_specified_bit_to_zero_in_the_register() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         for (operand, expected) in [(0b10_000_111, 0b1111_1110),
                                         (0b10_001_111, 0b1111_1101),
                                         (0b10_010_111, 0b1111_1011),
@@ -259,7 +294,10 @@ crate::instruction_tests! {
         }
     }
 
-    res_resets_the_specified_bit_to_zero_in_memory(registers, memory, cpu_flags) => {
+    #[test]
+    fn res_resets_the_specified_bit_to_zero_in_memory() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_double(&DoubleRegister::HL, 0xABCD);
 
         for (operand, expected) in [(0b10_000_110, 0b1111_1110),
@@ -278,7 +316,10 @@ crate::instruction_tests! {
         }
     }
 
-    res_leaves_all_flags_unchanged(registers, memory, cpu_flags) => {
+    #[test]
+    fn res_leaves_all_flags_unchanged() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         for flags in [0xF0, 0x00] {
             registers.set_flags(flags);
 

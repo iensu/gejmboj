@@ -483,19 +483,33 @@ instruction_group! {
 }
 
 #[cfg(test)]
-crate::instruction_tests! {
-    rlca_takes_1_machine_cycle(registers, memory, cpu_flags) => {
+mod tests {
+    use super::*;
+    #[allow(unused_imports)]
+    use crate::registers::*;
+    use crate::test_utils::setup;
+
+    #[test]
+    fn rlca_takes_1_machine_cycle() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let cycles = RotateShift::RLCA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(1, cycles);
     }
 
-    rlca_rotates_the_a_register_left(registers, memory, cpu_flags) => {
+    #[test]
+    fn rlca_rotates_the_a_register_left() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_single(&SingleRegister::A, 0b0001_0100);
         RotateShift::RLCA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0b0010_1000, registers.get_single(&SingleRegister::A));
     }
 
-    rlca_sets_flags_correctly(registers, memory, cpu_flags) => {
+    #[test]
+    fn rlca_sets_flags_correctly() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_flags(0b1110_0000);
         RotateShift::RLCA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0b0000_0000, registers.get_flags(), "Did not clear Z, N and H");
@@ -511,25 +525,37 @@ crate::instruction_tests! {
         assert_eq!(0b0001_0000, registers.get_flags(), "C should be set");
     }
 
-    rla_takes_1_machine_cycle(registers, memory, cpu_flags) => {
+    #[test]
+    fn rla_takes_1_machine_cycle() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let cycles = RotateShift::RLA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(1, cycles);
     }
 
-    rla_rotates_the_a_register_left(registers, memory, cpu_flags) => {
+    #[test]
+    fn rla_rotates_the_a_register_left() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_single(&SingleRegister::A, 0b0001_0100);
         RotateShift::RLA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0b0010_1000, registers.get_single(&SingleRegister::A));
     }
 
-    rla_sets_bit0_to_c(registers, memory, cpu_flags) => {
+    #[test]
+    fn rla_sets_bit0_to_c() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_flags(MASK_FLAG_CARRY);
         registers.set_single(&SingleRegister::A, 0b0000_0000);
         RotateShift::RLA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0b0000_0001, registers.get_single(&SingleRegister::A));
     }
 
-    rla_sets_flags_correctly(registers, memory, cpu_flags) => {
+    #[test]
+    fn rla_sets_flags_correctly() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_flags(0b1110_0000);
         RotateShift::RLA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0b0000_0000, registers.get_flags(), "Did not clear Z, N and H");
@@ -545,18 +571,27 @@ crate::instruction_tests! {
         assert_eq!(0b0001_0000, registers.get_flags(), "C should be set");
     }
 
-    rrca_takes_1_machine_cycle(registers, memory, cpu_flags) => {
+    #[test]
+    fn rrca_takes_1_machine_cycle() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let cycles = RotateShift::RRCA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(1, cycles);
     }
 
-    rrca_rotates_the_a_register_right(registers, memory, cpu_flags) => {
+    #[test]
+    fn rrca_rotates_the_a_register_right() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_single(&SingleRegister::A, 0b0010_1000);
         RotateShift::RRCA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0b0001_0100, registers.get_single(&SingleRegister::A));
     }
 
-    rrca_sets_flags_correctly(registers, memory, cpu_flags) => {
+    #[test]
+    fn rrca_sets_flags_correctly() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_flags(0b1110_0000);
         RotateShift::RRCA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0b0000_0000, registers.get_flags(), "Did not clear Z, N and H");
@@ -573,25 +608,37 @@ crate::instruction_tests! {
         registers.clear();
     }
 
-    rra_takes_1_machine_cycle(registers, memory, cpu_flags) => {
+    #[test]
+    fn rra_takes_1_machine_cycle() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let cycles = RotateShift::RRA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(1, cycles);
     }
 
-    rra_rotates_the_a_register_left(registers, memory, cpu_flags) => {
+    #[test]
+    fn rra_rotates_the_a_register_left() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_single(&SingleRegister::A, 0b001_01000);
         RotateShift::RRA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0b0001_0100, registers.get_single(&SingleRegister::A));
     }
 
-    rra_sets_bit7_to_c(registers, memory, cpu_flags) => {
+    #[test]
+    fn rra_sets_bit7_to_c() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_flags(MASK_FLAG_CARRY);
         registers.set_single(&SingleRegister::A, 0b0000_0000);
         RotateShift::RRA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0b1000_0000, registers.get_single(&SingleRegister::A));
     }
 
-    rra_sets_flags_correctly(registers, memory, cpu_flags) => {
+    #[test]
+    fn rra_sets_flags_correctly() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_flags(0b1110_0000);
         RotateShift::RRA().execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0b0000_0000, registers.get_flags(), "Did not clear Z, N and H");
@@ -608,7 +655,10 @@ crate::instruction_tests! {
         registers.clear();
     }
 
-    rlc_returns_the_correct_machine_cycles(registers, memory, cpu_flags) => {
+    #[test]
+    fn rlc_returns_the_correct_machine_cycles() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         for operand in 0..8 {
             let cycles = RotateShift::RLC(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
@@ -620,7 +670,10 @@ crate::instruction_tests! {
         }
     }
 
-    rlc_rotates_the_correct_register(registers, memory, cpu_flags) => {
+    #[test]
+    fn rlc_rotates_the_correct_register() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         use std::convert::TryInto;
 
         let value: u8 = 0b0101_0101;
@@ -646,7 +699,10 @@ crate::instruction_tests! {
         }
     }
 
-    rlc_handles_flags_correctly(registers, memory, cpu_flags) => {
+    #[test]
+    fn rlc_handles_flags_correctly() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_single(&SingleRegister::B, 0b0);
         RotateShift::RLC(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0b1000_0000, registers.get_flags(), "Z flag not set");
@@ -659,7 +715,10 @@ crate::instruction_tests! {
         registers.clear();
     }
 
-    rrc_returns_the_correct_machine_cycles(registers, memory, cpu_flags) => {
+    #[test]
+    fn rrc_returns_the_correct_machine_cycles() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         for operand in 0..8 {
             let cycles = RotateShift::RRC(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
@@ -671,7 +730,10 @@ crate::instruction_tests! {
         }
     }
 
-    rrc_rotates_the_correct_register(registers, memory, cpu_flags) => {
+    #[test]
+    fn rrc_rotates_the_correct_register() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         use std::convert::TryInto;
 
         let value: u8 = 0b0010_1000;
@@ -697,7 +759,10 @@ crate::instruction_tests! {
         }
     }
 
-    rrc_handles_flags_correctly(registers, memory, cpu_flags) => {
+    #[test]
+    fn rrc_handles_flags_correctly() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_single(&SingleRegister::B, 0b0);
         RotateShift::RRC(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0b1000_0000, registers.get_flags(), "Z flag not set");
@@ -709,7 +774,10 @@ crate::instruction_tests! {
         registers.clear();
     }
 
-    rl_returns_the_correct_machine_cycles(registers, memory, cpu_flags) => {
+    #[test]
+    fn rl_returns_the_correct_machine_cycles() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         for operand in 0..8 {
             let cycles = RotateShift::RL(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
@@ -721,7 +789,10 @@ crate::instruction_tests! {
         }
     }
 
-    rl_rotates_the_correct_register_to_the_left(registers, memory, cpu_flags) => {
+    #[test]
+    fn rl_rotates_the_correct_register_to_the_left() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         use std::convert::TryInto;
 
         let value: u8 = 0b0001_0100;
@@ -747,7 +818,10 @@ crate::instruction_tests! {
         }
     }
 
-    rl_handles_flags_correctly(registers, memory, cpu_flags) => {
+    #[test]
+    fn rl_handles_flags_correctly() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_single(&SingleRegister::B, 0b0);
         RotateShift::RL(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0b1000_0000, registers.get_flags(), "Z flag not set");
@@ -767,7 +841,10 @@ crate::instruction_tests! {
         registers.clear();
     }
 
-    rr_returns_the_correct_machine_cycles(registers, memory, cpu_flags) => {
+    #[test]
+    fn rr_returns_the_correct_machine_cycles() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         for operand in 0..8 {
             let cycles = RotateShift::RR(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
@@ -779,7 +856,10 @@ crate::instruction_tests! {
         }
     }
 
-    rr_rotates_the_correct_register_to_the_right(registers, memory, cpu_flags) => {
+    #[test]
+    fn rr_rotates_the_correct_register_to_the_right() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         use std::convert::TryInto;
 
         let value: u8 = 0b0010_1000;
@@ -805,7 +885,10 @@ crate::instruction_tests! {
         }
     }
 
-    rr_handles_flags_correctly(registers, memory, cpu_flags) => {
+    #[test]
+    fn rr_handles_flags_correctly() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_single(&SingleRegister::B, 0b0);
         RotateShift::RR(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0b1000_0000, registers.get_flags(), "Z flag not set");
@@ -824,7 +907,10 @@ crate::instruction_tests! {
         registers.clear();
     }
 
-    sla_returns_the_correct_machine_cycles(registers, memory, cpu_flags) => {
+    #[test]
+    fn sla_returns_the_correct_machine_cycles() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         for operand in 0..8 {
             let cycles = RotateShift::SLA(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
@@ -836,7 +922,10 @@ crate::instruction_tests! {
         }
     }
 
-    sla_shifts_the_correct_register_to_the_left(registers, memory, cpu_flags) => {
+    #[test]
+    fn sla_shifts_the_correct_register_to_the_left() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         use std::convert::TryInto;
 
         let value: u8 = 0b1001_0100;
@@ -862,7 +951,10 @@ crate::instruction_tests! {
         }
     }
 
-    sla_handles_flags_correctly(registers, memory, cpu_flags) => {
+    #[test]
+    fn sla_handles_flags_correctly() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_single(&SingleRegister::B, 0b0);
         RotateShift::SLA(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0b1000_0000, registers.get_flags(), "Z flag not set");
@@ -879,7 +971,10 @@ crate::instruction_tests! {
         registers.clear();
     }
 
-    sla_sets_the_correct_values(registers, memory, cpu_flags) => {
+    #[test]
+    fn sla_sets_the_correct_values() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_single(&SingleRegister::D, 0x80);
         memory.set(registers.get_double(&DoubleRegister::HL), 0xFF);
 
@@ -898,7 +993,10 @@ crate::instruction_tests! {
         assert!(!registers.is_negative());
     }
 
-    sra_returns_the_correct_machine_cycles(registers, memory, cpu_flags) => {
+    #[test]
+    fn sra_returns_the_correct_machine_cycles() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         for operand in 0..8 {
             let cycles = RotateShift::SRA(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
@@ -910,7 +1008,10 @@ crate::instruction_tests! {
         }
     }
 
-    sra_shifts_the_correct_register_to_the_right(registers, memory, cpu_flags) => {
+    #[test]
+    fn sra_shifts_the_correct_register_to_the_right() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         use std::convert::TryInto;
 
         let value: u8 = 0b0010_1001;
@@ -936,7 +1037,10 @@ crate::instruction_tests! {
         }
     }
 
-    sra_repeats_the_seventh_bit(registers, memory, cpu_flags) => {
+    #[test]
+    fn sra_repeats_the_seventh_bit() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         use std::convert::TryInto;
 
         let value: u8 = 0b1010_1000;
@@ -962,7 +1066,10 @@ crate::instruction_tests! {
         }
     }
 
-    sra_handles_flags_correctly(registers, memory, cpu_flags) => {
+    #[test]
+    fn sra_handles_flags_correctly() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_single(&SingleRegister::B, 0b0);
         RotateShift::SRA(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0b1000_0000, registers.get_flags(), "Z flag not set");
@@ -979,7 +1086,10 @@ crate::instruction_tests! {
         registers.clear();
     }
 
-    srl_returns_the_correct_machine_cycles(registers, memory, cpu_flags) => {
+    #[test]
+    fn srl_returns_the_correct_machine_cycles() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         for operand in 0..8 {
             let cycles = RotateShift::SRL(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
@@ -991,7 +1101,10 @@ crate::instruction_tests! {
         }
     }
 
-    srl_shifts_the_correct_register_to_the_right(registers, memory, cpu_flags) => {
+    #[test]
+    fn srl_shifts_the_correct_register_to_the_right() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         use std::convert::TryInto;
 
         let value: u8 = 0b0010_1001;
@@ -1017,7 +1130,10 @@ crate::instruction_tests! {
         }
     }
 
-    srl_does_not_repeat_the_seventh_bit(registers, memory, cpu_flags) => {
+    #[test]
+    fn srl_does_not_repeat_the_seventh_bit() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         use std::convert::TryInto;
 
         let value: u8 = 0b1010_1000;
@@ -1043,7 +1159,10 @@ crate::instruction_tests! {
         }
     }
 
-    srl_handles_flags_correctly(registers, memory, cpu_flags) => {
+    #[test]
+    fn srl_handles_flags_correctly() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_single(&SingleRegister::B, 0b0);
         RotateShift::SRL(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0b1000_0000, registers.get_flags(), "Z flag not set");
@@ -1060,7 +1179,10 @@ crate::instruction_tests! {
         registers.clear();
     }
 
-    swap_returns_the_correct_machine_cycles(registers, memory, cpu_flags) => {
+    #[test]
+    fn swap_returns_the_correct_machine_cycles() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         for operand in 0..8 {
             let cycles = RotateShift::SWAP(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
@@ -1072,7 +1194,10 @@ crate::instruction_tests! {
         }
     }
 
-    swap_shifts_the_correct_register_to_the_right(registers, memory, cpu_flags) => {
+    #[test]
+    fn swap_shifts_the_correct_register_to_the_right() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         use std::convert::TryInto;
 
         let value: u8 = 0b0011_1100;
@@ -1098,7 +1223,10 @@ crate::instruction_tests! {
         }
     }
 
-    swap_handles_flags_correctly(registers, memory, cpu_flags) => {
+    #[test]
+    fn swap_handles_flags_correctly() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_single(&SingleRegister::B, 0b0);
         RotateShift::SWAP(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(0b1000_0000, registers.get_flags(), "Z flag not set");

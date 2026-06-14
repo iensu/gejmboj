@@ -6,3 +6,6 @@ pub mod instructions;
 pub mod macros;
 pub mod memory;
 pub mod registers;
+
+#[cfg(test)]
+pub(crate) mod test_utils;

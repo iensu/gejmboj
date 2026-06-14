@@ -80,13 +80,24 @@ instruction_group! {
 }
 
 #[cfg(test)]
-crate::instruction_tests! {
-    addhl_takes_2_machine_cycles(registers, memory, cpu_flags) => {
+mod tests {
+    use super::*;
+    #[allow(unused_imports)]
+    use crate::registers::*;
+    use crate::test_utils::setup;
+
+    #[test]
+    fn addhl_takes_2_machine_cycles() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let cycles = ALU16Bit::ADD_HL(DoubleRegister::BC).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(2, cycles);
     }
 
-    addhl_adds_register_to_hl(registers, memory, cpu_flags) => {
+    #[test]
+    fn addhl_adds_register_to_hl() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_double(&DoubleRegister::BC, 0xAABB);
         registers.set_double(&DoubleRegister::HL, 0x1122);
         ALU16Bit::ADD_HL(DoubleRegister::BC).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
@@ -94,7 +105,10 @@ crate::instruction_tests! {
         assert_eq!(0xBBDD, registers.get_double(&DoubleRegister::HL));
     }
 
-    addhl_sets_flags_correctly(registers, memory, cpu_flags) => {
+    #[test]
+    fn addhl_sets_flags_correctly() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         for (hl, bc, flags, expected_flags) in [
             (0x0001, 0x0002, 0b0000_0000, 0b0000_0000),
             (0x0001, 0x0002, 0b0100_0000, 0b0000_0000),
@@ -113,19 +127,28 @@ crate::instruction_tests! {
         }
     }
 
-    addsp_takes_4_machine_cycles(registers, memory, cpu_flags) => {
+    #[test]
+    fn addsp_takes_4_machine_cycles() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let cycles = ALU16Bit::ADD_SP(0).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(4, cycles);
     }
 
-    addsp_adds_operand_to_sp(registers, memory, cpu_flags) => {
+    #[test]
+    fn addsp_adds_operand_to_sp() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_double(&DoubleRegister::SP, 0x1122);
         ALU16Bit::ADD_SP(0xAB).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
         assert_eq!(0x11CD, registers.get_double(&DoubleRegister::SP));
     }
 
-    addsp_sets_flags_correctly(registers, memory, cpu_flags) => {
+    #[test]
+    fn addsp_sets_flags_correctly() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         for (sp, operand, flags, expected_flags) in [
             (0x0001, 0x02, 0b0000_0000, 0b0000_0000),
             (0x0003, 0x04, 0b0100_0000, 0b0000_0000),
@@ -142,19 +165,28 @@ crate::instruction_tests! {
         }
     }
 
-    inc_takes_2_machine_cycles(registers, memory, cpu_flags) => {
+    #[test]
+    fn inc_takes_2_machine_cycles() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let cycles = ALU16Bit::INC(DoubleRegister::BC).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(2, cycles);
     }
 
-    inc_increments_register(registers, memory, cpu_flags) => {
+    #[test]
+    fn inc_increments_register() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_double(&DoubleRegister::BC, 0xABCD);
         ALU16Bit::INC(DoubleRegister::BC).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
         assert_eq!(0xABCE, registers.get_double(&DoubleRegister::BC));
     }
 
-    inc_flags_are_unaffected(registers, memory, cpu_flags) => {
+    #[test]
+    fn inc_flags_are_unaffected() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_double(&DoubleRegister::BC, 0xABCD);
         registers.set_flags(0b1111_0000);
         ALU16Bit::INC(DoubleRegister::BC).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
@@ -162,19 +194,28 @@ crate::instruction_tests! {
         assert_eq!(0b1111_0000, registers.get_flags());
     }
 
-    dec_takes_2_machine_cycles(registers, memory, cpu_flags) => {
+    #[test]
+    fn dec_takes_2_machine_cycles() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         let cycles = ALU16Bit::DEC(DoubleRegister::BC).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
         assert_eq!(2, cycles);
     }
 
-    dec_decrements_register(registers, memory, cpu_flags) => {
+    #[test]
+    fn dec_decrements_register() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_double(&DoubleRegister::BC, 0xABCD);
         ALU16Bit::DEC(DoubleRegister::BC).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
 
         assert_eq!(0xABCC, registers.get_double(&DoubleRegister::BC));
     }
 
-    dec_flags_are_unaffected(registers, memory, cpu_flags) => {
+    #[test]
+    fn dec_flags_are_unaffected() {
+        let (mut registers, mut memory, mut cpu_flags) = setup();
+
         registers.set_double(&DoubleRegister::BC, 0xABCD);
         registers.set_flags(0b1111_0000);
         ALU16Bit::DEC(DoubleRegister::BC).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();

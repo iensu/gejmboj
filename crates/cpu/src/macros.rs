@@ -39,31 +39,6 @@ macro_rules! instruction_group {
     }
 }
 
-#[cfg(test)]
-#[doc(hidden)]
-#[macro_export]
-macro_rules! instruction_tests {
-    ($($testname:ident ($r:ident, $m:ident, $c:ident) => $testbody:block)*) => {
-        #[cfg(test)]
-        mod instruction_tests {
-            use super::*;
-            #[allow(unused_imports)]
-            use $crate::registers::*;
-
-            $(
-                #[test]
-                fn $testname() {
-                    let mut $r = Registers::new();
-                    let mut $m = $crate::memory::Memory::new();
-                    let mut $c = $crate::cpu::CpuFlags::new();
-
-                    $testbody
-                }
-            )*
-        }
-    }
-}
-
 /// Combines instructions into a single enum
 #[doc(hidden)]
 #[macro_export]
