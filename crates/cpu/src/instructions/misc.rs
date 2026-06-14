@@ -1,7 +1,7 @@
 use crate::{
     instruction_group,
     instructions::utils,
-    registers::{SingleRegister, MASK_FLAG_CARRY, MASK_FLAG_ZERO},
+    registers::{MASK_FLAG_CARRY, MASK_FLAG_NEGATIVE, MASK_FLAG_ZERO, SingleRegister},
 };
 
 instruction_group! {
@@ -109,29 +109,42 @@ instruction_group! {
         /// and subtraction, especially when no micro-processor is involved since the necessary circuit becomes a lot simpler. A
         /// common use-case is Seven Segment Displays where each display represents a digit.
         DAA() [1] => {
-            let a = registers.get_single(&SingleRegister::A);
-            let mut bcd_correction = 0;
+            let mut a = registers.get_single(&SingleRegister::A);
+            let mut adjustment = 0;
             let mut flags = 0;
 
-            if registers.is_half_carry() || (a & 0xF) > 9 {
-                bcd_correction |= 0x6;
-            }
-            if registers.is_carry() || a > 0x99 {
-                bcd_correction |= 0x60;
-                flags |= MASK_FLAG_CARRY;
-            }
-
             if registers.is_negative() {
-                bcd_correction = utils::twos_complement(bcd_correction);
+                flags |= MASK_FLAG_NEGATIVE;
+
+                if registers.is_half_carry() {
+                    adjustment += 0x6;
+                }
+                if registers.is_carry() {
+                    adjustment += 0x60;
+                    flags |= MASK_FLAG_CARRY;
+                }
+
+                a = a.wrapping_sub(adjustment);
+            } else {
+                if registers.is_half_carry() || a & 0xF > 0x9 {
+                    adjustment += 0x6;
+                }
+                if registers.is_carry() || a > 0x99 {
+                    adjustment += 0x60;
+                    flags |= MASK_FLAG_CARRY;
+                }
+                let (val, wrapped) = a.overflowing_add(adjustment);
+                a = val;
+                if wrapped {
+                    flags |= MASK_FLAG_CARRY;
+                }
             }
 
-            let bcd = a.wrapping_add(bcd_correction);
-            registers.set_single(&SingleRegister::A, bcd);
-
-            if bcd == 0 {
+            if a == 0 {
                 flags |= MASK_FLAG_ZERO;
             }
 
+            registers.set_single(&SingleRegister::A,a);
             registers.set_flags(flags);
             Ok(1)
         }
