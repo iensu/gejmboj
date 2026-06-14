@@ -59,6 +59,7 @@ instruction_group! {
         }
 
         /// Load A into into address pointed to by BC
+        /// LD (BC),A
         LD_A_TO_BC() [1] => {
             memory.set(
                 registers.get_double(&DoubleRegister::BC),
@@ -184,7 +185,9 @@ mod tests {
 
         assert_eq!(0, registers.get_single(&SingleRegister::B));
 
-        let cycles = instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        let cycles = instruction
+            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .unwrap();
 
         assert_eq!(42, registers.get_single(&SingleRegister::B));
         assert_eq!(1, cycles);
@@ -199,12 +202,13 @@ mod tests {
 
         assert_eq!(42, registers.get_single(&SingleRegister::B));
 
-        let cycles = instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        let cycles = instruction
+            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .unwrap();
 
         assert_eq!(42, registers.get_single(&SingleRegister::B));
         assert_eq!(1, cycles);
     }
-
 
     #[test]
     fn loads_data_pointed_to_by_hl_into_register() {
@@ -215,7 +219,9 @@ mod tests {
         memory.set(0x9000, 42);
         registers.set_double(&DoubleRegister::HL, 0x9000);
 
-        let cycles = instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        let cycles = instruction
+            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .unwrap();
 
         assert_eq!(42, registers.get_single(&SingleRegister::B));
         assert_eq!(2, cycles);
@@ -230,7 +236,9 @@ mod tests {
         registers.set_single(&SingleRegister::B, 42);
         registers.set_double(&DoubleRegister::HL, 0x9000);
 
-        let cycles = instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        let cycles = instruction
+            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .unwrap();
 
         assert_eq!(42, memory.get(0x9000));
         assert_eq!(2, cycles);
@@ -241,7 +249,9 @@ mod tests {
         let (mut registers, mut memory, mut cpu_flags) = setup();
 
         let instruction = Load8Bit::LD_N(SingleRegister::B, 0x42);
-        let cycles = instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        let cycles = instruction
+            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .unwrap();
 
         assert_eq!(2, cycles);
         assert_eq!(0x42, registers.get_single(&SingleRegister::B));
@@ -254,7 +264,9 @@ mod tests {
         let instruction = Load8Bit::LD_N_TO_HL(0x42);
         registers.set_double(&DoubleRegister::HL, 0x9000);
 
-        let cycles = instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        let cycles = instruction
+            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .unwrap();
 
         assert_eq!(3, cycles);
         assert_eq!(0x42, memory.get(0x9000));
