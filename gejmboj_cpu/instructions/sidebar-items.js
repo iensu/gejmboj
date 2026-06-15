@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["Condition","Instruction"],"fn":["decode"],"mod":["alu_16bit","alu_8bit","bit","control_flow","load_16bit","load_8bit","misc","rotate_shift"],"type":["InstructionResult"]};
+window.SIDEBAR_ITEMS = {"enum":["Condition","Instruction"],"fn":["decode"],"mod":["alu_16bit","alu_8bit","bit","control_flow","load_16bit","load_8bit","misc","rotate_shift","stack"],"type":["InstructionResult"]};
