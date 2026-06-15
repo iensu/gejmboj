@@ -65,11 +65,11 @@ impl Condition {
 }
 
 fn get_8bit_operand(pc: u16, memory: &Memory) -> u8 {
-    memory.get(pc + 1)
+    memory.get(pc)
 }
 
 fn get_16bit_operand(pc: u16, memory: &Memory) -> u16 {
-    memory.get_u16(pc + 1)
+    memory.get_u16(pc)
 }
 
 /// Decode an operation code into an `Instruction`.
@@ -265,7 +265,6 @@ mod tests {
     #[test]
     fn decode_with_operand_rotate_shift_instructions_works() {
         let code = 0b1100_1011;
-        let pc = 0;
         let mut memory = Memory::new();
 
         for (operand, instruction) in [
@@ -278,7 +277,8 @@ mod tests {
             (0b0011_0111, I::RotateShift(RS::SWAP(0b0011_0111))),
             (0b0011_1111, I::RotateShift(RS::SRL(0b0011_1111))),
         ] {
-            memory.set(pc + 1, operand);
+            let pc = 1;
+            memory.set(pc, operand);
 
             assert_eq!(
                 instruction,
@@ -291,7 +291,6 @@ mod tests {
     #[test]
     fn decode_with_operand_bit_instructions_works() {
         let code = 0b1100_1011;
-        let pc = 0;
         let mut memory = Memory::new();
 
         for (operand, instruction) in [
@@ -299,7 +298,8 @@ mod tests {
             (0b1100_1111, I::Bit(Bit::SET(0b1100_1111))),
             (0b1001_0111, I::Bit(Bit::RES(0b1001_0111))),
         ] {
-            memory.set(pc + 1, operand);
+            let pc = 1;
+            memory.set(pc, operand);
 
             assert_eq!(
                 instruction,

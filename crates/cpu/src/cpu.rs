@@ -68,58 +68,50 @@ impl CPU {
         registers: &mut Registers,
         memory: &mut Memory,
     ) -> Result<(u16, Instruction), CpuError> {
-        let opcode = memory.get(registers.PC);
-        let instruction_location = registers.PC;
+        let opcode = self.fetch(registers, memory);
+        let instruction = self.decode(opcode, registers, memory)?;
+        let cycles = self.execute(&instruction, registers, memory)?;
 
-        let instruction = instructions::decode(opcode, registers.PC, memory)?;
-
-        if let Some(out) = self.out.as_mut() {
-            Self::gameboy_doctor_output(out, registers, memory);
-        }
-
-        registers.PC += instruction.length();
-
-        if self.flags.IME_scheduled {
-            self.flags.IME = true;
-            self.flags.IME_scheduled = false;
-        }
-
-        instruction.execute(registers, memory, &mut self.flags)?;
-
-        Ok((instruction_location, instruction))
+        // TODO: Only return cycles
+        Ok((cycles, instruction))
     }
 
-    /// Tick used for Gameboy CPU tests.
-    ///
-    /// PC is already set 1 higher than expected in the initial state, so parsing the
-    /// opcode fails with the usual [`CPU::tick`] method. This method adjusts PC so
-    /// the opcode can be decoded correctly.
-    ///
-    /// TODO: Figure out why the tests are written this way...
-    pub fn tick_gameboy_cpu_test(
+    pub fn fetch(&mut self, registers: &mut Registers, memory: &mut Memory) -> u8 {
+        let opcode = memory.get(registers.PC);
+        registers.PC += 1;
+        opcode
+    }
+
+    pub fn decode(
+        &self,
+        opcode: u8,
+        registers: &mut Registers,
+        memory: &Memory,
+    ) -> Result<Instruction, CpuError> {
+        let instruction = instructions::decode(opcode, registers.PC, memory)?;
+        registers.PC += instruction.length() - 1; // instruction length - opcode length
+
+        Ok(instruction)
+    }
+
+    pub fn execute(
         &mut self,
+        instruction: &Instruction,
         registers: &mut Registers,
         memory: &mut Memory,
-    ) -> Result<(u16, Instruction), CpuError> {
-        let opcode = memory.get(registers.PC - 1);
-        let instruction_location = registers.PC - 1;
-
-        let instruction = instructions::decode(opcode, registers.PC - 1, memory)?;
-
+    ) -> Result<u16, CpuError> {
         if let Some(out) = self.out.as_mut() {
             Self::gameboy_doctor_output(out, registers, memory);
         }
-
-        registers.PC += instruction.length();
 
         if self.flags.IME_scheduled {
             self.flags.IME = true;
             self.flags.IME_scheduled = false;
         }
 
-        instruction.execute(registers, memory, &mut self.flags)?;
+        let cycles = instruction.execute(registers, memory, &mut self.flags)?;
 
-        Ok((instruction_location, instruction))
+        Ok(cycles)
     }
 
     #[allow(unused)]

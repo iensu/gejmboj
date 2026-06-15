@@ -79,17 +79,19 @@ fn run_cpu_test(t: &CpuTest) -> Result<(), &'static str> {
     registers.set_single(&SingleRegister::L, t.initial_state.l);
     registers.PC = t.initial_state.pc;
     registers.SP = t.initial_state.sp;
-
     for (addr, value) in &t.initial_state.ram {
-        // NOTE: Initial PC points to the second RAM byte, not the first.
-        //       I'm not yet sure why, but for the time being the workaround
-        //       is to shift the RAM addresses by 1 byte during execution
         memory.set(*addr, *value);
     }
 
-    let (_, instruction) = cpu
-        .tick_gameboy_cpu_test(&mut registers, &mut memory)
+    let opcode = memory.get(registers.PC - 1);
+
+    let instruction = cpu.decode(opcode, &mut registers, &mut memory).unwrap();
+    let _cycles = cpu
+        .execute(&instruction, &mut registers, &mut memory)
         .unwrap();
+
+    // TODO: Figure out why this is necessary
+    registers.PC += 1;
 
     if check_result(&registers, &memory, &t) {
         Ok(())
@@ -189,8 +191,6 @@ impl TestSettings {
     pub fn extract(registers: &Registers, memory: &Memory, addresses: &[u16]) -> Self {
         let ram: Vec<(u16, u8)> = addresses
             .iter()
-            // NOTE: RAM addresses were shifted, so we need to add 1 to the address
-            //       to get the intended byte.
             .map(|addr| (*addr, memory.get(*addr)))
             .collect();
         Self {
