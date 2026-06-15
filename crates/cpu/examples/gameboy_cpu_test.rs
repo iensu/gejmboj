@@ -26,27 +26,30 @@ fn main() {
         files.sort();
 
         let mut cleared_tests = 0;
-        let mut exit = false;
+        let mut failed_files: Vec<PathBuf> = Vec::new();
         for file_path in files {
-            if exit {
-                break;
-            }
-            println!("--------------------------------------------------------");
             println!("FILE: {}", file_path.to_str().unwrap());
 
-            let bytes = std::fs::read(file_path).unwrap();
+            let bytes = std::fs::read(file_path.clone()).unwrap();
 
             let tests: Vec<CpuTest> = serde_json::from_slice(&bytes).unwrap();
 
-            for (index, t) in tests.iter().enumerate() {
-                print!("T{:03}: ", index);
-                if run_cpu_test(t).is_ok() {
+            for t in tests {
+                if run_cpu_test(&t).is_ok() {
                     cleared_tests += 1;
                 } else {
-                    eprintln!("CLEARED TESTS: {cleared_tests}");
-                    exit = true;
+                    println!("--------------------------------------------------------");
+                    failed_files.push(file_path);
                     break;
                 };
+            }
+        }
+        println!("CLEARED TESTS: {cleared_tests}");
+
+        if failed_files.len() > 0 {
+            println!("FAILED FILES:");
+            for p in failed_files {
+                println!("- {}", p.to_str().unwrap());
             }
         }
     } else {
@@ -54,10 +57,10 @@ fn main() {
 
         let tests: Vec<CpuTest> = serde_json::from_slice(&bytes).unwrap();
 
-        for (index, t) in tests.iter().enumerate() {
-            print!("T{:03}: ", index);
+        for t in tests.iter() {
             run_cpu_test(t).unwrap();
         }
+        println!("ALL TESTS PASSED!");
     }
 }
 
@@ -88,10 +91,10 @@ fn run_cpu_test(t: &CpuTest) -> Result<(), &'static str> {
         .tick_gameboy_cpu_test(&mut registers, &mut memory)
         .unwrap();
 
-    print!("{} -> {instruction:?}\n", t.name);
     if check_result(&registers, &memory, &t) {
         Ok(())
     } else {
+        print!("{} -> {instruction:?}\n", t.name);
         Err("failed")
     }
 }

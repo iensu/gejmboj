@@ -11,6 +11,7 @@ pub mod load_16bit;
 pub mod load_8bit;
 pub mod misc;
 pub mod rotate_shift;
+pub mod stack;
 mod utils;
 
 use alu_8bit::ALU8Bit;
@@ -21,13 +22,14 @@ use load_8bit::Load8Bit;
 use load_16bit::Load16Bit;
 use misc::Misc;
 use rotate_shift::RotateShift;
+use stack::Stack;
 use utils::into_bits;
 
 /// Return either the number of consumed machine cycles, or a `CpuError`.
 pub type InstructionResult = Result<u16, CpuError>;
 
 combine_instructions! {
-    Instruction(ALU16Bit, ALU8Bit, Bit, ControlFlow, Load8Bit, Load16Bit, Misc, RotateShift)
+    Instruction(ALU16Bit, ALU8Bit, Bit, ControlFlow, Load8Bit, Load16Bit, Misc, RotateShift, Stack)
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -180,6 +182,10 @@ pub fn decode(opcode: u8, pc: u16, memory: &Memory) -> Result<Instruction, CpuEr
                 .map(Instruction::RotateShift)
                 .or_else(|_| bit::decode(operand).map(Instruction::Bit))
         }
+
+        (1, 1, 1, 1, 1, 0, 0, 0) => Ok(Instruction::Stack(Stack::LD_HL_SP_E(get_8bit_operand(
+            pc, memory,
+        )))),
 
         // VARIABLE MATCHES
         //

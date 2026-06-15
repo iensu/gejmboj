@@ -1,6 +1,5 @@
 use crate::{
     instruction_group,
-    instructions::utils,
     registers::{MASK_FLAG_CARRY, MASK_FLAG_NEGATIVE, MASK_FLAG_ZERO, SingleRegister},
 };
 

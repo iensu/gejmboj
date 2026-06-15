@@ -39,13 +39,6 @@ pub fn get_register_value(
     }
 }
 
-/// Returns 8-bit Two's Complement of the given number.
-///
-/// <https://en.wikipedia.org/wiki/Two%27s_complement>
-pub const fn twos_complement(x: u8) -> u8 {
-    (!x).wrapping_add(1)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -115,15 +108,5 @@ mod tests {
 
         let (result, _) = get_register_value(&registers, &memory, 0b110);
         assert_eq!(0xCD, result);
-    }
-
-    #[test]
-    fn twos_complement_works() {
-        assert_eq!(0, twos_complement(0));
-        assert_eq!(1, twos_complement(255));
-        assert_eq!(255, twos_complement(1));
-        assert_eq!(128, twos_complement(128));
-        assert_eq!(237, twos_complement(19));
-        assert_eq!(250, twos_complement(6));
     }
 }
