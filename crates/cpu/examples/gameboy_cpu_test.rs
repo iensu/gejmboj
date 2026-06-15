@@ -7,7 +7,7 @@ use gejmboj_cpu::{
 };
 
 fn main() {
-    let Some(path) = std::env::args().skip(1).next() else {
+    let Some(path) = std::env::args().nth(1) else {
         panic!("Must specify a test file path!");
     };
 
@@ -18,7 +18,7 @@ fn main() {
             let path = e.unwrap().path();
 
             if path.extension().unwrap() == "json" {
-                acc.push(path)
+                acc.push(path);
             }
 
             acc
@@ -41,12 +41,12 @@ fn main() {
                     println!("--------------------------------------------------------");
                     failed_files.push(file_path);
                     break;
-                };
+                }
             }
         }
         println!("CLEARED TESTS: {cleared_tests}");
 
-        if failed_files.len() > 0 {
+        if !failed_files.is_empty() {
             println!("FAILED FILES:");
             for p in failed_files {
                 println!("- {}", p.to_str().unwrap());
@@ -57,7 +57,7 @@ fn main() {
 
         let tests: Vec<CpuTest> = serde_json::from_slice(&bytes).unwrap();
 
-        for t in tests.iter() {
+        for t in &tests {
             run_cpu_test(t).unwrap();
         }
         println!("ALL TESTS PASSED!");
@@ -85,7 +85,7 @@ fn run_cpu_test(t: &CpuTest) -> Result<(), &'static str> {
 
     let opcode = memory.get(registers.PC - 1);
 
-    let instruction = cpu.decode(opcode, &mut registers, &mut memory).unwrap();
+    let instruction = cpu.decode(opcode, &mut registers, &memory).unwrap();
     let _cycles = cpu
         .execute(&instruction, &mut registers, &mut memory)
         .unwrap();
@@ -93,10 +93,10 @@ fn run_cpu_test(t: &CpuTest) -> Result<(), &'static str> {
     // TODO: Figure out why this is necessary
     registers.PC += 1;
 
-    if check_result(&registers, &memory, &t) {
+    if check_result(&registers, &memory, t) {
         Ok(())
     } else {
-        print!("{} -> {instruction:?}\n", t.name);
+        println!("{} -> {instruction:?}", t.name);
         Err("failed")
     }
 }

@@ -344,9 +344,9 @@ mod tests {
 
     #[test]
     fn daa_example_test() {
-        let (mut registers, mut memory, mut cpu_flags) = setup();
-
         use crate::instructions::alu_8bit::ALU8Bit;
+
+        let (mut registers, mut memory, mut cpu_flags) = setup();
 
         registers.set_single(&SingleRegister::A, 0x45);
         registers.set_single(&SingleRegister::B, 0x38);
