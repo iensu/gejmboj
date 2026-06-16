@@ -124,6 +124,9 @@ pub fn decode(opcode: u8, pc: u16, memory: &Memory) -> Result<Instruction, CpuEr
         (0, 0, 1, 1, 0, 0, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LD_A_TO_HL_DEC())),
         (0, 0, 1, 0, 1, 0, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LD_A_FROM_HL_INC())),
         (0, 0, 1, 0, 0, 0, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LD_A_TO_HL_INC())),
+        (0, 0, 1, 1, 0, 1, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LD_HL_IMM(
+            get_8bit_operand(pc, memory),
+        ))),
         (0, 0, 0, 0, 1, 0, 0, 0) => Ok(Instruction::Load16Bit(Load16Bit::LD_FROM_SP(
             get_16bit_operand(pc, memory),
         ))),

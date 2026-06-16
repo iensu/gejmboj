@@ -166,6 +166,14 @@ instruction_group! {
             registers.set_single(r, *operand);
             Ok(2)
         }
+
+        /// Load immediate data into address pointed to by HL
+        /// LD (HL), n
+        LD_HL_IMM(operand: u8) [2] => {
+            let addr = registers.get_double(&DoubleRegister::HL);
+            memory.set(addr, *operand);
+            Ok(3)
+        }
     }
 }
 
