@@ -75,183 +75,183 @@ fn get_16bit_operand(pc: u16, memory: &Memory) -> u16 {
 /// Decode an operation code into an `Instruction`.
 #[allow(clippy::too_many_lines)]
 pub fn decode(opcode: u8, pc: u16, memory: &Memory) -> Result<Instruction, CpuError> {
-    match into_bits(opcode) {
+    let instruction = match into_bits(opcode) {
         // ABSOLUTE MATCHES
         //
         // misc
-        (0, 0, 0, 0, 0, 0, 0, 0) => Ok(Instruction::Misc(Misc::NOP())),
-        (1, 1, 1, 1, 0, 0, 1, 1) => Ok(Instruction::Misc(Misc::DI())),
-        (1, 1, 1, 1, 1, 0, 1, 1) => Ok(Instruction::Misc(Misc::EI())),
-        (0, 0, 1, 1, 1, 1, 1, 1) => Ok(Instruction::Misc(Misc::CCF())),
-        (0, 0, 1, 1, 0, 1, 1, 1) => Ok(Instruction::Misc(Misc::SCF())),
-        (0, 0, 1, 0, 0, 1, 1, 1) => Ok(Instruction::Misc(Misc::DAA())),
-        (0, 0, 1, 0, 1, 1, 1, 1) => Ok(Instruction::Misc(Misc::CPL())),
+        (0, 0, 0, 0, 0, 0, 0, 0) => Instruction::Misc(Misc::NOP()),
+        (1, 1, 1, 1, 0, 0, 1, 1) => Instruction::Misc(Misc::DI()),
+        (1, 1, 1, 1, 1, 0, 1, 1) => Instruction::Misc(Misc::EI()),
+        (0, 0, 1, 1, 1, 1, 1, 1) => Instruction::Misc(Misc::CCF()),
+        (0, 0, 1, 1, 0, 1, 1, 1) => Instruction::Misc(Misc::SCF()),
+        (0, 0, 1, 0, 0, 1, 1, 1) => Instruction::Misc(Misc::DAA()),
+        (0, 0, 1, 0, 1, 1, 1, 1) => Instruction::Misc(Misc::CPL()),
 
         // control flow
-        (1, 1, 0, 0, 0, 0, 1, 1) => Ok(Instruction::ControlFlow(ControlFlow::JP(
-            get_16bit_operand(pc, memory),
-        ))),
-        (1, 1, 0, 0, 1, 0, 0, 1) => Ok(Instruction::ControlFlow(ControlFlow::RET())),
-        (1, 1, 0, 1, 1, 0, 0, 1) => Ok(Instruction::ControlFlow(ControlFlow::RETI())),
-        (1, 1, 0, 0, 1, 1, 0, 1) => Ok(Instruction::ControlFlow(ControlFlow::CALL(
-            get_16bit_operand(pc, memory),
-        ))),
-        (1, 1, 1, 0, 1, 0, 0, 1) => Ok(Instruction::ControlFlow(ControlFlow::JP_HL())),
-        (0, 0, 0, 1, 1, 0, 0, 0) => Ok(Instruction::ControlFlow(ControlFlow::JR(
-            get_8bit_operand(pc, memory),
-        ))),
+        (1, 1, 0, 0, 0, 0, 1, 1) => {
+            Instruction::ControlFlow(ControlFlow::JP(get_16bit_operand(pc, memory)))
+        }
+        (1, 1, 0, 0, 1, 0, 0, 1) => Instruction::ControlFlow(ControlFlow::RET()),
+        (1, 1, 0, 1, 1, 0, 0, 1) => Instruction::ControlFlow(ControlFlow::RETI()),
+        (1, 1, 0, 0, 1, 1, 0, 1) => {
+            Instruction::ControlFlow(ControlFlow::CALL(get_16bit_operand(pc, memory)))
+        }
+        (1, 1, 1, 0, 1, 0, 0, 1) => Instruction::ControlFlow(ControlFlow::JP_HL()),
+        (0, 0, 0, 1, 1, 0, 0, 0) => {
+            Instruction::ControlFlow(ControlFlow::JR(get_8bit_operand(pc, memory)))
+        }
 
         // 8 bit load instructions
-        (0, 0, 0, 0, 1, 0, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LD_BC_TO_A())),
-        (0, 0, 0, 1, 1, 0, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LD_DE_TO_A())),
-        (0, 0, 0, 0, 0, 0, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LD_A_TO_BC())),
-        (0, 0, 0, 1, 0, 0, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LD_A_TO_DE())),
-        (1, 1, 1, 1, 1, 0, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LD_TO_A(
-            get_16bit_operand(pc, memory),
-        ))),
-        (1, 1, 1, 1, 0, 0, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LDH_C_TO_A())),
-        (1, 1, 1, 0, 0, 0, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LDH_C_FROM_A())),
-        (1, 1, 1, 1, 0, 0, 0, 0) => Ok(Instruction::Load8Bit(Load8Bit::LDH_TO_A(
-            get_8bit_operand(pc, memory),
-        ))),
-        (1, 1, 1, 0, 0, 0, 0, 0) => Ok(Instruction::Load8Bit(Load8Bit::LDH_FROM_A(
-            get_8bit_operand(pc, memory),
-        ))),
-        (1, 1, 1, 0, 1, 0, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LD_FROM_A(
-            get_16bit_operand(pc, memory),
-        ))),
-        (0, 0, 1, 1, 1, 0, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LD_A_FROM_HL_DEC())),
-        (0, 0, 1, 1, 0, 0, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LD_A_TO_HL_DEC())),
-        (0, 0, 1, 0, 1, 0, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LD_A_FROM_HL_INC())),
-        (0, 0, 1, 0, 0, 0, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LD_A_TO_HL_INC())),
-        (0, 0, 1, 1, 0, 1, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LD_HL_IMM(
-            get_8bit_operand(pc, memory),
-        ))),
-        (0, 0, 0, 0, 1, 0, 0, 0) => Ok(Instruction::Load16Bit(Load16Bit::LD_FROM_SP(
-            get_16bit_operand(pc, memory),
-        ))),
-        (1, 1, 1, 1, 1, 0, 0, 1) => Ok(Instruction::Load16Bit(Load16Bit::LD_HL_TO_SP())),
+        (0, 0, 0, 0, 1, 0, 1, 0) => Instruction::Load8Bit(Load8Bit::LD_BC_TO_A()),
+        (0, 0, 0, 1, 1, 0, 1, 0) => Instruction::Load8Bit(Load8Bit::LD_DE_TO_A()),
+        (0, 0, 0, 0, 0, 0, 1, 0) => Instruction::Load8Bit(Load8Bit::LD_A_TO_BC()),
+        (0, 0, 0, 1, 0, 0, 1, 0) => Instruction::Load8Bit(Load8Bit::LD_A_TO_DE()),
+        (1, 1, 1, 1, 1, 0, 1, 0) => {
+            Instruction::Load8Bit(Load8Bit::LD_TO_A(get_16bit_operand(pc, memory)))
+        }
+        (1, 1, 1, 1, 0, 0, 1, 0) => Instruction::Load8Bit(Load8Bit::LDH_C_TO_A()),
+        (1, 1, 1, 0, 0, 0, 1, 0) => Instruction::Load8Bit(Load8Bit::LDH_C_FROM_A()),
+        (1, 1, 1, 1, 0, 0, 0, 0) => {
+            Instruction::Load8Bit(Load8Bit::LDH_TO_A(get_8bit_operand(pc, memory)))
+        }
+        (1, 1, 1, 0, 0, 0, 0, 0) => {
+            Instruction::Load8Bit(Load8Bit::LDH_FROM_A(get_8bit_operand(pc, memory)))
+        }
+        (1, 1, 1, 0, 1, 0, 1, 0) => {
+            Instruction::Load8Bit(Load8Bit::LD_FROM_A(get_16bit_operand(pc, memory)))
+        }
+        (0, 0, 1, 1, 1, 0, 1, 0) => Instruction::Load8Bit(Load8Bit::LD_A_FROM_HL_DEC()),
+        (0, 0, 1, 1, 0, 0, 1, 0) => Instruction::Load8Bit(Load8Bit::LD_A_TO_HL_DEC()),
+        (0, 0, 1, 0, 1, 0, 1, 0) => Instruction::Load8Bit(Load8Bit::LD_A_FROM_HL_INC()),
+        (0, 0, 1, 0, 0, 0, 1, 0) => Instruction::Load8Bit(Load8Bit::LD_A_TO_HL_INC()),
+        (0, 0, 1, 1, 0, 1, 1, 0) => {
+            Instruction::Load8Bit(Load8Bit::LD_HL_IMM(get_8bit_operand(pc, memory)))
+        }
+        (0, 0, 0, 0, 1, 0, 0, 0) => {
+            Instruction::Load16Bit(Load16Bit::LD_FROM_SP(get_16bit_operand(pc, memory)))
+        }
+        (1, 1, 1, 1, 1, 0, 0, 1) => Instruction::Load16Bit(Load16Bit::LD_HL_TO_SP()),
 
         // ALU 8-bit instructions
-        (1, 0, 0, 0, 0, 1, 1, 0) => Ok(Instruction::ALU8Bit(ALU8Bit::ADD_HL())),
-        (1, 1, 0, 0, 0, 1, 1, 0) => Ok(Instruction::ALU8Bit(ALU8Bit::ADD_N(get_8bit_operand(
-            pc, memory,
-        )))),
-        (1, 0, 0, 0, 1, 1, 1, 0) => Ok(Instruction::ALU8Bit(ALU8Bit::ADC_HL())),
-        (1, 1, 0, 0, 1, 1, 1, 0) => Ok(Instruction::ALU8Bit(ALU8Bit::ADC_N(get_8bit_operand(
-            pc, memory,
-        )))),
-        (1, 0, 0, 1, 0, 1, 1, 0) => Ok(Instruction::ALU8Bit(ALU8Bit::SUB_HL())),
-        (1, 1, 0, 1, 0, 1, 1, 0) => Ok(Instruction::ALU8Bit(ALU8Bit::SUB_N(get_8bit_operand(
-            pc, memory,
-        )))),
-        (1, 0, 0, 1, 1, 1, 1, 0) => Ok(Instruction::ALU8Bit(ALU8Bit::SBC_HL())),
-        (1, 1, 0, 1, 1, 1, 1, 0) => Ok(Instruction::ALU8Bit(ALU8Bit::SBC_N(get_8bit_operand(
-            pc, memory,
-        )))),
-        (1, 0, 1, 0, 0, 1, 1, 0) => Ok(Instruction::ALU8Bit(ALU8Bit::AND_HL())),
-        (1, 1, 1, 0, 0, 1, 1, 0) => Ok(Instruction::ALU8Bit(ALU8Bit::AND_N(get_8bit_operand(
-            pc, memory,
-        )))),
-        (1, 0, 1, 1, 0, 1, 1, 0) => Ok(Instruction::ALU8Bit(ALU8Bit::OR_HL())),
-        (1, 1, 1, 1, 0, 1, 1, 0) => Ok(Instruction::ALU8Bit(ALU8Bit::OR_N(get_8bit_operand(
-            pc, memory,
-        )))),
-        (1, 0, 1, 0, 1, 1, 1, 0) => Ok(Instruction::ALU8Bit(ALU8Bit::XOR_HL())),
-        (1, 1, 1, 0, 1, 1, 1, 0) => Ok(Instruction::ALU8Bit(ALU8Bit::XOR_N(get_8bit_operand(
-            pc, memory,
-        )))),
-        (1, 0, 1, 1, 1, 1, 1, 0) => Ok(Instruction::ALU8Bit(ALU8Bit::CP_HL())),
-        (1, 1, 1, 1, 1, 1, 1, 0) => Ok(Instruction::ALU8Bit(ALU8Bit::CP_N(get_8bit_operand(
-            pc, memory,
-        )))),
-        (0, 0, 1, 1, 0, 1, 0, 0) => Ok(Instruction::ALU8Bit(ALU8Bit::INC_HL())),
-        (0, 0, 1, 1, 0, 1, 0, 1) => Ok(Instruction::ALU8Bit(ALU8Bit::DEC_HL())),
+        (1, 0, 0, 0, 0, 1, 1, 0) => Instruction::ALU8Bit(ALU8Bit::ADD_HL()),
+        (1, 1, 0, 0, 0, 1, 1, 0) => {
+            Instruction::ALU8Bit(ALU8Bit::ADD_N(get_8bit_operand(pc, memory)))
+        }
+        (1, 0, 0, 0, 1, 1, 1, 0) => Instruction::ALU8Bit(ALU8Bit::ADC_HL()),
+        (1, 1, 0, 0, 1, 1, 1, 0) => {
+            Instruction::ALU8Bit(ALU8Bit::ADC_N(get_8bit_operand(pc, memory)))
+        }
+        (1, 0, 0, 1, 0, 1, 1, 0) => Instruction::ALU8Bit(ALU8Bit::SUB_HL()),
+        (1, 1, 0, 1, 0, 1, 1, 0) => {
+            Instruction::ALU8Bit(ALU8Bit::SUB_N(get_8bit_operand(pc, memory)))
+        }
+        (1, 0, 0, 1, 1, 1, 1, 0) => Instruction::ALU8Bit(ALU8Bit::SBC_HL()),
+        (1, 1, 0, 1, 1, 1, 1, 0) => {
+            Instruction::ALU8Bit(ALU8Bit::SBC_N(get_8bit_operand(pc, memory)))
+        }
+        (1, 0, 1, 0, 0, 1, 1, 0) => Instruction::ALU8Bit(ALU8Bit::AND_HL()),
+        (1, 1, 1, 0, 0, 1, 1, 0) => {
+            Instruction::ALU8Bit(ALU8Bit::AND_N(get_8bit_operand(pc, memory)))
+        }
+        (1, 0, 1, 1, 0, 1, 1, 0) => Instruction::ALU8Bit(ALU8Bit::OR_HL()),
+        (1, 1, 1, 1, 0, 1, 1, 0) => {
+            Instruction::ALU8Bit(ALU8Bit::OR_N(get_8bit_operand(pc, memory)))
+        }
+        (1, 0, 1, 0, 1, 1, 1, 0) => Instruction::ALU8Bit(ALU8Bit::XOR_HL()),
+        (1, 1, 1, 0, 1, 1, 1, 0) => {
+            Instruction::ALU8Bit(ALU8Bit::XOR_N(get_8bit_operand(pc, memory)))
+        }
+        (1, 0, 1, 1, 1, 1, 1, 0) => Instruction::ALU8Bit(ALU8Bit::CP_HL()),
+        (1, 1, 1, 1, 1, 1, 1, 0) => {
+            Instruction::ALU8Bit(ALU8Bit::CP_N(get_8bit_operand(pc, memory)))
+        }
+        (0, 0, 1, 1, 0, 1, 0, 0) => Instruction::ALU8Bit(ALU8Bit::INC_HL()),
+        (0, 0, 1, 1, 0, 1, 0, 1) => Instruction::ALU8Bit(ALU8Bit::DEC_HL()),
 
         // ALU 16-bit instructions
-        (1, 1, 1, 0, 1, 0, 0, 0) => Ok(Instruction::ALU16Bit(ALU16Bit::ADD_SP(get_8bit_operand(
-            pc, memory,
-        )))),
+        (1, 1, 1, 0, 1, 0, 0, 0) => {
+            Instruction::ALU16Bit(ALU16Bit::ADD_SP(get_8bit_operand(pc, memory)))
+        }
 
         // Rotate Shift instructions
-        (0, 0, 0, 0, 0, 1, 1, 1) => Ok(Instruction::RotateShift(RotateShift::RLCA())),
-        (0, 0, 0, 0, 1, 1, 1, 1) => Ok(Instruction::RotateShift(RotateShift::RRCA())),
-        (0, 0, 0, 1, 0, 1, 1, 1) => Ok(Instruction::RotateShift(RotateShift::RLA())),
-        (0, 0, 0, 1, 1, 1, 1, 1) => Ok(Instruction::RotateShift(RotateShift::RRA())),
+        (0, 0, 0, 0, 0, 1, 1, 1) => Instruction::RotateShift(RotateShift::RLCA()),
+        (0, 0, 0, 0, 1, 1, 1, 1) => Instruction::RotateShift(RotateShift::RRCA()),
+        (0, 0, 0, 1, 0, 1, 1, 1) => Instruction::RotateShift(RotateShift::RLA()),
+        (0, 0, 0, 1, 1, 1, 1, 1) => Instruction::RotateShift(RotateShift::RRA()),
         (1, 1, 0, 0, 1, 0, 1, 1) => {
             let operand = get_8bit_operand(pc, memory);
 
             rotate_shift::decode(operand)
                 .map(Instruction::RotateShift)
-                .or_else(|_| bit::decode(operand).map(Instruction::Bit))
+                .or_else(|_| bit::decode(operand).map(Instruction::Bit))?
         }
 
-        (1, 1, 1, 1, 1, 0, 0, 0) => Ok(Instruction::Stack(Stack::LD_HL_SP_E(get_8bit_operand(
-            pc, memory,
-        )))),
+        // Stack manipulation instructions
+        (1, 1, 1, 1, 1, 0, 0, 0) => {
+            Instruction::Stack(Stack::LD_HL_SP_E(get_8bit_operand(pc, memory)))
+        }
 
         // VARIABLE MATCHES
         //
         // control flow
-        (1, 1, 0, c, d, 0, 1, 0) => Ok(Instruction::ControlFlow(ControlFlow::JPC(
+        (1, 1, 0, c, d, 0, 1, 0) => Instruction::ControlFlow(ControlFlow::JPC(
             get_16bit_operand(pc, memory),
             Condition::parse(c, d).unwrap(),
-        ))),
-        (0, 0, 1, c, d, 0, 0, 0) => Ok(Instruction::ControlFlow(ControlFlow::JRC(
+        )),
+        (0, 0, 1, c, d, 0, 0, 0) => Instruction::ControlFlow(ControlFlow::JRC(
             get_8bit_operand(pc, memory),
             Condition::parse(c, d).unwrap(),
-        ))),
-        (1, 1, 0, c, d, 1, 0, 0) => Ok(Instruction::ControlFlow(ControlFlow::CALLC(
+        )),
+        (1, 1, 0, c, d, 1, 0, 0) => Instruction::ControlFlow(ControlFlow::CALLC(
             get_16bit_operand(pc, memory),
             Condition::parse(c, d).unwrap(),
-        ))),
-        (1, 1, 0, c, d, 0, 0, 0) => Ok(Instruction::ControlFlow(ControlFlow::RETC(
-            Condition::parse(c, d).unwrap(),
-        ))),
-        (1, 1, _, _, _, 1, 1, 1) => Ok(Instruction::ControlFlow(ControlFlow::RST(opcode))),
+        )),
+        (1, 1, 0, c, d, 0, 0, 0) => {
+            Instruction::ControlFlow(ControlFlow::RETC(Condition::parse(c, d).unwrap()))
+        }
+        (1, 1, _, _, _, 1, 1, 1) => Instruction::ControlFlow(ControlFlow::RST(opcode)),
 
         // 8 bit load instructions
-        (0, 1, a, b, c, 1, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LD_FROM_HL(
-            (a, b, c).into(),
-        ))),
-        (0, 1, 1, 1, 0, a, b, c) => Ok(Instruction::Load8Bit(Load8Bit::LD_TO_HL((a, b, c).into()))),
-        (0, 1, x1, y1, z1, x2, y2, z2) => Ok(Instruction::Load8Bit(Load8Bit::LD(
-            (x1, y1, z1).into(),
-            (x2, y2, z2).into(),
-        ))),
-        (0, 0, a, b, c, 1, 1, 0) => Ok(Instruction::Load8Bit(Load8Bit::LD_IMM(
+        (0, 1, a, b, c, 1, 1, 0) => Instruction::Load8Bit(Load8Bit::LD_FROM_HL((a, b, c).into())),
+        (0, 1, 1, 1, 0, a, b, c) => Instruction::Load8Bit(Load8Bit::LD_TO_HL((a, b, c).into())),
+        (0, 1, x1, y1, z1, x2, y2, z2) => {
+            Instruction::Load8Bit(Load8Bit::LD((x1, y1, z1).into(), (x2, y2, z2).into()))
+        }
+        (0, 0, a, b, c, 1, 1, 0) => Instruction::Load8Bit(Load8Bit::LD_IMM(
             (a, b, c).into(),
             get_8bit_operand(pc, memory),
-        ))),
+        )),
 
         // 16 bit load instructions
-        (0, 0, a, b, 0, 0, 0, 1) => Ok(Instruction::Load16Bit(Load16Bit::LD(
+        (0, 0, a, b, 0, 0, 0, 1) => Instruction::Load16Bit(Load16Bit::LD(
             (0, a, b).into(),
             get_16bit_operand(pc, memory),
-        ))),
-        (1, 1, a, b, 0, 1, 0, 1) => Ok(Instruction::Load16Bit(Load16Bit::PUSH((1, a, b).into()))),
-        (1, 1, a, b, 0, 0, 0, 1) => Ok(Instruction::Load16Bit(Load16Bit::POP((1, a, b).into()))),
+        )),
+        (1, 1, a, b, 0, 1, 0, 1) => Instruction::Load16Bit(Load16Bit::PUSH((1, a, b).into())),
+        (1, 1, a, b, 0, 0, 0, 1) => Instruction::Load16Bit(Load16Bit::POP((1, a, b).into())),
 
         // ALU 8-bit instructions
-        (1, 0, 0, 0, 0, a, b, c) => Ok(Instruction::ALU8Bit(ALU8Bit::ADD((a, b, c).into()))),
-        (1, 0, 0, 0, 1, a, b, c) => Ok(Instruction::ALU8Bit(ALU8Bit::ADC((a, b, c).into()))),
-        (1, 0, 0, 1, 0, a, b, c) => Ok(Instruction::ALU8Bit(ALU8Bit::SUB((a, b, c).into()))),
-        (1, 0, 0, 1, 1, a, b, c) => Ok(Instruction::ALU8Bit(ALU8Bit::SBC((a, b, c).into()))),
-        (1, 0, 1, 0, 0, a, b, c) => Ok(Instruction::ALU8Bit(ALU8Bit::AND((a, b, c).into()))),
-        (1, 0, 1, 1, 0, a, b, c) => Ok(Instruction::ALU8Bit(ALU8Bit::OR((a, b, c).into()))),
-        (1, 0, 1, 0, 1, a, b, c) => Ok(Instruction::ALU8Bit(ALU8Bit::XOR((a, b, c).into()))),
-        (1, 0, 1, 1, 1, a, b, c) => Ok(Instruction::ALU8Bit(ALU8Bit::CP((a, b, c).into()))),
-        (0, 0, a, b, c, 1, 0, 0) => Ok(Instruction::ALU8Bit(ALU8Bit::INC((a, b, c).into()))),
-        (0, 0, a, b, c, 1, 0, 1) => Ok(Instruction::ALU8Bit(ALU8Bit::DEC((a, b, c).into()))),
+        (1, 0, 0, 0, 0, a, b, c) => Instruction::ALU8Bit(ALU8Bit::ADD((a, b, c).into())),
+        (1, 0, 0, 0, 1, a, b, c) => Instruction::ALU8Bit(ALU8Bit::ADC((a, b, c).into())),
+        (1, 0, 0, 1, 0, a, b, c) => Instruction::ALU8Bit(ALU8Bit::SUB((a, b, c).into())),
+        (1, 0, 0, 1, 1, a, b, c) => Instruction::ALU8Bit(ALU8Bit::SBC((a, b, c).into())),
+        (1, 0, 1, 0, 0, a, b, c) => Instruction::ALU8Bit(ALU8Bit::AND((a, b, c).into())),
+        (1, 0, 1, 1, 0, a, b, c) => Instruction::ALU8Bit(ALU8Bit::OR((a, b, c).into())),
+        (1, 0, 1, 0, 1, a, b, c) => Instruction::ALU8Bit(ALU8Bit::XOR((a, b, c).into())),
+        (1, 0, 1, 1, 1, a, b, c) => Instruction::ALU8Bit(ALU8Bit::CP((a, b, c).into())),
+        (0, 0, a, b, c, 1, 0, 0) => Instruction::ALU8Bit(ALU8Bit::INC((a, b, c).into())),
+        (0, 0, a, b, c, 1, 0, 1) => Instruction::ALU8Bit(ALU8Bit::DEC((a, b, c).into())),
 
         // ALU 16-bit instructions
-        (0, 0, b, c, 1, 0, 0, 1) => Ok(Instruction::ALU16Bit(ALU16Bit::ADD_HL((0, b, c).into()))),
-        (0, 0, b, c, 0, 0, 1, 1) => Ok(Instruction::ALU16Bit(ALU16Bit::INC((0, b, c).into()))),
-        (0, 0, b, c, 1, 0, 1, 1) => Ok(Instruction::ALU16Bit(ALU16Bit::DEC((0, b, c).into()))),
+        (0, 0, b, c, 1, 0, 0, 1) => Instruction::ALU16Bit(ALU16Bit::ADD_HL((0, b, c).into())),
+        (0, 0, b, c, 0, 0, 1, 1) => Instruction::ALU16Bit(ALU16Bit::INC((0, b, c).into())),
+        (0, 0, b, c, 1, 0, 1, 1) => Instruction::ALU16Bit(ALU16Bit::DEC((0, b, c).into())),
 
         // Catch all
-        _ => Err(CpuError::UnknownInstruction(opcode)),
-    }
+        _ => return Err(CpuError::UnknownInstruction(opcode)),
+    };
+
+    Ok(instruction)
 }
 
 #[cfg(test)]
