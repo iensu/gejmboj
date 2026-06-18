@@ -332,20 +332,25 @@ impl AluOp {
     pub fn calculate(&self, a: u8, operand: u8, include_carry: bool) -> (u8, u8) {
         match &self {
             Self::Sub | Self::Cp => {
-                let operand = operand.wrapping_add(include_carry.into());
-                let (result, is_carry) = a.overflowing_sub(operand);
+                let a: u16 = a.into();
+                let a_expanded: u16 = 0xFF00 | a;
+                let operand: u16 = operand.into();
+                let carry: u16 = include_carry.into();
+                let result = a_expanded - operand - carry;
 
                 let mut flags = MASK_FLAG_NEGATIVE;
 
-                if result == 0 {
-                    flags |= MASK_FLAG_ZERO; // Set Z
-                }
-                // Check if the low nibble of a is less than the low nibble of the operand
-                if (a & 0x0F) < (operand & 0x0F) {
+                // Check if borrow is necessary in the lowest nibble
+                if (a & 0xF) < ((operand & 0xF) + carry) {
                     flags |= MASK_FLAG_HALF_CARRY; // Set H
                 }
-                if is_carry {
+                if result & 0xF00 != 0xF00 {
                     flags |= MASK_FLAG_CARRY; // Set C
+                }
+
+                let result = result as u8;
+                if result == 0 {
+                    flags |= MASK_FLAG_ZERO; // Set Z
                 }
 
                 (result, flags)
