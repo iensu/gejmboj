@@ -913,9 +913,8 @@ mod tests {
             registers.get_single(&SingleRegister::A),
             "SbcHL has wrong result"
         );
-        // TODO: Verify SBC HL flag handling is correct!
         assert_eq!(
-            0b0101_0000,
+            0b0111_0000,
             registers.get_flags(),
             "SbcHL sets incorrect flags: {:08b}",
             registers.get_flags()

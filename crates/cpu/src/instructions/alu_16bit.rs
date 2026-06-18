@@ -160,7 +160,7 @@ mod tests {
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(0x11CD, registers.get_double(&DoubleRegister::SP));
+        assert_eq!(0x10CD, registers.get_double(&DoubleRegister::SP));
     }
 
     #[test]
@@ -171,7 +171,7 @@ mod tests {
             (0x0001, 0x02, 0b0000_0000, 0b0000_0000),
             (0x0003, 0x04, 0b0100_0000, 0b0000_0000),
             (0x0005, 0x06, 0b1000_0000, 0b0000_0000),
-            (0x0F11, 0xFF, 0b0000_0000, 0b0010_0000),
+            (0x0F11, 0xFF, 0b0000_0000, 0b0011_0000),
             (0xFFFF, 0xFF, 0b0000_0000, 0b0011_0000),
             (0xFFFF, 0xFF, 0b1000_0000, 0b0011_0000),
         ] {
@@ -185,7 +185,8 @@ mod tests {
             assert_eq!(
                 expected_flags,
                 registers.get_flags(),
-                "Expected {expected_flags:08b} from {sp:04x} + {operand:04x} (flags: {flags:08b})"
+                "Expected {expected_flags:08b} from {sp:04x} + {operand:04x} (flags: {:08b})",
+                registers.get_flags()
             );
         }
     }

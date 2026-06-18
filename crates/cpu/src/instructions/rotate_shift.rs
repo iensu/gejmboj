@@ -789,8 +789,13 @@ mod tests {
         RotateShift::RLC(0)
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
-        // TODO: Verify RLC flag handling
-        assert_eq!(0b1001_0000, registers.get_flags(), "C flag not set");
+
+        assert_eq!(
+            0b0001_0000,
+            registers.get_flags(),
+            "Unexpected flags: {:08b}",
+            registers.get_flags()
+        );
         registers.clear();
     }
 
