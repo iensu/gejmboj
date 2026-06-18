@@ -6,7 +6,7 @@ use cpu::{
     memory::Memory,
     registers::Registers,
 };
-use log::debug;
+use log::trace;
 
 const SB: u16 = 0xFF01;
 const SC: u16 = 0xFF02;
@@ -22,8 +22,13 @@ fn main() {
     let mut registers = Registers::new();
     let mut memory = Memory::new();
 
-    let out = fs::File::create("./blargg-test.log").unwrap();
-    let mut cpu = CPU::new_with_trace(Box::new(out));
+    let mut cpu = match std::env::var("GAMEBOY_DOCTOR").ok() {
+        Some(val) if val == "1" => {
+            let out = fs::File::create("./blargg-test.log").unwrap();
+            CPU::new_with_trace(Box::new(out))
+        }
+        _ => CPU::new(),
+    };
 
     registers.reset();
     memory.reset();
@@ -49,7 +54,7 @@ fn main() {
             })
             .unwrap();
 
-        debug!("Executed instruction [{instruction_count:08}] ({location:04X}) {instruction:?}");
+        trace!("Executed instruction [{instruction_count:08}] ({location:04X}) {instruction:?}");
 
         if let (c, 0x81) = (memory.get(SB), memory.get(SC)) {
             let c = c as char;
