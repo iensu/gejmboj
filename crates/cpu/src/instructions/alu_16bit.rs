@@ -25,7 +25,7 @@ instruction_group! {
             if carry {
                 flags |= MASK_FLAG_CARRY;
             }
-            if ((hl & 0xFFF) + (operand & 0xFFF)) > 0x1000 {
+            if ((hl & 0xFFF) + (operand & 0xFFF)) >= 0x1000 {
                 flags |= MASK_FLAG_HALF_CARRY;
             }
             registers.set_double(&DoubleRegister::HL, result);
@@ -120,7 +120,7 @@ mod tests {
             (0x0001, 0x0002, 0b0000_0000, 0b0000_0000),
             (0x0001, 0x0002, 0b0100_0000, 0b0000_0000),
             (0x0001, 0x0002, 0b1000_0000, 0b1000_0000),
-            (0xFF00, 0x1100, 0b0000_0000, 0b0001_0000),
+            (0xFF00, 0x1100, 0b0000_0000, 0b0011_0000),
             (0x0FFF, 0x0111, 0b0000_0000, 0b0010_0000),
             (0xFFFF, 0x1111, 0b0000_0000, 0b0011_0000),
             (0xFFFF, 0x1111, 0b1000_0000, 0b1011_0000),
@@ -136,7 +136,8 @@ mod tests {
             assert_eq!(
                 expected_flags,
                 registers.get_flags(),
-                "Expected {expected_flags:08b} from {hl:04x} + {bc:04x} (flags: {flags:08b})"
+                "Expected {expected_flags:08b} from {hl:04x} + {bc:04x} (flags: {:08b})",
+                registers.get_flags()
             );
         }
     }
