@@ -270,7 +270,7 @@ instruction_group! {
         /// | C    | m<sup>7</sup> |
         RLC(operand: u8) [2] => {
             let (value, register) = get_register_value(registers, memory, *operand);
-            let (result, flags) = Op::RotateLeft(value).execute(0, &OpConfig::builder().set_z().add_carry().build());
+            let (result, flags) = Op::RotateLeft(value).execute(0, &OpConfig::builder().set_z().build());
 
             registers.set_flags(flags);
 
