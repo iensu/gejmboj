@@ -1,8 +1,8 @@
 use std::{fs, path::PathBuf, str::FromStr};
 
 use gejmboj_cpu::{
+    bus::Bus,
     cpu::CPU,
-    memory::Memory,
     registers::{Registers, SingleRegister},
 };
 
@@ -65,7 +65,7 @@ fn main() {
 }
 
 fn run_cpu_test(t: &CpuTest) -> Result<(), &'static str> {
-    let mut memory = Memory::new();
+    let mut bus = Bus::new();
     let mut registers = Registers::new();
     let mut cpu = CPU::new();
 
@@ -80,20 +80,18 @@ fn run_cpu_test(t: &CpuTest) -> Result<(), &'static str> {
     registers.PC = t.initial_state.pc;
     registers.SP = t.initial_state.sp;
     for (addr, value) in &t.initial_state.ram {
-        memory.set(*addr, *value);
+        bus.set(*addr, *value);
     }
 
-    let opcode = memory.get(registers.PC - 1);
+    let opcode = bus.get(registers.PC - 1);
 
-    let instruction = cpu.decode(opcode, &mut registers, &memory).unwrap();
-    let _cycles = cpu
-        .execute(&instruction, &mut registers, &mut memory)
-        .unwrap();
+    let instruction = cpu.decode(opcode, &mut registers, &bus).unwrap();
+    let _cycles = cpu.execute(&instruction, &mut registers, &mut bus).unwrap();
 
     // TODO: Figure out why this is necessary
     registers.PC += 1;
 
-    if check_result(&registers, &memory, t) {
+    if check_result(&registers, &bus, t) {
         Ok(())
     } else {
         println!("{} -> {instruction:?}", t.name);
@@ -101,7 +99,7 @@ fn run_cpu_test(t: &CpuTest) -> Result<(), &'static str> {
     }
 }
 
-fn check_result(registers: &Registers, memory: &Memory, test: &CpuTest) -> bool {
+fn check_result(registers: &Registers, memory: &Bus, test: &CpuTest) -> bool {
     let addresses: Vec<u16> = test.final_state.ram.iter().map(|(addr, _)| *addr).collect();
     let state = TestSettings::extract(registers, memory, &addresses);
     let expected = &test.final_state;
@@ -188,7 +186,7 @@ struct TestSettings {
 }
 
 impl TestSettings {
-    pub fn extract(registers: &Registers, memory: &Memory, addresses: &[u16]) -> Self {
+    pub fn extract(registers: &Registers, memory: &Bus, addresses: &[u16]) -> Self {
         let ram: Vec<(u16, u8)> = addresses
             .iter()
             .map(|addr| (*addr, memory.get(*addr)))

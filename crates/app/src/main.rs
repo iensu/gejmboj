@@ -1,8 +1,8 @@
 use std::env;
 use std::fs;
 
+use cpu::bus::Bus;
 use cpu::cpu::CPU;
-use cpu::memory::Memory;
 use cpu::registers::Registers;
 use error::AppResult;
 use log::debug;
@@ -20,12 +20,12 @@ fn main() -> AppResult<()> {
     debug!("Read {} bytes from {file_path}", rom_bytes.len());
 
     let mut registers = Registers::new();
-    let mut memory = Memory::new();
+    let mut bus = Bus::new();
     let mut cpu = CPU::new();
 
     registers.reset();
-    memory.reset();
-    memory.load(&rom_bytes)?;
+    bus.reset();
+    bus.load(&rom_bytes)?;
 
     let mut instruction_count = 0;
 
@@ -34,7 +34,7 @@ fn main() -> AppResult<()> {
 
         let prev_pc = registers.PC;
 
-        let (location, instruction) = cpu.tick(&mut registers, &mut memory).inspect_err(|e| {
+        let (location, instruction) = cpu.tick(&mut registers, &mut bus).inspect_err(|e| {
             eprintln!(
                 "INSTR NO: {instruction_count}, PC: {:04X}, {e}",
                 registers.PC

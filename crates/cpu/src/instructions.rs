@@ -1,7 +1,7 @@
 //! Sharp SM83 instruction set
 
 use crate::combine_instructions;
-use crate::{errors::CpuError, memory::Memory, registers::Registers};
+use crate::{bus::Bus, errors::CpuError, registers::Registers};
 
 pub mod alu_16bit;
 pub mod alu_8bit;
@@ -64,17 +64,17 @@ impl Condition {
     }
 }
 
-fn get_8bit_operand(pc: u16, memory: &Memory) -> u8 {
+fn get_8bit_operand(pc: u16, memory: &Bus) -> u8 {
     memory.get(pc)
 }
 
-fn get_16bit_operand(pc: u16, memory: &Memory) -> u16 {
+fn get_16bit_operand(pc: u16, memory: &Bus) -> u16 {
     memory.get_u16(pc)
 }
 
 /// Decode an operation code into an `Instruction`.
 #[allow(clippy::too_many_lines)]
-pub fn decode(opcode: u8, pc: u16, memory: &Memory) -> Result<Instruction, CpuError> {
+pub fn decode(opcode: u8, pc: u16, memory: &Bus) -> Result<Instruction, CpuError> {
     let instruction = match into_bits(opcode) {
         // ABSOLUTE MATCHES
         //
@@ -268,7 +268,7 @@ mod tests {
     #[test]
     fn decode_with_operand_rotate_shift_instructions_works() {
         let code = 0b1100_1011;
-        let mut memory = Memory::new();
+        let mut bus = Bus::new();
 
         for (operand, instruction) in [
             (0b0000_0111, I::RotateShift(RS::RLC(0b0000_0111))),
@@ -281,11 +281,11 @@ mod tests {
             (0b0011_1111, I::RotateShift(RS::SRL(0b0011_1111))),
         ] {
             let pc = 1;
-            memory.set(pc, operand);
+            bus.set(pc, operand);
 
             assert_eq!(
                 instruction,
-                decode(code, pc, &memory).unwrap(),
+                decode(code, pc, &bus).unwrap(),
                 "Failed to decode with operand 0b{operand:08b}"
             );
         }
@@ -294,7 +294,7 @@ mod tests {
     #[test]
     fn decode_with_operand_bit_instructions_works() {
         let code = 0b1100_1011;
-        let mut memory = Memory::new();
+        let mut bus = Bus::new();
 
         for (operand, instruction) in [
             (0b0100_0111, I::Bit(Bit::BIT(0b0100_0111))),
@@ -302,11 +302,11 @@ mod tests {
             (0b1001_0111, I::Bit(Bit::RES(0b1001_0111))),
         ] {
             let pc = 1;
-            memory.set(pc, operand);
+            bus.set(pc, operand);
 
             assert_eq!(
                 instruction,
-                decode(code, pc, &memory).unwrap(),
+                decode(code, pc, &bus).unwrap(),
                 "Failed to decode with operand 0b{operand:08b}"
             );
         }
@@ -315,7 +315,7 @@ mod tests {
     #[test]
     #[allow(clippy::too_many_lines)]
     fn decode_works() {
-        let memory = Memory::new();
+        let bus = Bus::new();
         let pc = 0;
 
         for (code, instruction) in vec![
@@ -490,7 +490,7 @@ mod tests {
         ] {
             assert_eq!(
                 instruction,
-                decode(code, pc, &memory).unwrap(),
+                decode(code, pc, &bus).unwrap(),
                 "Failed to decode 0b{code:08b}"
             );
         }

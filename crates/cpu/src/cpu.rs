@@ -1,9 +1,9 @@
 //! Sharp SM83 CPU implementation
 
 use crate::{
+    bus::Bus,
     errors::CpuError,
     instructions::{self, Instruction},
-    memory::Memory,
     registers::{Registers, SingleRegister},
 };
 
@@ -66,7 +66,7 @@ impl CPU {
     pub fn tick(
         &mut self,
         registers: &mut Registers,
-        memory: &mut Memory,
+        memory: &mut Bus,
     ) -> Result<(u16, Instruction), CpuError> {
         let opcode = self.fetch(registers, memory);
         let instruction = self.decode(opcode, registers, memory)?;
@@ -76,7 +76,7 @@ impl CPU {
         Ok((cycles, instruction))
     }
 
-    pub fn fetch(&mut self, registers: &mut Registers, memory: &mut Memory) -> u8 {
+    pub fn fetch(&mut self, registers: &mut Registers, memory: &mut Bus) -> u8 {
         let opcode = memory.get(registers.PC);
         registers.PC += 1;
         opcode
@@ -86,7 +86,7 @@ impl CPU {
         &self,
         opcode: u8,
         registers: &mut Registers,
-        memory: &Memory,
+        memory: &Bus,
     ) -> Result<Instruction, CpuError> {
         let instruction = instructions::decode(opcode, registers.PC, memory)?;
         registers.PC += instruction.length() - 1; // instruction length - opcode length
@@ -98,7 +98,7 @@ impl CPU {
         &mut self,
         instruction: &Instruction,
         registers: &mut Registers,
-        memory: &mut Memory,
+        memory: &mut Bus,
     ) -> Result<u16, CpuError> {
         if let Some(out) = self.out.as_mut() {
             Self::gameboy_doctor_output(out, registers, memory);
@@ -115,11 +115,7 @@ impl CPU {
     }
 
     #[allow(unused)]
-    fn gameboy_doctor_output(
-        w: &mut Box<dyn std::io::Write>,
-        registers: &Registers,
-        memory: &Memory,
-    ) {
+    fn gameboy_doctor_output(w: &mut Box<dyn std::io::Write>, registers: &Registers, memory: &Bus) {
         let pc = registers.PC;
         writeln!(
             w,
@@ -156,15 +152,15 @@ mod test {
     #[test]
     fn cpu_tick_executes_instructiona() {
         let mut registers = Registers::new();
-        let mut memory = Memory::new();
+        let mut bus = Bus::new();
         let mut cpu = CPU::new();
 
         let noop = 0b0000_0000;
-        memory.set_u16(0x0000, noop);
+        bus.set_u16(0x0000, noop);
 
         assert_eq!(0, registers.PC);
 
-        let (_, instruction) = cpu.tick(&mut registers, &mut memory).unwrap();
+        let (_, instruction) = cpu.tick(&mut registers, &mut bus).unwrap();
 
         assert_eq!(Instruction::Misc(misc::Misc::NOP()), instruction);
         assert_eq!(instruction.length(), registers.PC);
@@ -173,17 +169,17 @@ mod test {
     #[test]
     fn cpu_tick_handles_interrupt_scheduling() {
         let mut registers = Registers::new();
-        let mut memory = Memory::new();
+        let mut bus = Bus::new();
         let mut cpu = CPU::new();
 
         let ei_op = 0b1111_1011;
         let noop = 0b0000_0000;
 
-        memory.set_u16(0x0000, ei_op);
-        memory.set_u16(0x0002, noop);
+        bus.set_u16(0x0000, ei_op);
+        bus.set_u16(0x0002, noop);
 
         let (_, instruction) = cpu
-            .tick(&mut registers, &mut memory)
+            .tick(&mut registers, &mut bus)
             .expect("Failed to execute EI instruction");
 
         assert_eq!(Instruction::Misc(misc::Misc::EI()), instruction);
@@ -196,7 +192,7 @@ mod test {
             cpu.flags
         );
 
-        cpu.tick(&mut registers, &mut memory)
+        cpu.tick(&mut registers, &mut bus)
             .expect("Failed to execute Noop instruction");
 
         assert_eq!(
@@ -211,16 +207,16 @@ mod test {
     #[test]
     fn pc_remains_unchanged_after_jr_fe_instructions() {
         let mut registers = Registers::new();
-        let mut memory = Memory::new();
+        let mut bus = Bus::new();
         let mut cpu = CPU::new();
 
         let jr_fe = 0xFE_18; // as BE bytes
 
         let prev_pc = registers.PC;
 
-        memory.set_u16(0x0000, jr_fe);
+        bus.set_u16(0x0000, jr_fe);
 
-        let (_, instruction) = cpu.tick(&mut registers, &mut memory).unwrap();
+        let (_, instruction) = cpu.tick(&mut registers, &mut bus).unwrap();
 
         assert_eq!(
             Instruction::ControlFlow(control_flow::ControlFlow::JR(0xFE)),
@@ -398,30 +394,27 @@ mod test {
         U16(u16),
     }
 
-    fn setup_conditional_instruction(
-        instruction: u8,
-        operand: Operand,
-    ) -> (Registers, Memory, CPU) {
+    fn setup_conditional_instruction(instruction: u8, operand: Operand) -> (Registers, Bus, CPU) {
         let mut registers = Registers::new();
-        let mut memory = Memory::new();
+        let mut bus = Bus::new();
         let cpu = CPU::new();
 
         registers.reset();
-        memory.reset();
+        bus.reset();
 
         let location = registers.PC;
-        memory.set(location, instruction);
+        bus.set(location, instruction);
 
         match operand {
             Operand::None => {}
             Operand::U8(x) => {
-                memory.set(location + 1, x);
+                bus.set(location + 1, x);
             }
             Operand::U16(x) => {
-                memory.set_u16(location + 1, x);
+                bus.set_u16(location + 1, x);
             }
         }
 
-        (registers, memory, cpu)
+        (registers, bus, cpu)
     }
 }

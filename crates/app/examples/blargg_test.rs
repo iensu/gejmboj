@@ -1,9 +1,9 @@
 use std::{env, fmt::Write, fs};
 
 use cpu::{
+    bus::Bus,
     cpu::CPU,
     instructions::{self, Instruction},
-    memory::Memory,
     registers::Registers,
 };
 use log::trace;
@@ -20,7 +20,7 @@ fn main() {
     let rom_bytes = fs::read(&file_path).unwrap();
 
     let mut registers = Registers::new();
-    let mut memory = Memory::new();
+    let mut bus = Bus::new();
 
     let mut cpu = match std::env::var("GAMEBOY_DOCTOR").ok() {
         Some(val) if val == "1" => {
@@ -31,9 +31,9 @@ fn main() {
     };
 
     registers.reset();
-    memory.reset();
-    memory.load(&rom_bytes).unwrap();
-    memory.set(0xFF44, 0x90); // Initialize for blargg test
+    bus.reset();
+    bus.load(&rom_bytes).unwrap();
+    bus.set(0xFF44, 0x90); // Initialize for blargg test
 
     let mut instruction_count = 0;
 
@@ -45,7 +45,7 @@ fn main() {
         let prev_pc = registers.PC;
 
         let (location, instruction) = cpu
-            .tick(&mut registers, &mut memory)
+            .tick(&mut registers, &mut bus)
             .inspect_err(|e| {
                 eprintln!(
                     "INSTR NO: {instruction_count}, PC: {:04X}, {e}",
@@ -56,12 +56,12 @@ fn main() {
 
         trace!("Executed instruction [{instruction_count:08}] ({location:04X}) {instruction:?}");
 
-        if let (c, 0x81) = (memory.get(SB), memory.get(SC)) {
+        if let (c, 0x81) = (bus.get(SB), bus.get(SC)) {
             let c = c as char;
             if c != '\0' {
                 test_result.push(c);
             }
-            memory.set(SC, 0);
+            bus.set(SC, 0);
         }
 
         // Detect self-jump (jr $FE), PC remains unchanged across instruction ticks.
@@ -111,11 +111,11 @@ fn bytes_to_instructions(bytes: &[u8]) -> Vec<Instruction> {
 
     let mut result: Vec<Instruction> = Vec::new();
 
-    let mut memory = Memory::new();
-    memory.load(bytes).unwrap();
+    let mut bus = Bus::new();
+    bus.load(bytes).unwrap();
 
     while let Some(opcode) = bytes.get(pc as usize) {
-        let instruction = instructions::decode(*opcode, pc, &memory).unwrap();
+        let instruction = instructions::decode(*opcode, pc, &bus).unwrap();
 
         pc += instruction.length();
 

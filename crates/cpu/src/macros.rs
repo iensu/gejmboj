@@ -19,7 +19,7 @@ macro_rules! instruction_group {
         impl $group_name {
             pub fn execute(&self,
                            $r: &mut $crate::registers::Registers,
-                           $m: &mut $crate::memory::Memory,
+                           $m: &mut $crate::bus::Bus,
                            $c: &mut $crate::cpu::CpuFlags
             ) -> $crate::instructions::InstructionResult {
                 match self {
@@ -53,7 +53,7 @@ macro_rules! combine_instructions {
             pub fn execute(
                 &self,
                 mut registers: &mut $crate::registers::Registers,
-                mut memory: &mut $crate::memory::Memory,
+                mut memory: &mut $crate::bus::Bus,
                 mut cpu_flags: &mut $crate::cpu::CpuFlags,
             ) -> InstructionResult {
                 match self {

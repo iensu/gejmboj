@@ -1,7 +1,8 @@
-//! # Memory implementation
+//! # Bus implementation
 //!
-//! Memory data is stored in Little-Endian fashion, which means that the least significant
-//! byte is stored at a lower memory location than the most significant byte.
+//! The bus contains memory data which is stored in Little-Endian fashion, which means that
+//! the least significant byte is stored at a lower memory location than the most significant
+//! byte.
 //!
 //! ## Memory map
 //!
@@ -22,17 +23,17 @@ use std::fmt::Display;
 
 use crate::errors::CpuError;
 
-pub struct Memory {
+pub struct Bus {
     memory: Vec<u8>,
 }
 
-impl Default for Memory {
+impl Default for Bus {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl Memory {
+impl Bus {
     #[must_use]
     pub fn new() -> Self {
         Self {
@@ -100,13 +101,13 @@ impl Memory {
     /// Sets a `u8` value in memory.
     ///
     /// ```
-    /// # use gejmboj_cpu::memory::Memory;
-    /// let mut memory = Memory::new();
+    /// # use gejmboj_cpu::bus::Bus;
+    /// let mut bus = Bus::new();
     /// let value = 0xAB;
     ///
-    /// memory.set(0, value);
+    /// bus.set(0, value);
     ///
-    /// assert_eq!(value, memory.get(0));
+    /// assert_eq!(value, bus.get(0));
     /// ```
     pub fn set(&mut self, location: u16, value: u8) {
         self.memory[location as usize] = value;
@@ -115,13 +116,13 @@ impl Memory {
     /// Gets a `u8` value from memory.
     ///
     /// ```
-    /// # use gejmboj_cpu::memory::Memory;
-    /// let mut memory = Memory::new();
+    /// # use gejmboj_cpu::bus::Bus;
+    /// let mut bus = Bus::new();
     /// let value = 0xAB;
     ///
-    /// memory.set(0, value);
+    /// bus.set(0, value);
     ///
-    /// assert_eq!(value, memory.get(0));
+    /// assert_eq!(value, bus.get(0));
     /// ```
     #[must_use]
     pub fn get(&self, location: u16) -> u8 {
@@ -131,13 +132,13 @@ impl Memory {
     /// Gets a `u16` value from memory.
     ///
     /// ```
-    /// # use gejmboj_cpu::memory::Memory;
-    /// let mut memory = Memory::new();
+    /// # use gejmboj_cpu::bus::Bus;
+    /// let mut bus = Bus::new();
     /// let value = 0xABCD;
     ///
-    /// memory.set_u16(42, value);
+    /// bus.set_u16(42, value);
     ///
-    /// assert_eq!(value, memory.get_u16(42));
+    /// assert_eq!(value, bus.get_u16(42));
     /// ```
     #[must_use]
     pub fn get_u16(&self, location: u16) -> u16 {
@@ -150,13 +151,13 @@ impl Memory {
     /// Sets a `u16` value in memory as LE bytes.
     ///
     /// ```
-    /// # use gejmboj_cpu::memory::Memory;
-    /// let mut memory = Memory::new();
+    /// # use gejmboj_cpu::bus::Bus;
+    /// let mut bus = Bus::new();
     /// let value = 0xABCD;
     ///
-    /// memory.set_u16(0, value);
+    /// bus.set_u16(0, value);
     ///
-    /// assert_eq!(value, memory.get_u16(0));
+    /// assert_eq!(value, bus.get_u16(0));
     /// ```
     pub fn set_u16(&mut self, location: u16, value: u16) {
         let [lo, hi] = value.to_le_bytes();
@@ -166,7 +167,7 @@ impl Memory {
     }
 }
 
-impl Display for Memory {
+impl Display for Bus {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error> {
         let columns = 16;
         let bytes_string: String = self

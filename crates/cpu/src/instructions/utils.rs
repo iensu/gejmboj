@@ -1,5 +1,5 @@
 use crate::{
-    memory::Memory,
+    bus::Bus,
     registers::{DoubleRegister, Registers, SingleRegister},
 };
 
@@ -23,7 +23,7 @@ pub const fn into_bits(x: u8) -> (u8, u8, u8, u8, u8, u8, u8, u8) {
 /// Reads either from a `SingleRegister` or `(HL)`.
 pub fn get_register_value(
     registers: &Registers,
-    memory: &Memory,
+    memory: &Bus,
     operand: u8,
 ) -> (u8, Option<SingleRegister>) {
     match into_bits(operand) {
@@ -61,7 +61,7 @@ mod tests {
     #[test]
     fn get_register_value_gets_the_correct_registers() {
         let registers = Registers::new();
-        let memory = Memory::new();
+        let bus = Bus::new();
 
         for (operand, expected_register) in [
             (0b000, Some(SingleRegister::B)),
@@ -73,7 +73,7 @@ mod tests {
             (0b110, None), // HL
             (0b111, Some(SingleRegister::A)),
         ] {
-            let (_, register) = get_register_value(&registers, &memory, operand);
+            let (_, register) = get_register_value(&registers, &bus, operand);
             assert_eq!(expected_register, register);
         }
     }
@@ -81,7 +81,7 @@ mod tests {
     #[test]
     fn get_register_value_gets_the_correct_single_register_values() {
         let mut registers = Registers::new();
-        let memory = Memory::new();
+        let bus = Bus::new();
 
         for (operand, register, value) in [
             (0b000, SingleRegister::B, 1),
@@ -93,7 +93,7 @@ mod tests {
             (0b111, SingleRegister::A, 7),
         ] {
             registers.set_single(&register, value);
-            let (result, _) = get_register_value(&registers, &memory, operand);
+            let (result, _) = get_register_value(&registers, &bus, operand);
             assert_eq!(value, result);
         }
     }
@@ -101,12 +101,12 @@ mod tests {
     #[test]
     fn get_register_value_gets_the_correct_value_for_hl() {
         let mut registers = Registers::new();
-        let mut memory = Memory::new();
+        let mut bus = Bus::new();
 
         registers.set_double(&DoubleRegister::HL, 0xAB);
-        memory.set(0xAB, 0xCD);
+        bus.set(0xAB, 0xCD);
 
-        let (result, _) = get_register_value(&registers, &memory, 0b110);
+        let (result, _) = get_register_value(&registers, &bus, 0b110);
         assert_eq!(0xCD, result);
     }
 }
