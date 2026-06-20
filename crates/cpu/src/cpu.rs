@@ -66,11 +66,13 @@ impl CPU {
     pub fn tick(
         &mut self,
         registers: &mut Registers,
-        memory: &mut Bus,
+        bus: &mut Bus,
     ) -> Result<(u16, Instruction), CpuError> {
-        let opcode = self.fetch(registers, memory);
-        let instruction = self.decode(opcode, registers, memory)?;
-        let cycles = self.execute(&instruction, registers, memory)?;
+        let opcode = self.fetch(registers, bus);
+        let instruction = self.decode(opcode, registers, bus)?;
+        let cycles = self.execute(&instruction, registers, bus)?;
+
+        bus.tick(cycles);
 
         // TODO: Only return cycles
         Ok((cycles, instruction))

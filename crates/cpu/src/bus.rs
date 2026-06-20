@@ -84,6 +84,16 @@ impl Bus {
         self.memory[IE] = 0x00;
     }
 
+    /// Increase the internal counter by `machine_cycles` converted to T cycles.
+    pub fn tick(&mut self, machine_cycles: u16) {
+        let t_cycles = 4 * machine_cycles;
+
+        for _ in 0..t_cycles {
+            let value = self.counter.wrapping_add(1);
+            self.counter = value;
+        }
+    }
+
     /// Load bytes into memory starting at 0x0000.
     ///
     /// Returns an error if the `data` size exceeds the maximum memory size.
@@ -310,5 +320,46 @@ mod tests {
         b.set_u16(div, 0xFFFF);
         assert_eq!(0xFF00, b.get_u16(div));
         assert_eq!(0, b.counter);
+    }
+
+    #[test]
+    fn tick_advances_the_counter() {
+        let mut b = Bus::new();
+        assert_eq!(0, b.counter);
+
+        let previous = b.counter;
+        b.tick(1);
+
+        assert!(b.counter > previous);
+    }
+
+    #[test]
+    fn tick_advances_the_counter_in_t_cycles() {
+        let mut b = Bus::new();
+        assert_eq!(0, b.counter);
+
+        b.tick(3);
+
+        assert_eq!(3 * 4, b.counter);
+    }
+
+    #[test]
+    fn div_is_updated_every_64_machine_cycles() {
+        let div = DIV as u16;
+        let mut b = Bus::new();
+        assert_eq!(0, b.counter);
+        assert_eq!(0, b.get(div));
+
+        for _ in 0..64 {
+            b.tick(1);
+        }
+
+        assert_eq!(1, b.get(div));
+
+        for _ in 0..64 {
+            b.tick(1);
+        }
+
+        assert_eq!(2, b.get(div));
     }
 }
