@@ -126,7 +126,12 @@ impl Bus {
     /// ```
     #[must_use]
     pub fn get(&self, location: u16) -> u8 {
-        self.memory[location as usize]
+        let data = self.memory[location as usize];
+
+        match location as usize {
+            IF => data | 0b1110_0000,
+            _ => data,
+        }
     }
 
     /// Gets a `u16` value from memory.
@@ -225,3 +230,32 @@ const OBP1: usize = 0xFF49;
 const WY: usize = 0xFF4A;
 const WX: usize = 0xFF4B;
 const IE: usize = 0xFFFF;
+
+#[allow(non_snake_case, clippy::cast_possible_truncation)]
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn addr_IF_bits_5_to_7_always_return_1() {
+        let mut b = Bus::new();
+        b.set(IF as u16, 0b0001_1111);
+        let value = b.get(IF as u16);
+
+        assert_eq!(0b1111_1111, value, "Got {value:08b}");
+
+        b.set((IF + 1) as u16, 0b1010_1010);
+
+        let value = b.get_u16(IF as u16);
+
+        assert_eq!(0b1010_1010_1111_1111, value, "Got {value:08b}");
+
+        let addr = (IF - 1) as u16;
+
+        b.set(addr, 0b0101_0101);
+
+        let value = b.get_u16(addr);
+
+        assert_eq!(0b1111_1111_0101_0101, value, "Got {value:08b}");
+    }
+}
