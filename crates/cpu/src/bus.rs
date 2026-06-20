@@ -24,6 +24,8 @@ use std::fmt::Display;
 use crate::errors::CpuError;
 
 pub struct Bus {
+    /// Internal counter.
+    counter: u16,
     memory: Vec<u8>,
 }
 
@@ -37,6 +39,7 @@ impl Bus {
     #[must_use]
     pub fn new() -> Self {
         Self {
+            counter: 0,
             // 65536 bytes which is 0xFFFF + 1
             memory: vec![0; 0xFFFF + 1],
         }
@@ -110,7 +113,15 @@ impl Bus {
     /// assert_eq!(value, bus.get(0));
     /// ```
     pub fn set(&mut self, location: u16, value: u8) {
-        self.memory[location as usize] = value;
+        match location as usize {
+            DIV => {
+                // NOTE: Writing to DIV resets the counter
+                self.counter = 0;
+            }
+            _ => {
+                self.memory[location as usize] = value;
+            }
+        }
     }
 
     /// Gets a `u8` value from memory.
@@ -130,6 +141,7 @@ impl Bus {
 
         match location as usize {
             IF => data | 0b1110_0000,
+            DIV => (self.counter >> 8) as u8,
             _ => data,
         }
     }
@@ -197,7 +209,23 @@ impl Display for Bus {
     }
 }
 
+#[cfg(test)]
+impl Bus {
+    pub fn with_memory(mut self, values: &[(u16, u8)]) -> Self {
+        for (addr, val) in values {
+            self.memory[*addr as usize] = *val;
+        }
+        self
+    }
+
+    pub fn with_counter(mut self, value: u16) -> Self {
+        self.counter = value;
+        self
+    }
+}
+
 // Semantically significant memory addresses
+const DIV: usize = 0xFF04;
 const TIMA: usize = 0xFF05;
 const TMA: usize = 0xFF06;
 const TAC: usize = 0xFF07;
@@ -257,5 +285,30 @@ mod tests {
         let value = b.get_u16(addr);
 
         assert_eq!(0b1111_1111_0101_0101, value, "Got {value:08b}");
+    }
+
+    #[test]
+    fn writes_to_addr_DIV_resets_the_16bit_counter() {
+        let div = DIV as u16;
+        let mut b = Bus::new().with_counter(0xABCD);
+
+        assert_eq!(0xAB, b.get(div));
+        assert_eq!(0xABCD, b.counter);
+
+        b.set(div, 0xFF);
+        assert_eq!(0, b.get(div));
+        assert_eq!(0, b.counter);
+
+        let mut b = Bus::new().with_counter(0xABCD);
+
+        b.set_u16(div - 1, 0xFFFF);
+        assert_eq!(0x00FF, b.get_u16(div - 1));
+        assert_eq!(0, b.counter);
+
+        let mut b = Bus::new().with_counter(0xABCD);
+
+        b.set_u16(div, 0xFFFF);
+        assert_eq!(0xFF00, b.get_u16(div));
+        assert_eq!(0, b.counter);
     }
 }
