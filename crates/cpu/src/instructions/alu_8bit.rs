@@ -348,6 +348,7 @@ impl AluOp {
                     flags |= MASK_FLAG_CARRY; // Set C
                 }
 
+                #[allow(clippy::cast_possible_truncation)]
                 let result = result as u8;
                 if result == 0 {
                     flags |= MASK_FLAG_ZERO; // Set Z
