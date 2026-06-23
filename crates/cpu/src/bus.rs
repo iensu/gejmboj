@@ -23,10 +23,38 @@ use std::fmt::Display;
 
 use crate::errors::CpuError;
 
+const MASK_TIMER_ENABLED: u8 = 0b0000_0100;
+const MASK_TIMER_SELECT: u8 = 0b0000_0011;
+
+#[derive(Debug, Default)]
+enum Clock {
+    #[default]
+    T1024,
+    T16,
+    T64,
+    T256,
+}
+}
+
+impl From<u8> for Clock {
+    fn from(tac: u8) -> Self {
+        let selected = tac & MASK_TIMER_SELECT;
+        match selected {
+            0 => Self::T1024,
+            1 => Self::T16,
+            2 => Self::T64,
+            3 => Self::T256,
+            _ => unreachable!("Invalid TAC value: {tac:08b}"),
+        }
+    }
+}
+
 pub struct Bus {
     /// Internal counter.
     counter: u16,
     memory: Vec<u8>,
+    clock: Clock,
+    timer_enabled: bool,
 }
 
 impl Default for Bus {
@@ -42,6 +70,8 @@ impl Bus {
             counter: 0,
             // 65536 bytes which is 0xFFFF + 1
             memory: vec![0; 0xFFFF + 1],
+            clock: Clock::default(),
+            timer_enabled: false,
         }
     }
 
@@ -127,6 +157,11 @@ impl Bus {
             DIV => {
                 // NOTE: Writing to DIV resets the counter
                 self.counter = 0;
+            }
+            TAC => {
+                self.timer_enabled = value & MASK_TIMER_ENABLED > 0;
+                self.clock = Clock::from(value);
+                self.memory[location as usize] = value;
             }
             _ => {
                 self.memory[location as usize] = value;
