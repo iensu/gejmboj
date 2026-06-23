@@ -53,11 +53,11 @@ macro_rules! combine_instructions {
             pub fn execute(
                 &self,
                 mut registers: &mut $crate::registers::Registers,
-                mut memory: &mut $crate::bus::Bus,
+                mut bus: &mut $crate::bus::Bus,
                 mut cpu_flags: &mut $crate::cpu::CpuFlags,
             ) -> InstructionResult {
                 match self {
-                    $($name::$group(instr) => instr.execute(&mut registers, &mut memory, &mut cpu_flags)),+
+                    $($name::$group(instr) => instr.execute(&mut registers, &mut bus, &mut cpu_flags)),+
                 }
             }
 

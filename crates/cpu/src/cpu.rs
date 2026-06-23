@@ -101,8 +101,8 @@ impl CPU {
         Ok((cycles, instruction))
     }
 
-    pub fn fetch(&mut self, registers: &mut Registers, memory: &mut Bus) -> u8 {
-        let opcode = memory.get(registers.PC);
+    pub fn fetch(&mut self, registers: &mut Registers, bus: &mut Bus) -> u8 {
+        let opcode = bus.get(registers.PC);
         registers.PC += 1;
         opcode
     }
@@ -111,9 +111,9 @@ impl CPU {
         &self,
         opcode: u8,
         registers: &mut Registers,
-        memory: &Bus,
+        bus: &Bus,
     ) -> Result<Instruction, CpuError> {
-        let instruction = instructions::decode(opcode, registers.PC, memory)?;
+        let instruction = instructions::decode(opcode, registers.PC, bus)?;
         registers.PC += instruction.length() - 1; // instruction length - opcode length
 
         Ok(instruction)
@@ -123,10 +123,10 @@ impl CPU {
         &mut self,
         instruction: &Instruction,
         registers: &mut Registers,
-        memory: &mut Bus,
+        bus: &mut Bus,
     ) -> Result<u16, CpuError> {
         if let Some(out) = self.out.as_mut() {
-            Self::gameboy_doctor_output(out, registers, memory);
+            Self::gameboy_doctor_output(out, registers, bus);
         }
 
         if self.flags.IME_scheduled {
@@ -134,13 +134,13 @@ impl CPU {
             self.flags.IME_scheduled = false;
         }
 
-        let cycles = instruction.execute(registers, memory, &mut self.flags)?;
+        let cycles = instruction.execute(registers, bus, &mut self.flags)?;
 
         Ok(cycles)
     }
 
     #[allow(unused)]
-    fn gameboy_doctor_output(w: &mut Box<dyn std::io::Write>, registers: &Registers, memory: &Bus) {
+    fn gameboy_doctor_output(w: &mut Box<dyn std::io::Write>, registers: &Registers, bus: &Bus) {
         let pc = registers.PC;
         writeln!(
             w,
@@ -155,10 +155,10 @@ impl CPU {
             registers.get_single(&SingleRegister::L),
             registers.SP,
             registers.PC,
-            memory.get(pc),
-            memory.get(pc + 1),
-            memory.get(pc + 2),
-            memory.get(pc + 3),
+            bus.get(pc),
+            bus.get(pc + 1),
+            bus.get(pc + 2),
+            bus.get(pc + 3),
         );
     }
 

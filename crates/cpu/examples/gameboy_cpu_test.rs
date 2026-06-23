@@ -99,9 +99,9 @@ fn run_cpu_test(t: &CpuTest) -> Result<(), &'static str> {
     }
 }
 
-fn check_result(registers: &Registers, memory: &Bus, test: &CpuTest) -> bool {
+fn check_result(registers: &Registers, bus: &Bus, test: &CpuTest) -> bool {
     let addresses: Vec<u16> = test.final_state.ram.iter().map(|(addr, _)| *addr).collect();
-    let state = TestSettings::extract(registers, memory, &addresses);
+    let state = TestSettings::extract(registers, bus, &addresses);
     let expected = &test.final_state;
 
     let mut success = true;
@@ -186,10 +186,10 @@ struct TestSettings {
 }
 
 impl TestSettings {
-    pub fn extract(registers: &Registers, memory: &Bus, addresses: &[u16]) -> Self {
+    pub fn extract(registers: &Registers, bus: &Bus, addresses: &[u16]) -> Self {
         let ram: Vec<(u16, u8)> = addresses
             .iter()
-            .map(|addr| (*addr, memory.get(*addr)))
+            .map(|addr| (*addr, bus.get(*addr)))
             .collect();
         Self {
             a: registers.get_single(&SingleRegister::A),

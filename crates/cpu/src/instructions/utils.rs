@@ -23,12 +23,12 @@ pub const fn into_bits(x: u8) -> (u8, u8, u8, u8, u8, u8, u8, u8) {
 /// Reads either from a `SingleRegister` or `(HL)`.
 pub fn get_register_value(
     registers: &Registers,
-    memory: &Bus,
+    bus: &Bus,
     operand: u8,
 ) -> (u8, Option<SingleRegister>) {
     match into_bits(operand) {
         (_, _, _, _, _, 1, 1, 0) => {
-            let value = memory.get(registers.get_double(&DoubleRegister::HL));
+            let value = bus.get(registers.get_double(&DoubleRegister::HL));
             (value, None)
         }
         (_, _, _, _, _, a, b, c) => {
