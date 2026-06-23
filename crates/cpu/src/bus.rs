@@ -80,38 +80,38 @@ impl Bus {
     /// References:
     /// - <https://gbdev.io/pandocs/Power_Up_Sequence.html#hardware-registers>
     pub fn reset(&mut self) {
-        self.memory[TIMA] = 0x00;
-        self.memory[TMA] = 0x00;
-        self.memory[TAC] = 0x00;
-        self.memory[IF] = 0xE1;
-        self.memory[NR10] = 0x80;
-        self.memory[NR11] = 0xBF;
-        self.memory[NR12] = 0xF3;
-        self.memory[NR14] = 0xBF;
-        self.memory[NR21] = 0x3F;
-        self.memory[NR22] = 0x00;
-        self.memory[NR24] = 0xBF;
-        self.memory[NR30] = 0x7F;
-        self.memory[NR31] = 0xFF;
-        self.memory[NR32] = 0x9F;
-        self.memory[NR34] = 0xBF;
-        self.memory[NR41] = 0xFF;
-        self.memory[NR42] = 0x00;
-        self.memory[NR43] = 0x00;
-        self.memory[NR44] = 0xBF;
-        self.memory[NR50] = 0x77;
-        self.memory[NR51] = 0xF3;
-        self.memory[NR52] = 0xF1;
-        self.memory[LCDC] = 0x91;
-        self.memory[SCY] = 0x00;
-        self.memory[SCX] = 0x00;
-        self.memory[LYC] = 0x00;
-        self.memory[BGP] = 0xFC;
-        self.memory[OBP0] = 0xFF;
-        self.memory[OBP1] = 0xFF;
-        self.memory[WY] = 0x00;
-        self.memory[WX] = 0x00;
-        self.memory[IE] = 0x00;
+        self.set(TIMA, 0x00);
+        self.set(TMA, 0x00);
+        self.set(TAC, 0x00);
+        self.set(IF, 0xE1);
+        self.set(NR10, 0x80);
+        self.set(NR11, 0xBF);
+        self.set(NR12, 0xF3);
+        self.set(NR14, 0xBF);
+        self.set(NR21, 0x3F);
+        self.set(NR22, 0x00);
+        self.set(NR24, 0xBF);
+        self.set(NR30, 0x7F);
+        self.set(NR31, 0xFF);
+        self.set(NR32, 0x9F);
+        self.set(NR34, 0xBF);
+        self.set(NR41, 0xFF);
+        self.set(NR42, 0x00);
+        self.set(NR43, 0x00);
+        self.set(NR44, 0xBF);
+        self.set(NR50, 0x77);
+        self.set(NR51, 0xF3);
+        self.set(NR52, 0xF1);
+        self.set(LCDC, 0x91);
+        self.set(SCY, 0x00);
+        self.set(SCX, 0x00);
+        self.set(LYC, 0x00);
+        self.set(BGP, 0xFC);
+        self.set(OBP0, 0xFF);
+        self.set(OBP1, 0xFF);
+        self.set(WY, 0x00);
+        self.set(WX, 0x00);
+        self.set(IE, 0x00);
     }
 
     /// Increase the internal counter by `machine_cycles` converted to T cycles.
@@ -153,7 +153,7 @@ impl Bus {
     /// assert_eq!(value, bus.get(0));
     /// ```
     pub fn set(&mut self, location: u16, value: u8) {
-        match location as usize {
+        match location {
             DIV => {
                 // NOTE: Writing to DIV resets the counter
                 self.counter = 0;
@@ -184,7 +184,7 @@ impl Bus {
     pub fn get(&self, location: u16) -> u8 {
         let data = self.memory[location as usize];
 
-        match location as usize {
+        match location {
             IF => data | 0b1110_0000,
             DIV => (self.counter >> 8) as u8,
             _ => data,
@@ -270,39 +270,39 @@ impl Bus {
 }
 
 // Semantically significant memory addresses
-const DIV: usize = 0xFF04;
-const TIMA: usize = 0xFF05;
-const TMA: usize = 0xFF06;
-const TAC: usize = 0xFF07;
-const IF: usize = 0xFF0F;
-const NR10: usize = 0xFF10;
-const NR11: usize = 0xFF11;
-const NR12: usize = 0xFF12;
-const NR14: usize = 0xFF14;
-const NR21: usize = 0xFF16;
-const NR22: usize = 0xFF17;
-const NR24: usize = 0xFF19;
-const NR30: usize = 0xFF1A;
-const NR31: usize = 0xFF1B;
-const NR32: usize = 0xFF1C;
-const NR34: usize = 0xFF1E;
-const NR41: usize = 0xFF20;
-const NR42: usize = 0xFF21;
-const NR43: usize = 0xFF22;
-const NR44: usize = 0xFF23;
-const NR50: usize = 0xFF24;
-const NR51: usize = 0xFF25;
-const NR52: usize = 0xFF26;
-const LCDC: usize = 0xFF40;
-const SCY: usize = 0xFF42;
-const SCX: usize = 0xFF43;
-const LYC: usize = 0xFF45;
-const BGP: usize = 0xFF47;
-const OBP0: usize = 0xFF48;
-const OBP1: usize = 0xFF49;
-const WY: usize = 0xFF4A;
-const WX: usize = 0xFF4B;
-const IE: usize = 0xFFFF;
+const DIV: u16 = 0xFF04;
+const TIMA: u16 = 0xFF05;
+const TMA: u16 = 0xFF06;
+const TAC: u16 = 0xFF07;
+const IF: u16 = 0xFF0F;
+const NR10: u16 = 0xFF10;
+const NR11: u16 = 0xFF11;
+const NR12: u16 = 0xFF12;
+const NR14: u16 = 0xFF14;
+const NR21: u16 = 0xFF16;
+const NR22: u16 = 0xFF17;
+const NR24: u16 = 0xFF19;
+const NR30: u16 = 0xFF1A;
+const NR31: u16 = 0xFF1B;
+const NR32: u16 = 0xFF1C;
+const NR34: u16 = 0xFF1E;
+const NR41: u16 = 0xFF20;
+const NR42: u16 = 0xFF21;
+const NR43: u16 = 0xFF22;
+const NR44: u16 = 0xFF23;
+const NR50: u16 = 0xFF24;
+const NR51: u16 = 0xFF25;
+const NR52: u16 = 0xFF26;
+const LCDC: u16 = 0xFF40;
+const SCY: u16 = 0xFF42;
+const SCX: u16 = 0xFF43;
+const LYC: u16 = 0xFF45;
+const BGP: u16 = 0xFF47;
+const OBP0: u16 = 0xFF48;
+const OBP1: u16 = 0xFF49;
+const WY: u16 = 0xFF4A;
+const WX: u16 = 0xFF4B;
+const IE: u16 = 0xFFFF;
 
 #[allow(non_snake_case, clippy::cast_possible_truncation)]
 #[cfg(test)]
