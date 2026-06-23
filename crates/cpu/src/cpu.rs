@@ -1,11 +1,32 @@
 //! Sharp SM83 CPU implementation
 
 use crate::{
-    bus::Bus,
+    bus::{Bus, IE, IF, MASK_TIMER_INTERRUPT},
     errors::CpuError,
     instructions::{self, Instruction},
     registers::{Registers, SingleRegister},
 };
+
+const INT_TIMER: u16 = 0x50;
+
+#[derive(Debug, Clone, Copy)]
+enum Interrupt {
+    Timer,
+}
+
+impl Interrupt {
+    pub fn mask(&self) -> u8 {
+        match self {
+            Self::Timer => MASK_TIMER_INTERRUPT,
+        }
+    }
+
+    pub fn address(&self) -> u16 {
+        match self {
+            Self::Timer => INT_TIMER,
+        }
+    }
+}
 
 #[allow(non_snake_case)]
 #[derive(Debug, PartialEq, Eq)]
@@ -70,9 +91,11 @@ impl CPU {
     ) -> Result<(u16, Instruction), CpuError> {
         let opcode = self.fetch(registers, bus);
         let instruction = self.decode(opcode, registers, bus)?;
-        let cycles = self.execute(&instruction, registers, bus)?;
+        let mut cycles = self.execute(&instruction, registers, bus)?;
 
         bus.tick(cycles);
+
+        cycles += self.maybe_handle_interrupt(Interrupt::Timer, registers, bus);
 
         // TODO: Only return cycles
         Ok((cycles, instruction))
@@ -137,6 +160,32 @@ impl CPU {
             memory.get(pc + 2),
             memory.get(pc + 3),
         );
+    }
+
+    fn maybe_handle_interrupt(
+        &mut self,
+        interrupt: Interrupt,
+        registers: &mut Registers,
+        bus: &mut Bus,
+    ) -> u16 {
+        let mask = interrupt.mask();
+        if self.flags.IME && bus.get(IF) & bus.get(IE) & mask != 0 {
+            // Reset
+            self.flags.IME = false;
+            bus.set(IF, bus.get(IF) & !mask);
+
+            bus.tick(2); // Wait two M-cycles
+
+            let sp = registers.decrement_sp();
+            bus.set_u16(sp, registers.PC);
+            registers.PC = interrupt.address();
+
+            bus.tick(3);
+
+            5
+        } else {
+            0
+        }
     }
 }
 

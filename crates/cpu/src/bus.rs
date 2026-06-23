@@ -25,6 +25,7 @@ use crate::errors::CpuError;
 
 const MASK_TIMER_ENABLED: u8 = 0b0000_0100;
 const MASK_TIMER_SELECT: u8 = 0b0000_0011;
+pub const MASK_TIMER_INTERRUPT: u8 = 0b0000_0100;
 
 #[derive(Debug, Default)]
 enum Clock {
@@ -34,6 +35,17 @@ enum Clock {
     T64,
     T256,
 }
+
+impl Clock {
+    #[rustfmt::skip]
+    pub fn mask(&self) -> u16 {
+        match self {
+            Self::T16   => 0b0000_0000_0000_1000,
+            Self::T64   => 0b0000_0000_0010_0000,
+            Self::T256  => 0b0000_0000_1000_0000,
+            Self::T1024 => 0b0000_0010_0000_0000,
+        }
+    }
 }
 
 impl From<u8> for Clock {
@@ -55,6 +67,7 @@ pub struct Bus {
     memory: Vec<u8>,
     clock: Clock,
     timer_enabled: bool,
+    timer_reset_t_cycles: u8,
 }
 
 impl Default for Bus {
@@ -72,6 +85,7 @@ impl Bus {
             memory: vec![0; 0xFFFF + 1],
             clock: Clock::default(),
             timer_enabled: false,
+            timer_reset_t_cycles: 0,
         }
     }
 
@@ -119,8 +133,31 @@ impl Bus {
         let t_cycles = 4 * machine_cycles;
 
         for _ in 0..t_cycles {
-            let value = self.counter.wrapping_add(1);
-            self.counter = value;
+            if self.timer_reset_t_cycles > 0 {
+                self.timer_reset_t_cycles -= 1;
+
+                if self.timer_reset_t_cycles == 0 {
+                    let value = self.get(IF) | MASK_TIMER_INTERRUPT;
+                    self.set(IF, value);
+                    self.set(TIMA, self.get(TMA));
+                }
+            }
+
+            let previous_counter = self.counter;
+            self.counter = self.counter.wrapping_add(1);
+
+            if self.timer_enabled {
+                let clock_mask = self.clock.mask();
+                if previous_counter & clock_mask > 0 && self.counter & clock_mask == 0 {
+                    let current = self.get(TIMA);
+                    let (value, overflow) = current.overflowing_add(1);
+                    self.set(TIMA, value);
+
+                    if overflow {
+                        self.timer_reset_t_cycles = 4;
+                    }
+                }
+            }
         }
     }
 
@@ -274,7 +311,7 @@ const DIV: u16 = 0xFF04;
 const TIMA: u16 = 0xFF05;
 const TMA: u16 = 0xFF06;
 const TAC: u16 = 0xFF07;
-const IF: u16 = 0xFF0F;
+pub const IF: u16 = 0xFF0F;
 const NR10: u16 = 0xFF10;
 const NR11: u16 = 0xFF11;
 const NR12: u16 = 0xFF12;
@@ -302,7 +339,7 @@ const OBP0: u16 = 0xFF48;
 const OBP1: u16 = 0xFF49;
 const WY: u16 = 0xFF4A;
 const WX: u16 = 0xFF4B;
-const IE: u16 = 0xFFFF;
+pub const IE: u16 = 0xFFFF;
 
 #[allow(non_snake_case, clippy::cast_possible_truncation)]
 #[cfg(test)]
