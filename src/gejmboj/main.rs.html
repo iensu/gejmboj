@@ -34,14 +34,14 @@
 <a href=#34 id=34 data-nosnippet>34</a>
 <a href=#35 id=35 data-nosnippet>35</a>        <span class="kw">let </span>prev_pc = registers.PC;
 <a href=#36 id=36 data-nosnippet>36</a>
-<a href=#37 id=37 data-nosnippet>37</a>        <span class="kw">let </span>(location, instruction) = cpu.tick(<span class="kw-2">&amp;mut </span>registers, <span class="kw-2">&amp;mut </span>bus).inspect_err(|e| {
+<a href=#37 id=37 data-nosnippet>37</a>        <span class="kw">let </span>instruction = cpu.tick(<span class="kw-2">&amp;mut </span>registers, <span class="kw-2">&amp;mut </span>bus).inspect_err(|e| {
 <a href=#38 id=38 data-nosnippet>38</a>            <span class="macro">eprintln!</span>(
 <a href=#39 id=39 data-nosnippet>39</a>                <span class="string">"INSTR NO: {instruction_count}, PC: {:04X}, {e}"</span>,
 <a href=#40 id=40 data-nosnippet>40</a>                registers.PC
 <a href=#41 id=41 data-nosnippet>41</a>            );
 <a href=#42 id=42 data-nosnippet>42</a>        })<span class="question-mark">?</span>;
 <a href=#43 id=43 data-nosnippet>43</a>
-<a href=#44 id=44 data-nosnippet>44</a>        <span class="macro">debug!</span>(<span class="string">"Executed instruction [{instruction_count:08}] ({location:04X}) {instruction:?}"</span>);
+<a href=#44 id=44 data-nosnippet>44</a>        <span class="macro">debug!</span>(<span class="string">"Executed instruction [{instruction_count:08}] ({prev_pc:04X}) {instruction:?}"</span>);
 <a href=#45 id=45 data-nosnippet>45</a>
 <a href=#46 id=46 data-nosnippet>46</a>        <span class="comment">// Detect self-jump (jr $FE), PC remains unchanged across instruction ticks.
 <a href=#47 id=47 data-nosnippet>47</a>        </span><span class="kw">if </span>registers.PC == prev_pc {
