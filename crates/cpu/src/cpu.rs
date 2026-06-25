@@ -2,6 +2,7 @@
 
 use crate::{
     bus::{Bus, IE, IF, MASK_TIMER_INTERRUPT},
+    cycles::MachineCycles,
     errors::CpuError,
     instructions::{self, Instruction},
     registers::{Registers, SingleRegister},
@@ -15,13 +16,13 @@ enum Interrupt {
 }
 
 impl Interrupt {
-    pub fn mask(&self) -> u8 {
+    pub fn mask(self) -> u8 {
         match self {
             Self::Timer => MASK_TIMER_INTERRUPT,
         }
     }
 
-    pub fn address(&self) -> u16 {
+    pub fn address(self) -> u16 {
         match self {
             Self::Timer => INT_TIMER,
         }
@@ -88,7 +89,7 @@ impl CPU {
         &mut self,
         registers: &mut Registers,
         bus: &mut Bus,
-    ) -> Result<(u16, Instruction), CpuError> {
+    ) -> Result<(Instruction, MachineCycles), CpuError> {
         let opcode = self.fetch(registers, bus);
         let instruction = self.decode(opcode, registers, bus)?;
         let mut cycles = self.execute(&instruction, registers, bus)?;
@@ -97,8 +98,7 @@ impl CPU {
 
         cycles += self.maybe_handle_interrupt(Interrupt::Timer, registers, bus);
 
-        // TODO: Only return cycles
-        Ok((cycles, instruction))
+        Ok((instruction, cycles))
     }
 
     pub fn fetch(&mut self, registers: &mut Registers, bus: &mut Bus) -> u8 {
@@ -124,7 +124,7 @@ impl CPU {
         instruction: &Instruction,
         registers: &mut Registers,
         bus: &mut Bus,
-    ) -> Result<u16, CpuError> {
+    ) -> Result<MachineCycles, CpuError> {
         if let Some(out) = self.out.as_mut() {
             Self::gameboy_doctor_output(out, registers, bus);
         }
@@ -167,24 +167,24 @@ impl CPU {
         interrupt: Interrupt,
         registers: &mut Registers,
         bus: &mut Bus,
-    ) -> u16 {
+    ) -> MachineCycles {
         let mask = interrupt.mask();
         if self.flags.IME && bus.get(IF) & bus.get(IE) & mask != 0 {
             // Reset
             self.flags.IME = false;
             bus.set(IF, bus.get(IF) & !mask);
 
-            bus.tick(2); // Wait two M-cycles
+            bus.tick(MachineCycles::new(2)); // Wait two M-cycles
 
             let sp = registers.decrement_sp();
             bus.set_u16(sp, registers.PC);
             registers.PC = interrupt.address();
 
-            bus.tick(3);
+            bus.tick(MachineCycles::new(3));
 
-            5
+            MachineCycles::new(5)
         } else {
-            0
+            MachineCycles::new(0)
         }
     }
 }
@@ -211,7 +211,7 @@ mod test {
 
         assert_eq!(0, registers.PC);
 
-        let (_, instruction) = cpu.tick(&mut registers, &mut bus).unwrap();
+        let (instruction, _) = cpu.tick(&mut registers, &mut bus).unwrap();
 
         assert_eq!(Instruction::Misc(misc::Misc::NOP()), instruction);
         assert_eq!(instruction.length(), registers.PC);
@@ -229,7 +229,7 @@ mod test {
         bus.set_u16(0x0000, ei_op);
         bus.set_u16(0x0002, noop);
 
-        let (_, instruction) = cpu
+        let (instruction, _) = cpu
             .tick(&mut registers, &mut bus)
             .expect("Failed to execute EI instruction");
 
@@ -267,7 +267,7 @@ mod test {
 
         bus.set_u16(0x0000, jr_fe);
 
-        let (_, instruction) = cpu.tick(&mut registers, &mut bus).unwrap();
+        let (instruction, _) = cpu.tick(&mut registers, &mut bus).unwrap();
 
         assert_eq!(
             Instruction::ControlFlow(control_flow::ControlFlow::JR(0xFE)),
@@ -295,7 +295,7 @@ mod test {
             registers.SP = sp; // Update SP
             memory.set_u16(sp, location); // Update SP pointer
 
-            let (_, instruction) = cpu.tick(&mut registers, &mut memory).unwrap();
+            let (instruction, _) = cpu.tick(&mut registers, &mut memory).unwrap();
 
             assert_eq!(
                 Instruction::ControlFlow(control_flow::ControlFlow::RETC(cond)),
@@ -318,7 +318,7 @@ mod test {
 
             let prev_pc = registers.PC;
 
-            let (_, instruction) = cpu.tick(&mut registers, &mut memory).unwrap();
+            let (instruction, _) = cpu.tick(&mut registers, &mut memory).unwrap();
 
             assert_eq!(
                 Instruction::ControlFlow(control_flow::ControlFlow::RETC(cond)),
@@ -350,7 +350,7 @@ mod test {
 
             let prev_pc = registers.PC;
 
-            let (_, instruction) = cpu.tick(&mut registers, &mut memory).unwrap();
+            let (instruction, _) = cpu.tick(&mut registers, &mut memory).unwrap();
 
             assert_eq!(
                 Instruction::ControlFlow(control_flow::ControlFlow::JRC(operand, cond)),
@@ -373,7 +373,7 @@ mod test {
 
             let prev_pc = registers.PC;
 
-            let (_, instruction) = cpu.tick(&mut registers, &mut memory).unwrap();
+            let (instruction, _) = cpu.tick(&mut registers, &mut memory).unwrap();
 
             assert_eq!(
                 Instruction::ControlFlow(control_flow::ControlFlow::JRC(operand, cond)),
@@ -403,7 +403,7 @@ mod test {
                 Condition::NotZero => registers.set_zero(false),
             }
 
-            let (_, instruction) = cpu.tick(&mut registers, &mut memory).unwrap();
+            let (instruction, _) = cpu.tick(&mut registers, &mut memory).unwrap();
 
             assert_eq!(
                 Instruction::ControlFlow(control_flow::ControlFlow::JPC(operand, cond)),
@@ -423,7 +423,7 @@ mod test {
 
             let prev_pc = registers.PC;
 
-            let (_, instruction) = cpu.tick(&mut registers, &mut memory).unwrap();
+            let (instruction, _) = cpu.tick(&mut registers, &mut memory).unwrap();
 
             assert_eq!(
                 Instruction::ControlFlow(control_flow::ControlFlow::JPC(operand, cond)),

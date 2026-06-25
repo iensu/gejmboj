@@ -1,3 +1,4 @@
+use crate::cycles::MachineCycles;
 use crate::instruction_group;
 use crate::registers::{DoubleRegister, SingleRegister};
 
@@ -8,21 +9,21 @@ instruction_group! {
         /// Loads 16-bit data into 16-bit register
         LD(r: DoubleRegister, operand: u16) [3] => {
             registers.set_double(r, *operand);
-            Ok(3)
+            Ok(MachineCycles::new(3))
         }
 
         /// Loads value from SP into address
         LD_FROM_SP(address: u16) [3] => {
             let value = registers.get_double(&DoubleRegister::SP);
             memory.set_u16(*address, value);
-            Ok(5)
+            Ok(MachineCycles::new(5))
         }
 
         /// Loads data from HL into SP
         LD_HL_TO_SP() [1] => {
             let value = registers.get_double(&DoubleRegister::HL);
             registers.set_double(&DoubleRegister::SP, value);
-            Ok(2)
+            Ok(MachineCycles::new(2))
         }
 
         /// Push data from 16-bit register to stack memory
@@ -37,7 +38,7 @@ instruction_group! {
                 let value = registers.get_double(r);
                 memory.set_u16(sp, value);
             }
-            Ok(4)
+            Ok(MachineCycles::new(4))
         }
 
         /// Pop data from stack memory to 16-bit register
@@ -47,7 +48,7 @@ instruction_group! {
             registers.set_double(r, value);
             registers.increment_sp();
 
-            Ok(3)
+            Ok(MachineCycles::new(3))
         }
     }
 }
@@ -66,7 +67,7 @@ mod tests {
         let cycles = instruction
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
-        assert_eq!(3, cycles);
+        assert_eq!(3, cycles.value());
         assert_eq!(
             0x1234,
             registers.get_double(&DoubleRegister::BC),
@@ -112,7 +113,7 @@ mod tests {
         let cycles = instruction
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
-        assert_eq!(5, cycles);
+        assert_eq!(5, cycles.value());
         assert_eq!(0x1234, memory.get_u16(0xABCD));
     }
 
@@ -130,7 +131,7 @@ mod tests {
         let cycles = instruction
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
-        assert_eq!(2, cycles);
+        assert_eq!(2, cycles.value());
         assert_eq!(0x1234, registers.get_double(&DoubleRegister::SP));
     }
 
@@ -151,7 +152,7 @@ mod tests {
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
         let sp = registers.get_double(&DoubleRegister::SP);
-        assert_eq!(4, cycles);
+        assert_eq!(4, cycles.value());
         assert_eq!(stack_pointer_start_address - 2, sp);
         assert_eq!(0x1122, memory.get_u16(sp));
 
@@ -159,7 +160,7 @@ mod tests {
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
         let sp = registers.get_double(&DoubleRegister::SP);
-        assert_eq!(4, cycles);
+        assert_eq!(4, cycles.value());
         assert_eq!(stack_pointer_start_address - 4, sp);
         assert_eq!(0x3344, memory.get_u16(sp));
 
@@ -167,7 +168,7 @@ mod tests {
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
         let sp = registers.get_double(&DoubleRegister::SP);
-        assert_eq!(4, cycles);
+        assert_eq!(4, cycles.value());
         assert_eq!(stack_pointer_start_address - 6, sp);
         assert_eq!(0x5566, memory.get_u16(sp));
     }
@@ -187,7 +188,7 @@ mod tests {
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
         let sp = registers.get_double(&DoubleRegister::SP);
-        assert_eq!(4, cycles);
+        assert_eq!(4, cycles.value());
         assert_eq!(stack_pointer_start_address - 2, sp);
         assert_eq!(0x7780, memory.get_u16(sp));
     }
@@ -201,7 +202,7 @@ mod tests {
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(cycles, 3);
+        assert_eq!(3, cycles.value());
         assert_eq!(sp + 2, registers.get_double(&DoubleRegister::SP));
         assert_eq!(0xABCD, registers.get_double(&DoubleRegister::BC));
     }
@@ -215,7 +216,7 @@ mod tests {
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(cycles, 3);
+        assert_eq!(3, cycles.value());
         assert_eq!(sp + 2, registers.get_double(&DoubleRegister::SP));
         assert_eq!(0xABCD, registers.get_double(&DoubleRegister::DE));
     }
@@ -229,7 +230,7 @@ mod tests {
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(cycles, 3);
+        assert_eq!(3, cycles.value());
         assert_eq!(sp + 2, registers.get_double(&DoubleRegister::SP));
         assert_eq!(0xABCD, registers.get_double(&DoubleRegister::HL));
     }
@@ -243,7 +244,7 @@ mod tests {
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(cycles, 3);
+        assert_eq!(3, cycles.value());
         assert_eq!(sp + 2, registers.get_double(&DoubleRegister::SP));
         // Lowest nibble (4 bits) of the AF register are unwriteable.
         assert_eq!(0xABC0, registers.get_double(&DoubleRegister::AF));
@@ -258,7 +259,7 @@ mod tests {
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(cycles, 3);
+        assert_eq!(3, cycles.value());
         assert_eq!(sp + 2, registers.get_double(&DoubleRegister::SP));
         // Flags are set
         assert_eq!(0b1010_0000, registers.get_single(&SingleRegister::F));

@@ -2,6 +2,7 @@
 
 pub mod bus;
 pub mod cpu;
+pub mod cycles;
 pub mod errors;
 pub mod instructions;
 pub mod macros;

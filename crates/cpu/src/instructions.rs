@@ -1,6 +1,7 @@
 //! Sharp SM83 instruction set
 
 use crate::combine_instructions;
+use crate::cycles::MachineCycles;
 use crate::{bus::Bus, errors::CpuError, registers::Registers};
 
 pub mod alu_16bit;
@@ -26,7 +27,7 @@ use stack::Stack;
 use utils::into_bits;
 
 /// Return either the number of consumed machine cycles, or a `CpuError`.
-pub type InstructionResult = Result<u16, CpuError>;
+pub type InstructionResult = Result<MachineCycles, CpuError>;
 
 combine_instructions! {
     Instruction(ALU16Bit, ALU8Bit, Bit, ControlFlow, Load8Bit, Load16Bit, Misc, RotateShift, Stack)

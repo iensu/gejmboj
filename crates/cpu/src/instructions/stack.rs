@@ -1,3 +1,4 @@
+use crate::cycles::MachineCycles;
 use crate::instruction_group;
 use crate::registers::{DoubleRegister, MASK_FLAG_CARRY, MASK_FLAG_HALF_CARRY};
 
@@ -29,7 +30,7 @@ instruction_group! {
             registers.set_double(&DoubleRegister::HL, sp);
             registers.set_flags(flags);
 
-            Ok(3)
+            Ok(MachineCycles::new(3))
         }
     }
 }

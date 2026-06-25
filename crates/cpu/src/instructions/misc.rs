@@ -1,4 +1,5 @@
 use crate::{
+    cycles::MachineCycles,
     instruction_group,
     registers::{MASK_FLAG_CARRY, MASK_FLAG_NEGATIVE, MASK_FLAG_ZERO, SingleRegister},
 };
@@ -22,19 +23,19 @@ instruction_group! {
 
         /// No operation
         NOP() [1] => {
-            Ok(1)
+            Ok(MachineCycles::new(1))
         }
 
         /// Disable interrupt handling
         DI() [1] => {
             cpu_flags.IME = false;
-            Ok(1)
+            Ok(MachineCycles::new(1))
         }
 
         /// Schedules interrupt handling to be enabled after the next machine cycle
         EI() [1] => {
             cpu_flags.IME_scheduled = true;
-            Ok(1)
+            Ok(MachineCycles::new(1))
         }
 
         /// Flips the carry flag (C) and clears the negative (N) and half-carry (H) flags
@@ -43,7 +44,7 @@ instruction_group! {
             let value = value & 0b1001_0000; // Clear N and H flags
             let value = value ^ 0b0001_0000; // Flip C
             registers.set_flags(value);
-            Ok(1)
+            Ok(MachineCycles::new(1))
         }
 
         /// Sets the carry flag (C) and clears the negative (N) and half-carry (H) flags
@@ -52,7 +53,7 @@ instruction_group! {
             let value = value & 0b1001_0000; // Clear N and H flags
             let value = value | 0b0001_0000; // Set C
             registers.set_flags(value);
-            Ok(1)
+            Ok(MachineCycles::new(1))
         }
 
         /// Decimal Adjust Accumulator (DAA)
@@ -145,7 +146,7 @@ instruction_group! {
 
             registers.set_single(&SingleRegister::A,a);
             registers.set_flags(flags);
-            Ok(1)
+            Ok(MachineCycles::new(1))
         }
 
         /// Flips all bits in the A register and sets the negative (N) and half-carry (H) flags
@@ -158,7 +159,7 @@ instruction_group! {
 
             registers.set_flags(flags);
             registers.set_single(&SingleRegister::A, value);
-            Ok(1)
+            Ok(MachineCycles::new(1))
         }
     }
 }
@@ -179,7 +180,7 @@ mod tests {
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(1, cycles);
+        assert_eq!(1, cycles.value());
         assert!(!cpu_flags.IME);
     }
 
@@ -193,7 +194,7 @@ mod tests {
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(1, cycles);
+        assert_eq!(1, cycles.value());
         assert!(cpu_flags.IME_scheduled);
     }
 
@@ -205,7 +206,7 @@ mod tests {
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(1, cycles);
+        assert_eq!(1, cycles.value());
     }
 
     #[test]
@@ -248,7 +249,7 @@ mod tests {
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(1, cycles);
+        assert_eq!(1, cycles.value());
     }
 
     #[test]
@@ -297,7 +298,7 @@ mod tests {
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(1, cycles);
+        assert_eq!(1, cycles.value());
     }
 
     #[test]
@@ -386,7 +387,7 @@ mod tests {
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(1, cycles);
+        assert_eq!(1, cycles.value());
     }
 
     #[test]

@@ -34,14 +34,14 @@ fn main() -> AppResult<()> {
 
         let prev_pc = registers.PC;
 
-        let (location, instruction) = cpu.tick(&mut registers, &mut bus).inspect_err(|e| {
+        let instruction = cpu.tick(&mut registers, &mut bus).inspect_err(|e| {
             eprintln!(
                 "INSTR NO: {instruction_count}, PC: {:04X}, {e}",
                 registers.PC
             );
         })?;
 
-        debug!("Executed instruction [{instruction_count:08}] ({location:04X}) {instruction:?}");
+        debug!("Executed instruction [{instruction_count:08}] ({prev_pc:04X}) {instruction:?}");
 
         // Detect self-jump (jr $FE), PC remains unchanged across instruction ticks.
         if registers.PC == prev_pc {

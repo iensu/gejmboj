@@ -29,6 +29,7 @@ use super::utils::{self, get_register_value};
 ///
 /// ^ Does not follow the general pattern so possibly a typo in the manual.
 use crate::{
+    cycles::MachineCycles,
     errors::CpuError,
     instruction_group,
     registers::{DoubleRegister, MASK_FLAG_CARRY, MASK_FLAG_ZERO, SingleRegister},
@@ -190,7 +191,7 @@ instruction_group! {
             let (result, flags) = Op::RotateLeft(value).execute(0, &OpConfig::default());
             registers.set_single(&SingleRegister::A, result);
             registers.set_flags(flags);
-            Ok(1)
+            Ok(MachineCycles::new(1))
         }
 
         /// Rotates contents of register A to the left.
@@ -212,7 +213,7 @@ instruction_group! {
             );
             registers.set_single(&SingleRegister::A, result);
             registers.set_flags(flags);
-            Ok(1)
+            Ok(MachineCycles::new(1))
         }
 
         /// Rotate contents of register A to the right.
@@ -231,7 +232,7 @@ instruction_group! {
             let (result, flags) = Op::RotateRight(value).execute(0, &OpConfig::default());
             registers.set_single(&SingleRegister::A, result);
             registers.set_flags(flags);
-            Ok(1)
+            Ok(MachineCycles::new(1))
         }
 
         /// Rotates contents of register A to the right.
@@ -253,7 +254,7 @@ instruction_group! {
             );
             registers.set_single(&SingleRegister::A, result);
             registers.set_flags(flags);
-            Ok(1)
+            Ok(MachineCycles::new(1))
         }
 
         /// Rotates contents of `m` to the left.
@@ -276,10 +277,10 @@ instruction_group! {
 
             if let Some(r) = register {
                 registers.set_single(&r, result);
-                Ok(2)
+                Ok(MachineCycles::new(2))
             } else {
                 memory.set(registers.get_double(&DoubleRegister::HL), result);
-                Ok(4)
+                Ok(MachineCycles::new(4))
             }
         }
 
@@ -306,10 +307,10 @@ instruction_group! {
 
             if let Some(r) = register {
                 registers.set_single(&r, result);
-                Ok(2)
+                Ok(MachineCycles::new(2))
             } else {
                 memory.set(registers.get_double(&DoubleRegister::HL), result);
-                Ok(4)
+                Ok(MachineCycles::new(4))
             }
         }
 
@@ -333,10 +334,10 @@ instruction_group! {
 
             if let Some(r) = register {
                 registers.set_single(&r, result);
-                Ok(2)
+                Ok(MachineCycles::new(2))
             } else {
                 memory.set(registers.get_double(&DoubleRegister::HL), result);
-                Ok(4)
+                Ok(MachineCycles::new(4))
             }
         }
 
@@ -363,10 +364,10 @@ instruction_group! {
 
             if let Some(r) = register {
                 registers.set_single(&r, result);
-                Ok(2)
+                Ok(MachineCycles::new(2))
             } else {
                 memory.set(registers.get_double(&DoubleRegister::HL), result);
-                Ok(4)
+                Ok(MachineCycles::new(4))
             }
         }
 
@@ -390,10 +391,10 @@ instruction_group! {
 
             if let Some(r) = register {
                 registers.set_single(&r, result);
-                Ok(2)
+                Ok(MachineCycles::new(2))
             } else {
                 memory.set(registers.get_double(&DoubleRegister::HL), result);
-                Ok(4)
+                Ok(MachineCycles::new(4))
             }
         }
 
@@ -417,10 +418,10 @@ instruction_group! {
 
             if let Some(r) = register {
                 registers.set_single(&r, result);
-                Ok(2)
+                Ok(MachineCycles::new(2))
             } else {
                 memory.set(registers.get_double(&DoubleRegister::HL), result);
-                Ok(4)
+                Ok(MachineCycles::new(4))
             }
         }
 
@@ -444,10 +445,10 @@ instruction_group! {
 
             if let Some(r) = register {
                 registers.set_single(&r, result);
-                Ok(2)
+                Ok(MachineCycles::new(2))
             } else {
                 memory.set(registers.get_double(&DoubleRegister::HL), result);
-                Ok(4)
+                Ok(MachineCycles::new(4))
             }
         }
 
@@ -473,10 +474,10 @@ instruction_group! {
 
             if let Some(r) = register {
                 registers.set_single(&r, result);
-                Ok(2)
+                Ok(MachineCycles::new(2))
             } else {
                 memory.set(registers.get_double(&DoubleRegister::HL), result);
-                Ok(4)
+                Ok(MachineCycles::new(4))
             }
         }
     }
@@ -496,7 +497,7 @@ mod tests {
         let cycles = RotateShift::RLCA()
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
-        assert_eq!(1, cycles);
+        assert_eq!(1, cycles.value());
     }
 
     #[test]
@@ -546,7 +547,7 @@ mod tests {
         let cycles = RotateShift::RLA()
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
-        assert_eq!(1, cycles);
+        assert_eq!(1, cycles.value());
     }
 
     #[test]
@@ -608,7 +609,7 @@ mod tests {
         let cycles = RotateShift::RRCA()
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
-        assert_eq!(1, cycles);
+        assert_eq!(1, cycles.value());
     }
 
     #[test]
@@ -659,7 +660,7 @@ mod tests {
         let cycles = RotateShift::RRA()
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
-        assert_eq!(1, cycles);
+        assert_eq!(1, cycles.value());
     }
 
     #[test]
@@ -725,10 +726,15 @@ mod tests {
                 .unwrap();
 
             if operand == 0b110 {
-                assert_eq!(4, cycles, "Incorrect number of machine cycles for HL");
+                assert_eq!(
+                    4,
+                    cycles.value(),
+                    "Incorrect number of machine cycles for HL"
+                );
             } else {
                 assert_eq!(
-                    2, cycles,
+                    2,
+                    cycles.value(),
                     "Incorrect number of machine cycles for single register ({operand:08b})"
                 );
             }
@@ -809,10 +815,15 @@ mod tests {
                 .unwrap();
 
             if operand == 0b110 {
-                assert_eq!(4, cycles, "Incorrect number of machine cycles for HL");
+                assert_eq!(
+                    4,
+                    cycles.value(),
+                    "Incorrect number of machine cycles for HL"
+                );
             } else {
                 assert_eq!(
-                    2, cycles,
+                    2,
+                    cycles.value(),
                     "Incorrect number of machine cycles for single register ({operand:08b})"
                 );
             }
@@ -887,10 +898,15 @@ mod tests {
                 .unwrap();
 
             if operand == 0b110 {
-                assert_eq!(4, cycles, "Incorrect number of machine cycles for HL");
+                assert_eq!(
+                    4,
+                    cycles.value(),
+                    "Incorrect number of machine cycles for HL"
+                );
             } else {
                 assert_eq!(
-                    2, cycles,
+                    2,
+                    cycles.value(),
                     "Incorrect number of machine cycles for single register ({operand:08b})"
                 );
             }
@@ -984,10 +1000,15 @@ mod tests {
                 .unwrap();
 
             if operand == 0b110 {
-                assert_eq!(4, cycles, "Incorrect number of machine cycles for HL");
+                assert_eq!(
+                    4,
+                    cycles.value(),
+                    "Incorrect number of machine cycles for HL"
+                );
             } else {
                 assert_eq!(
-                    2, cycles,
+                    2,
+                    cycles.value(),
                     "Incorrect number of machine cycles for single register ({operand:08b})"
                 );
             }
@@ -1075,10 +1096,15 @@ mod tests {
                 .unwrap();
 
             if operand == 0b110 {
-                assert_eq!(4, cycles, "Incorrect number of machine cycles for HL");
+                assert_eq!(
+                    4,
+                    cycles.value(),
+                    "Incorrect number of machine cycles for HL"
+                );
             } else {
                 assert_eq!(
-                    2, cycles,
+                    2,
+                    cycles.value(),
                     "Incorrect number of machine cycles for single register ({operand:08b})"
                 );
             }
@@ -1186,10 +1212,15 @@ mod tests {
                 .unwrap();
 
             if operand == 0b110 {
-                assert_eq!(4, cycles, "Incorrect number of machine cycles for HL");
+                assert_eq!(
+                    4,
+                    cycles.value(),
+                    "Incorrect number of machine cycles for HL"
+                );
             } else {
                 assert_eq!(
-                    2, cycles,
+                    2,
+                    cycles.value(),
                     "Incorrect number of machine cycles for single register ({operand:08b})"
                 );
             }
@@ -1310,10 +1341,15 @@ mod tests {
                 .unwrap();
 
             if operand == 0b110 {
-                assert_eq!(4, cycles, "Incorrect number of machine cycles for HL");
+                assert_eq!(
+                    4,
+                    cycles.value(),
+                    "Incorrect number of machine cycles for HL"
+                );
             } else {
                 assert_eq!(
-                    2, cycles,
+                    2,
+                    cycles.value(),
                     "Incorrect number of machine cycles for single register ({operand:08b})"
                 );
             }
@@ -1434,10 +1470,15 @@ mod tests {
                 .unwrap();
 
             if operand == 0b110 {
-                assert_eq!(4, cycles, "Incorrect number of machine cycles for HL");
+                assert_eq!(
+                    4,
+                    cycles.value(),
+                    "Incorrect number of machine cycles for HL"
+                );
             } else {
                 assert_eq!(
-                    2, cycles,
+                    2,
+                    cycles.value(),
                     "Incorrect number of machine cycles for single register ({operand:08b})"
                 );
             }

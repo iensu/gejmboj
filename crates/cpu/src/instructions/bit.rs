@@ -1,4 +1,6 @@
-use crate::{errors::CpuError, instruction_group, registers::DoubleRegister};
+use crate::{
+    cycles::MachineCycles, errors::CpuError, instruction_group, registers::DoubleRegister,
+};
 
 use super::utils::{self, get_register_value};
 
@@ -54,8 +56,8 @@ instruction_group! {
             registers.set_half_carry(true);
 
             match register {
-                Some(_) => Ok(2),
-                None => Ok(3),
+                Some(_) => Ok(MachineCycles::new(2)),
+                None => Ok(MachineCycles::new(3)),
             }
         }
 
@@ -67,10 +69,10 @@ instruction_group! {
 
             if let Some(r) = register {
                 registers.set_single(&r, new_value);
-                Ok(2)
+                Ok(MachineCycles::new(2))
             } else {
                 memory.set(registers.get_double(&DoubleRegister::HL), new_value);
-                Ok(4)
+                Ok(MachineCycles::new(4))
             }
         }
 
@@ -82,10 +84,10 @@ instruction_group! {
 
             if let Some(r) = register {
                 registers.set_single(&r, new_value);
-                Ok(2)
+                Ok(MachineCycles::new(2))
             } else {
                 memory.set(registers.get_double(&DoubleRegister::HL), new_value);
-                Ok(4)
+                Ok(MachineCycles::new(4))
             }
         }
     }
@@ -119,12 +121,22 @@ mod tests {
         let (mut registers, mut memory, mut cpu_flags) = setup();
 
         for operand in 0..8 {
-            let cycles = Bit::BIT(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+            let cycles = Bit::BIT(operand)
+                .execute(&mut registers, &mut memory, &mut cpu_flags)
+                .unwrap();
 
             if operand == 0b110 {
-                assert_eq!(3, cycles, "Incorrect number of machine cycles for HL");
+                assert_eq!(
+                    3,
+                    cycles.value(),
+                    "Incorrect number of machine cycles for HL"
+                );
             } else {
-                assert_eq!(2, cycles, "Incorrect number of machine cycles for single register ({operand:08b})");
+                assert_eq!(
+                    2,
+                    cycles.value(),
+                    "Incorrect number of machine cycles for single register ({operand:08b})"
+                );
             }
         }
     }
@@ -135,7 +147,9 @@ mod tests {
 
         registers.set_single(&SingleRegister::A, 0x80);
 
-        Bit::BIT(0b01_111_111).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        Bit::BIT(0b01_111_111)
+            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .unwrap();
 
         assert!(!registers.is_zero());
     }
@@ -146,7 +160,9 @@ mod tests {
 
         registers.set_single(&SingleRegister::L, 0xEF);
 
-        Bit::BIT(0b01_100_101).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        Bit::BIT(0b01_100_101)
+            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .unwrap();
 
         assert!(registers.is_zero());
     }
@@ -155,7 +171,9 @@ mod tests {
     fn bit_sets_the_half_carry_flag() {
         let (mut registers, mut memory, mut cpu_flags) = setup();
 
-        Bit::BIT(0b01_111_111).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        Bit::BIT(0b01_111_111)
+            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .unwrap();
 
         assert!(registers.is_half_carry());
     }
@@ -166,7 +184,9 @@ mod tests {
 
         registers.set_flags(MASK_FLAG_NEGATIVE);
 
-        Bit::BIT(0b01_111_111).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        Bit::BIT(0b01_111_111)
+            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .unwrap();
 
         assert!(!registers.is_negative());
     }
@@ -177,13 +197,17 @@ mod tests {
 
         registers.set_flags(MASK_FLAG_CARRY);
 
-        Bit::BIT(0b01_111_111).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        Bit::BIT(0b01_111_111)
+            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .unwrap();
 
         assert!(registers.is_carry());
 
         registers.set_flags(0);
 
-        Bit::BIT(0b01_111_111).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        Bit::BIT(0b01_111_111)
+            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .unwrap();
 
         assert!(!registers.is_carry());
     }
@@ -193,12 +217,22 @@ mod tests {
         let (mut registers, mut memory, mut cpu_flags) = setup();
 
         for operand in 0..8 {
-            let cycles = Bit::SET(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+            let cycles = Bit::SET(operand)
+                .execute(&mut registers, &mut memory, &mut cpu_flags)
+                .unwrap();
 
             if operand == 0b110 {
-                assert_eq!(4, cycles, "Incorrect number of machine cycles for HL");
+                assert_eq!(
+                    4,
+                    cycles.value(),
+                    "Incorrect number of machine cycles for HL"
+                );
             } else {
-                assert_eq!(2, cycles, "Incorrect number of machine cycles for single register ({operand:08b})");
+                assert_eq!(
+                    2,
+                    cycles.value(),
+                    "Incorrect number of machine cycles for single register ({operand:08b})"
+                );
             }
         }
     }
@@ -215,9 +249,11 @@ mod tests {
             (0b11_100_111, 0b0001_0000),
             (0b11_101_111, 0b0010_0000),
             (0b11_110_111, 0b0100_0000),
-            (0b11_111_111, 0b1000_0000)
+            (0b11_111_111, 0b1000_0000),
         ] {
-            Bit::SET(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+            Bit::SET(operand)
+                .execute(&mut registers, &mut memory, &mut cpu_flags)
+                .unwrap();
             assert_eq!(expected, registers.get_single(&SingleRegister::A));
             registers.clear();
         }
@@ -237,12 +273,17 @@ mod tests {
             (0b11_100_110, 0b0001_0000),
             (0b11_101_110, 0b0010_0000),
             (0b11_110_110, 0b0100_0000),
-            (0b11_111_110, 0b1000_0000)
+            (0b11_111_110, 0b1000_0000),
         ] {
             memory.set(registers.get_double(&DoubleRegister::HL), 0);
-            Bit::SET(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+            Bit::SET(operand)
+                .execute(&mut registers, &mut memory, &mut cpu_flags)
+                .unwrap();
 
-            assert_eq!(expected, memory.get(registers.get_double(&DoubleRegister::HL)));
+            assert_eq!(
+                expected,
+                memory.get(registers.get_double(&DoubleRegister::HL))
+            );
         }
     }
 
@@ -253,7 +294,9 @@ mod tests {
         for flags in [0xF0, 0x00] {
             registers.set_flags(flags);
 
-            Bit::SET(0b11_000_111).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+            Bit::SET(0b11_000_111)
+                .execute(&mut registers, &mut memory, &mut cpu_flags)
+                .unwrap();
 
             assert_eq!(flags, registers.get_flags());
         }
@@ -264,12 +307,22 @@ mod tests {
         let (mut registers, mut memory, mut cpu_flags) = setup();
 
         for operand in 0..8 {
-            let cycles = Bit::RES(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+            let cycles = Bit::RES(operand)
+                .execute(&mut registers, &mut memory, &mut cpu_flags)
+                .unwrap();
 
             if operand == 0b110 {
-                assert_eq!(4, cycles, "Incorrect number of machine cycles for HL");
+                assert_eq!(
+                    4,
+                    cycles.value(),
+                    "Incorrect number of machine cycles for HL"
+                );
             } else {
-                assert_eq!(2, cycles, "Incorrect number of machine cycles for single register ({operand:08b})");
+                assert_eq!(
+                    2,
+                    cycles.value(),
+                    "Incorrect number of machine cycles for single register ({operand:08b})"
+                );
             }
         }
     }
@@ -278,17 +331,21 @@ mod tests {
     fn res_resets_the_specified_bit_to_zero_in_the_register() {
         let (mut registers, mut memory, mut cpu_flags) = setup();
 
-        for (operand, expected) in [(0b10_000_111, 0b1111_1110),
-                                        (0b10_001_111, 0b1111_1101),
-                                        (0b10_010_111, 0b1111_1011),
-                                        (0b10_011_111, 0b1111_0111),
-                                        (0b10_100_111, 0b1110_1111),
-                                        (0b10_101_111, 0b1101_1111),
-                                        (0b10_110_111, 0b1011_1111),
-                                        (0b10_111_111, 0b0111_1111)] {
+        for (operand, expected) in [
+            (0b10_000_111, 0b1111_1110),
+            (0b10_001_111, 0b1111_1101),
+            (0b10_010_111, 0b1111_1011),
+            (0b10_011_111, 0b1111_0111),
+            (0b10_100_111, 0b1110_1111),
+            (0b10_101_111, 0b1101_1111),
+            (0b10_110_111, 0b1011_1111),
+            (0b10_111_111, 0b0111_1111),
+        ] {
             registers.set_single(&SingleRegister::A, 0xFF);
 
-            Bit::RES(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+            Bit::RES(operand)
+                .execute(&mut registers, &mut memory, &mut cpu_flags)
+                .unwrap();
 
             assert_eq!(expected, registers.get_single(&SingleRegister::A));
         }
@@ -300,19 +357,26 @@ mod tests {
 
         registers.set_double(&DoubleRegister::HL, 0xABCD);
 
-        for (operand, expected) in [(0b10_000_110, 0b1111_1110),
-                                        (0b10_001_110, 0b1111_1101),
-                                        (0b10_010_110, 0b1111_1011),
-                                        (0b10_011_110, 0b1111_0111),
-                                        (0b10_100_110, 0b1110_1111),
-                                        (0b10_101_110, 0b1101_1111),
-                                        (0b10_110_110, 0b1011_1111),
-                                        (0b10_111_110, 0b0111_1111)] {
+        for (operand, expected) in [
+            (0b10_000_110, 0b1111_1110),
+            (0b10_001_110, 0b1111_1101),
+            (0b10_010_110, 0b1111_1011),
+            (0b10_011_110, 0b1111_0111),
+            (0b10_100_110, 0b1110_1111),
+            (0b10_101_110, 0b1101_1111),
+            (0b10_110_110, 0b1011_1111),
+            (0b10_111_110, 0b0111_1111),
+        ] {
             memory.set(registers.get_double(&DoubleRegister::HL), 0xFF);
 
-            Bit::RES(operand).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+            Bit::RES(operand)
+                .execute(&mut registers, &mut memory, &mut cpu_flags)
+                .unwrap();
 
-            assert_eq!(expected, memory.get(registers.get_double(&DoubleRegister::HL)));
+            assert_eq!(
+                expected,
+                memory.get(registers.get_double(&DoubleRegister::HL))
+            );
         }
     }
 
@@ -323,7 +387,9 @@ mod tests {
         for flags in [0xF0, 0x00] {
             registers.set_flags(flags);
 
-            Bit::RES(0b11_000_111).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+            Bit::RES(0b11_000_111)
+                .execute(&mut registers, &mut memory, &mut cpu_flags)
+                .unwrap();
 
             assert_eq!(flags, registers.get_flags());
         }

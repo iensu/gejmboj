@@ -21,7 +21,7 @@
 
 use std::fmt::Display;
 
-use crate::errors::CpuError;
+use crate::{cycles::MachineCycles, errors::CpuError};
 
 const MASK_TIMER_ENABLED: u8 = 0b0000_0100;
 const MASK_TIMER_SELECT: u8 = 0b0000_0011;
@@ -139,35 +139,38 @@ impl Bus {
         self.set(IE, 0x00);
     }
 
-    /// Increase the internal counter by `machine_cycles` converted to T cycles.
-    pub fn tick(&mut self, machine_cycles: u16) {
-        let t_cycles = 4 * machine_cycles;
+    /// Increase the internal counter by `machine_cycles`.
+    pub fn tick(&mut self, machine_cycles: MachineCycles) {
+        for _ in 0..machine_cycles.to_t_cycles() {
+            self.t_cycle_tick();
+        }
+    }
 
-        for _ in 0..t_cycles {
-            if let Some(cycles) = self.timer_reset_t_cycles {
-                if cycles > 1 {
-                    self.timer_reset_t_cycles = Some(cycles - 1);
-                } else {
-                    let value = self.get(IF) | MASK_TIMER_INTERRUPT;
-                    self.set(IF, value);
-                    self.set(TIMA, self.get(TMA));
-                    self.timer_reset_t_cycles = None;
-                }
+    /// Increase the internal counter by 1 T-cycle.
+    fn t_cycle_tick(&mut self) {
+        if let Some(cycles) = self.timer_reset_t_cycles {
+            if cycles > 1 {
+                self.timer_reset_t_cycles = Some(cycles - 1);
+            } else {
+                let value = self.get(IF) | MASK_TIMER_INTERRUPT;
+                self.set(IF, value);
+                self.set(TIMA, self.get(TMA));
+                self.timer_reset_t_cycles = None;
             }
+        }
 
-            let previous_counter = self.counter;
-            self.counter = self.counter.wrapping_add(1);
+        let previous_counter = self.counter;
+        self.counter = self.counter.wrapping_add(1);
 
-            if self.timer_enabled {
-                let clock_mask = self.clock.mask();
-                if previous_counter & clock_mask > 0 && self.counter & clock_mask == 0 {
-                    let current = self.get(TIMA);
-                    let (value, overflow) = current.overflowing_add(1);
-                    self.set(TIMA, value);
+        if self.timer_enabled {
+            let clock_mask = self.clock.mask();
+            if previous_counter & clock_mask > 0 && self.counter & clock_mask == 0 {
+                let current = self.get(TIMA);
+                let (value, overflow) = current.overflowing_add(1);
+                self.set(TIMA, value);
 
-                    if overflow {
-                        self.timer_reset_t_cycles = Some(4);
-                    }
+                if overflow {
+                    self.timer_reset_t_cycles = Some(4);
                 }
             }
         }
@@ -305,6 +308,7 @@ impl Display for Bus {
 
 #[cfg(test)]
 impl Bus {
+    #[must_use]
     pub fn with_memory(mut self, values: &[(u16, u8)]) -> Self {
         for (addr, val) in values {
             self.memory[*addr as usize] = *val;
@@ -312,6 +316,7 @@ impl Bus {
         self
     }
 
+    #[must_use]
     pub fn with_counter(mut self, value: u16) -> Self {
         self.counter = value;
         self
@@ -361,18 +366,18 @@ mod tests {
     #[test]
     fn addr_IF_bits_5_to_7_always_return_1() {
         let mut b = Bus::new();
-        b.set(IF as u16, 0b0001_1111);
-        let value = b.get(IF as u16);
+        b.set(IF, 0b0001_1111);
+        let value = b.get(IF);
 
         assert_eq!(0b1111_1111, value, "Got {value:08b}");
 
-        b.set((IF + 1) as u16, 0b1010_1010);
+        b.set(IF + 1, 0b1010_1010);
 
-        let value = b.get_u16(IF as u16);
+        let value = b.get_u16(IF);
 
         assert_eq!(0b1010_1010_1111_1111, value, "Got {value:08b}");
 
-        let addr = (IF - 1) as u16;
+        let addr = IF - 1;
 
         b.set(addr, 0b0101_0101);
 
@@ -383,7 +388,7 @@ mod tests {
 
     #[test]
     fn writes_to_addr_DIV_resets_the_16bit_counter() {
-        let div = DIV as u16;
+        let div = DIV;
         let mut b = Bus::new().with_counter(0xABCD);
 
         assert_eq!(0xAB, b.get(div));
@@ -412,7 +417,7 @@ mod tests {
         assert_eq!(0, b.counter);
 
         let previous = b.counter;
-        b.tick(1);
+        b.tick(MachineCycles::new(1));
 
         assert!(b.counter > previous);
     }
@@ -422,7 +427,7 @@ mod tests {
         let mut b = Bus::new();
         assert_eq!(0, b.counter);
 
-        b.tick(3);
+        b.tick(MachineCycles::new(3));
 
         assert_eq!(3 * 4, b.counter);
     }
@@ -434,13 +439,13 @@ mod tests {
         assert_eq!(0, b.get(DIV));
 
         for _ in 0..64 {
-            b.tick(1);
+            b.tick(MachineCycles::new(1));
         }
 
         assert_eq!(1, b.get(DIV));
 
         for _ in 0..64 {
-            b.tick(1);
+            b.tick(MachineCycles::new(1));
         }
 
         assert_eq!(2, b.get(DIV));
@@ -453,11 +458,11 @@ mod tests {
 
         assert_eq!(0, bus.get(TIMA));
 
-        bus.tick(4);
+        bus.tick(MachineCycles::new(4));
 
         assert_eq!(1, bus.get(TIMA));
 
-        bus.tick(4);
+        bus.tick(MachineCycles::new(4));
 
         assert_eq!(2, bus.get(TIMA));
     }
@@ -469,11 +474,11 @@ mod tests {
 
         assert_eq!(0, bus.get(TIMA));
 
-        bus.tick(16);
+        bus.tick(MachineCycles::new(16));
 
         assert_eq!(1, bus.get(TIMA));
 
-        bus.tick(16);
+        bus.tick(MachineCycles::new(16));
 
         assert_eq!(2, bus.get(TIMA));
     }
@@ -485,11 +490,11 @@ mod tests {
 
         assert_eq!(0, bus.get(TIMA));
 
-        bus.tick(64);
+        bus.tick(MachineCycles::new(64));
 
         assert_eq!(1, bus.get(TIMA));
 
-        bus.tick(64);
+        bus.tick(MachineCycles::new(64));
 
         assert_eq!(2, bus.get(TIMA));
     }
@@ -501,11 +506,11 @@ mod tests {
 
         assert_eq!(0, bus.get(TIMA));
 
-        bus.tick(256);
+        bus.tick(MachineCycles::new(256));
 
         assert_eq!(1, bus.get(TIMA));
 
-        bus.tick(256);
+        bus.tick(MachineCycles::new(256));
 
         assert_eq!(2, bus.get(TIMA));
     }
@@ -517,19 +522,19 @@ mod tests {
 
         assert_eq!(0, bus.get(TIMA));
 
-        bus.tick(12);
+        bus.tick(MachineCycles::new(12));
 
         assert_eq!(0, bus.get(TIMA));
 
         bus.set(TAC, MASK_TIMER_ENABLED | u8::from(Clock::T16));
 
-        bus.tick(12);
+        bus.tick(MachineCycles::new(12));
 
         assert_eq!(3, bus.get(TIMA));
 
         bus.set(TAC, u8::from(Clock::T16));
 
-        bus.tick(12);
+        bus.tick(MachineCycles::new(12));
 
         assert_eq!(3, bus.get(TIMA));
     }
@@ -539,12 +544,18 @@ mod tests {
         let mut bus = Bus::new().with_memory(&[(TIMA, 0xFF), (TMA, 0xAB)]);
         bus.set(TAC, MASK_TIMER_ENABLED | u8::from(Clock::T16));
 
-        bus.tick(4);
+        bus.tick(MachineCycles::new(4));
 
         assert_eq!(0, bus.get(TIMA));
         assert_eq!(0, bus.get(IF) & MASK_TIMER_INTERRUPT);
 
-        bus.tick(1);
+        for _ in 0..3 {
+            bus.t_cycle_tick();
+            assert_eq!(0, bus.get(TIMA));
+            assert_eq!(0, bus.get(IF) & MASK_TIMER_INTERRUPT);
+        }
+
+        bus.t_cycle_tick();
 
         assert_eq!(0xAB, bus.get(TIMA));
         assert!(bus.get(IF) & MASK_TIMER_INTERRUPT > 0);

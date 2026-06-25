@@ -1,4 +1,5 @@
 use crate::{
+    cycles::MachineCycles,
     instruction_group,
     registers::{DoubleRegister, MASK_FLAG_CARRY, MASK_FLAG_HALF_CARRY, MASK_FLAG_ZERO},
 };
@@ -30,7 +31,7 @@ instruction_group! {
             }
             registers.set_double(&DoubleRegister::HL, result);
             registers.set_flags(flags);
-            Ok(2)
+            Ok(MachineCycles::new(2))
         }
 
         /// Add contents of `u8` operand to `SP`
@@ -59,7 +60,7 @@ instruction_group! {
 
             registers.SP = sp;
             registers.set_flags(flags);
-            Ok(4)
+            Ok(MachineCycles::new(4))
         }
 
         /// Increment contents of `DoubleRegister` by 1.
@@ -68,7 +69,7 @@ instruction_group! {
         INC(r: DoubleRegister) [1] => {
             let result = registers.get_double(r).wrapping_add(1);
             registers.set_double(r, result);
-            Ok(2)
+            Ok(MachineCycles::new(2))
         }
 
         /// Decrement contents of `DoubleRegister` by 1.
@@ -77,7 +78,7 @@ instruction_group! {
         DEC(r: DoubleRegister) [1] => {
             let result = registers.get_double(r).wrapping_sub(1);
             registers.set_double(r, result);
-            Ok(2)
+            Ok(MachineCycles::new(2))
         }
     }
 }
@@ -96,7 +97,7 @@ mod tests {
         let cycles = ALU16Bit::ADD_HL(DoubleRegister::BC)
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
-        assert_eq!(2, cycles);
+        assert_eq!(2, cycles.value());
     }
 
     #[test]
@@ -149,7 +150,7 @@ mod tests {
         let cycles = ALU16Bit::ADD_SP(0)
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
-        assert_eq!(4, cycles);
+        assert_eq!(4, cycles.value());
     }
 
     #[test]
@@ -199,7 +200,7 @@ mod tests {
         let cycles = ALU16Bit::INC(DoubleRegister::BC)
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
-        assert_eq!(2, cycles);
+        assert_eq!(2, cycles.value());
     }
 
     #[test]
@@ -234,7 +235,7 @@ mod tests {
         let cycles = ALU16Bit::DEC(DoubleRegister::BC)
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
-        assert_eq!(2, cycles);
+        assert_eq!(2, cycles.value());
     }
 
     #[test]

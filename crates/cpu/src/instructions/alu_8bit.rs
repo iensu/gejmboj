@@ -1,4 +1,5 @@
 use crate::{
+    cycles::MachineCycles,
     errors::CpuError,
     instruction_group,
     registers::{
@@ -19,14 +20,14 @@ instruction_group! {
 
             perform_calculation(&AluOp::Add, registers, registers.get_single(r), false);
 
-            Ok(1)
+            Ok(MachineCycles::new(1))
         }
 
         /// Add value of `operand` to `A`
         ADD_N(operand: u8) [2] => {
             perform_calculation(&AluOp::Add, registers, *operand , false);
 
-            Ok(2)
+            Ok(MachineCycles::new(2))
         }
 
         /// Add value of `(HL)` to `A`
@@ -34,7 +35,7 @@ instruction_group! {
             let operand = memory.get(registers.get_double(&DoubleRegister::HL));
             perform_calculation(&AluOp::Add, registers, operand, false);
 
-            Ok(2)
+            Ok(MachineCycles::new(2))
         }
 
         /// Add value of `SingleRegister` and the Carry flag to `A`
@@ -45,14 +46,14 @@ instruction_group! {
 
             perform_calculation(&AluOp::Add, registers, registers.get_single(r), true);
 
-            Ok(1)
+            Ok(MachineCycles::new(1))
         }
 
         /// Add value of `operand` and Carry to `A`
         ADC_N(operand: u8) [2] => {
             perform_calculation(&AluOp::Add, registers, *operand, true);
 
-            Ok(2)
+            Ok(MachineCycles::new(2))
         }
 
         /// Add value of `(HL)` and Carry to `A`
@@ -60,7 +61,7 @@ instruction_group! {
             let operand = memory.get(registers.get_double(&DoubleRegister::HL));
             perform_calculation(&AluOp::Add, registers, operand, true);
 
-            Ok(2)
+            Ok(MachineCycles::new(2))
         }
 
         /// Subtract value of `SingleRegister` from A
@@ -73,14 +74,14 @@ instruction_group! {
 
             perform_calculation(&AluOp::Sub, registers, operand, false);
 
-            Ok(1)
+            Ok(MachineCycles::new(1))
         }
 
         /// Subtract value of `operand` from A
         SUB_N(operand: u8) [2] => {
             perform_calculation(&AluOp::Sub, registers, *operand, false);
 
-            Ok(2)
+            Ok(MachineCycles::new(2))
         }
 
         /// Subtract value of `(HL)` from A
@@ -89,7 +90,7 @@ instruction_group! {
 
             perform_calculation(&AluOp::Sub, registers, operand, false);
 
-            Ok(2)
+            Ok(MachineCycles::new(2))
         }
 
         /// Subtract value of `SingleRegister` and Carry from A
@@ -102,14 +103,14 @@ instruction_group! {
 
             perform_calculation(&AluOp::Sub, registers, operand, true);
 
-            Ok(1)
+            Ok(MachineCycles::new(1))
         }
 
         /// Subtract value of `operand` and Carry from A
         SBC_N(operand: u8) [2] => {
             perform_calculation(&AluOp::Sub, registers, *operand, true);
 
-            Ok(2)
+            Ok(MachineCycles::new(2))
         }
 
         /// Subtract value of `(HL)` and Carry from A
@@ -117,7 +118,7 @@ instruction_group! {
             let operand = memory.get(registers.get_double(&DoubleRegister::HL));
             perform_calculation(&AluOp::Sub, registers, operand, true);
 
-            Ok(2)
+            Ok(MachineCycles::new(2))
         }
 
         /// Logical AND between register and `A`
@@ -128,14 +129,14 @@ instruction_group! {
 
             perform_calculation(&AluOp::And, registers, registers.get_single(r), false);
 
-            Ok(1)
+            Ok(MachineCycles::new(1))
         }
 
         /// Logical AND between `operand` and `A`
         AND_N(operand: u8) [2] => {
             perform_calculation(&AluOp::And, registers, *operand, false);
 
-            Ok(2)
+            Ok(MachineCycles::new(2))
         }
 
         /// Logical AND between `(HL)` and `A`
@@ -143,7 +144,7 @@ instruction_group! {
             let operand = memory.get(registers.get_double(&DoubleRegister::HL));
             perform_calculation(&AluOp::And, registers, operand, false);
 
-            Ok(2)
+            Ok(MachineCycles::new(2))
         }
 
         /// Logical OR between register and `A`
@@ -155,14 +156,14 @@ instruction_group! {
             let operand = registers.get_single(r);
             perform_calculation(&AluOp::Or, registers, operand, false);
 
-            Ok(1)
+            Ok(MachineCycles::new(1))
         }
 
         /// Logical OR between `operand` and `A`
         OR_N(operand: u8) [2] => {
             perform_calculation(&AluOp::Or, registers, *operand, false);
 
-            Ok(2)
+            Ok(MachineCycles::new(2))
         }
 
         /// Logical OR between `(HL)` and `A`
@@ -170,7 +171,7 @@ instruction_group! {
             let operand = memory.get(registers.get_double(&DoubleRegister::HL));
             perform_calculation(&AluOp::Or, registers, operand, false);
 
-            Ok(2)
+            Ok(MachineCycles::new(2))
         }
 
         /// Logical XOR between register and `A`
@@ -182,14 +183,14 @@ instruction_group! {
             let operand = registers.get_single(r);
             perform_calculation(&AluOp::Xor, registers, operand, false);
 
-            Ok(1)
+            Ok(MachineCycles::new(1))
         }
 
         /// Logical XOR between `operand` and `A`
         XOR_N(operand: u8) [2] => {
             perform_calculation(&AluOp::Xor, registers, *operand, false);
 
-            Ok(2)
+            Ok(MachineCycles::new(2))
         }
 
         /// Logical XOR between `(HL)` and `A`
@@ -197,7 +198,7 @@ instruction_group! {
             let operand = memory.get(registers.get_double(&DoubleRegister::HL));
             perform_calculation(&AluOp::Xor, registers, operand, false);
 
-            Ok(2)
+            Ok(MachineCycles::new(2))
         }
 
         /// Compare register and `A`
@@ -214,7 +215,7 @@ instruction_group! {
             let (_, flags) = AluOp::Cp.calculate(a, operand, false);
 
             registers.set_flags(flags);
-            Ok(1)
+            Ok(MachineCycles::new(1))
         }
 
         /// Compare `operand` and `A`
@@ -225,7 +226,7 @@ instruction_group! {
 
             registers.set_flags(flags);
 
-            Ok(2)
+            Ok(MachineCycles::new(2))
         }
 
         /// Compare `(HL)` and `A`
@@ -237,7 +238,7 @@ instruction_group! {
 
             registers.set_flags(flags);
 
-            Ok(2)
+            Ok(MachineCycles::new(2))
         }
 
         /// Increment `SingleRegister` by 1
@@ -256,7 +257,7 @@ instruction_group! {
             registers.set_single(r, result);
             registers.set_flags(flags);
 
-            Ok(1)
+            Ok(MachineCycles::new(1))
         }
 
         /// Increment `HL` by 1
@@ -271,7 +272,7 @@ instruction_group! {
             memory.set(registers.get_double(&DoubleRegister::HL), result);
             registers.set_flags(flags);
 
-            Ok(3)
+            Ok(MachineCycles::new(3))
         }
 
         /// Decrement `SingleRegister` by 1
@@ -290,7 +291,7 @@ instruction_group! {
             registers.set_single(r, result);
             registers.set_flags(flags);
 
-            Ok(1)
+            Ok(MachineCycles::new(1))
         }
 
         /// Decrement `HL` by 1
@@ -305,7 +306,7 @@ instruction_group! {
             memory.set(registers.get_double(&DoubleRegister::HL), result);
             registers.set_flags(flags);
 
-            Ok(3)
+            Ok(MachineCycles::new(3))
         }
     }
 }
@@ -419,7 +420,7 @@ mod tests {
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(1, cycles);
+        assert_eq!(1, cycles.value());
     }
 
     #[test]
@@ -515,7 +516,7 @@ mod tests {
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(2, cycles);
+        assert_eq!(2, cycles.value());
     }
 
     #[test]
@@ -539,7 +540,7 @@ mod tests {
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(2, cycles);
+        assert_eq!(2, cycles.value());
     }
 
     #[test]
@@ -607,7 +608,7 @@ mod tests {
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(1, cycles);
+        assert_eq!(1, cycles.value());
     }
 
     #[test]
@@ -642,7 +643,7 @@ mod tests {
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(2, cycles);
+        assert_eq!(2, cycles.value());
     }
 
     #[test]
@@ -676,7 +677,7 @@ mod tests {
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(2, cycles);
+        assert_eq!(2, cycles.value());
     }
 
     #[test]
@@ -711,7 +712,7 @@ mod tests {
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(1, cycles);
+        assert_eq!(1, cycles.value());
     }
 
     #[test]
@@ -847,19 +848,19 @@ mod tests {
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(1, cycles, "Incorrect machine cycle count for Sbc");
+        assert_eq!(1, cycles.value(), "Incorrect machine cycle count for Sbc");
 
         let cycles = ALU8Bit::SBC_N(42)
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(2, cycles, "Incorrect machine cycle count for SbcN");
+        assert_eq!(2, cycles.value(), "Incorrect machine cycle count for SbcN");
 
         let cycles = ALU8Bit::SBC_HL()
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(2, cycles, "Incorrect machine cycle count for SbcHL");
+        assert_eq!(2, cycles.value(), "Incorrect machine cycle count for SbcHL");
     }
 
     #[test]
@@ -930,19 +931,19 @@ mod tests {
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(1, cycles, "Incorrect machine cycle count for And");
+        assert_eq!(1, cycles.value(), "Incorrect machine cycle count for And");
 
         let cycles = ALU8Bit::AND_N(42)
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(2, cycles, "Incorrect machine cycle count for AndN");
+        assert_eq!(2, cycles.value(), "Incorrect machine cycle count for AndN");
 
         let cycles = ALU8Bit::AND_HL()
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(2, cycles, "Incorrect machine cycle count for AndHL");
+        assert_eq!(2, cycles.value(), "Incorrect machine cycle count for AndHL");
     }
 
     #[test]
@@ -1021,19 +1022,19 @@ mod tests {
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(1, cycles, "Incorrect machine cycle count for Or");
+        assert_eq!(1, cycles.value(), "Incorrect machine cycle count for Or");
 
         let cycles = ALU8Bit::OR_N(42)
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(2, cycles, "Incorrect machine cycle count for OrN");
+        assert_eq!(2, cycles.value(), "Incorrect machine cycle count for OrN");
 
         let cycles = ALU8Bit::OR_HL()
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(2, cycles, "Incorrect machine cycle count for OrHL");
+        assert_eq!(2, cycles.value(), "Incorrect machine cycle count for OrHL");
     }
 
     #[test]
@@ -1111,19 +1112,19 @@ mod tests {
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(1, cycles, "Incorrect machine cycle count for Xor");
+        assert_eq!(1, cycles.value(), "Incorrect machine cycle count for Xor");
 
         let cycles = ALU8Bit::XOR_N(42)
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(2, cycles, "Incorrect machine cycle count for XorN");
+        assert_eq!(2, cycles.value(), "Incorrect machine cycle count for XorN");
 
         let cycles = ALU8Bit::XOR_HL()
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(2, cycles, "Incorrect machine cycle count for XorHL");
+        assert_eq!(2, cycles.value(), "Incorrect machine cycle count for XorHL");
     }
 
     #[test]
@@ -1201,19 +1202,19 @@ mod tests {
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(1, cycles, "Incorrect machine cycle count for Cp");
+        assert_eq!(1, cycles.value(), "Incorrect machine cycle count for Cp");
 
         let cycles = ALU8Bit::CP_N(42)
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(2, cycles, "Incorrect machine cycle count for CpN");
+        assert_eq!(2, cycles.value(), "Incorrect machine cycle count for CpN");
 
         let cycles = ALU8Bit::CP_HL()
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(2, cycles, "Incorrect machine cycle count for CpHL");
+        assert_eq!(2, cycles.value(), "Incorrect machine cycle count for CpHL");
     }
 
     #[test]
@@ -1275,13 +1276,13 @@ mod tests {
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(1, cycles, "Incorrect machine cycle count for Inc");
+        assert_eq!(1, cycles.value(), "Incorrect machine cycle count for Inc");
 
         let cycles = ALU8Bit::INC_HL()
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(3, cycles, "Incorrect machine cycle count for IncHL");
+        assert_eq!(3, cycles.value(), "Incorrect machine cycle count for IncHL");
     }
 
     #[test]
@@ -1361,13 +1362,13 @@ mod tests {
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(1, cycles, "Incorrect machine cycle count for Dec");
+        assert_eq!(1, cycles.value(), "Incorrect machine cycle count for Dec");
 
         let cycles = ALU8Bit::DEC_HL()
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(3, cycles, "Incorrect machine cycle count for DecHL");
+        assert_eq!(3, cycles.value(), "Incorrect machine cycle count for DecHL");
     }
 
     #[test]

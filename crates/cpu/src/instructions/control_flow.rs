@@ -1,3 +1,4 @@
+use crate::cycles::MachineCycles;
 use crate::instruction_group;
 use crate::{instructions::Condition, registers::DoubleRegister};
 
@@ -8,23 +9,23 @@ instruction_group! {
         /// Unconditional jump to location specified by 16-bit operand.
         JP(operand: u16) [3] => {
             registers.PC = *operand;
-            Ok(4)
+            Ok(MachineCycles::new(4))
         }
 
         /// Conditional jump to location specified by 16-bit operand.
         JPC(operand: u16, condition: Condition) [3] => {
             if condition.is_fulfilled(registers) {
                 registers.PC = *operand;
-                Ok(4)
+                Ok(MachineCycles::new(4))
             } else {
-                Ok(3)
+                Ok(MachineCycles::new(3))
             }
         }
 
         /// Unconditional jump to location specified by register HL
         JP_HL() [1] => {
             registers.PC = registers.get_double(&DoubleRegister::HL);
-            Ok(1)
+            Ok(MachineCycles::new(1))
         }
 
         /// Unconditional jump to location at current + offset (-129 to 126), where the offset is
@@ -63,7 +64,7 @@ instruction_group! {
                 registers.PC = val;
             }
 
-            Ok(3)
+            Ok(MachineCycles::new(3))
         }
 
         /// Conditional jump to relative address specified by offset operand.
@@ -101,9 +102,9 @@ instruction_group! {
                     registers.PC = val;
                 }
 
-                Ok(3)
+                Ok(MachineCycles::new(3))
             } else {
-                Ok(2)
+                Ok(MachineCycles::new(2))
             }
         }
 
@@ -113,7 +114,7 @@ instruction_group! {
             memory.set_u16(sp, registers.PC);
             registers.PC = *operand;
 
-            Ok(6)
+            Ok(MachineCycles::new(6))
         }
 
         /// Conditional function call.
@@ -124,9 +125,9 @@ instruction_group! {
                 memory.set_u16(sp, registers.PC);
                 registers.PC = *operand;
 
-                Ok(6)
+                Ok(MachineCycles::new(6))
             } else {
-                Ok(3)
+                Ok(MachineCycles::new(3))
             }
         }
 
@@ -134,7 +135,7 @@ instruction_group! {
         RET() [1] => {
             registers.PC = memory.get_u16(registers.SP);
             registers.increment_sp();
-            Ok(4)
+            Ok(MachineCycles::new(4))
         }
 
         /// Conditionally return from function.
@@ -142,9 +143,9 @@ instruction_group! {
             if condition.is_fulfilled(registers) {
                 registers.PC = memory.get_u16(registers.SP);
                 registers.increment_sp();
-                Ok(5)
+                Ok(MachineCycles::new(5))
             } else {
-                Ok(2)
+                Ok(MachineCycles::new(2))
             }
         }
 
@@ -153,7 +154,7 @@ instruction_group! {
             registers.PC = memory.get_u16(registers.SP);
             registers.increment_sp();
             cpu_flags.IME = true;
-            Ok(4)
+            Ok(MachineCycles::new(4))
         }
 
         /// Unconditional function call to the RESET address defined by bits 3-5
@@ -172,7 +173,7 @@ instruction_group! {
             let sp = registers.decrement_sp();
             memory.set_u16(sp, registers.PC);
             registers.PC = get_reset_address(*opcode);
-            Ok(4)
+            Ok(MachineCycles::new(4))
         }
     }
 }
@@ -195,7 +196,9 @@ mod tests {
         let instruction = ControlFlow::JP(0xBADA);
 
         assert_eq!(0, registers.PC);
-        instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        instruction
+            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .unwrap();
         assert_eq!(0xBADA, registers.PC);
     }
 
@@ -205,14 +208,18 @@ mod tests {
 
         let instruction = ControlFlow::JPC(0xBADA, Condition::Carry);
 
-        let mut cycles = instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        let mut cycles = instruction
+            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .unwrap();
         assert_eq!(0, registers.PC);
-        assert_eq!(3, cycles);
+        assert_eq!(3, cycles.value());
 
         registers.set_flags(MASK_FLAG_CARRY);
-        cycles = instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        cycles = instruction
+            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .unwrap();
         assert_eq!(0xBADA, registers.PC);
-        assert_eq!(4, cycles);
+        assert_eq!(4, cycles.value());
     }
 
     #[test]
@@ -222,7 +229,9 @@ mod tests {
         let instruction = ControlFlow::JP_HL();
 
         registers.set_double(&DoubleRegister::HL, 0xBADA);
-        instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        instruction
+            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .unwrap();
         assert_eq!(0xBADA, registers.PC);
     }
 
@@ -233,7 +242,9 @@ mod tests {
         let instruction = ControlFlow::JR(0x40);
         registers.PC = 0x0200;
 
-        instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        instruction
+            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .unwrap();
         assert_eq!(0x0242, registers.PC + instruction.length());
     }
 
@@ -243,7 +254,9 @@ mod tests {
 
         let instruction = ControlFlow::JR(0x00);
         registers.PC = 0x0200;
-        instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        instruction
+            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .unwrap();
         assert_eq!(0x0202, registers.PC + instruction.length());
     }
 
@@ -253,7 +266,9 @@ mod tests {
 
         let instruction = ControlFlow::JR(0xAA);
         registers.PC = 0x000F;
-        instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        instruction
+            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .unwrap();
         assert_eq!(0xFFBB, registers.PC + instruction.length());
     }
 
@@ -263,7 +278,9 @@ mod tests {
 
         let instruction = ControlFlow::JR(0x03);
         registers.PC = 0x480;
-        instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        instruction
+            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .unwrap();
         assert_eq!(0x485, registers.PC + instruction.length());
     }
 
@@ -273,7 +290,9 @@ mod tests {
 
         let instruction = ControlFlow::JR(0xFA);
         registers.PC = 0x480;
-        instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        instruction
+            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .unwrap();
         assert_eq!(0x47C, registers.PC + instruction.length());
     }
 
@@ -284,15 +303,19 @@ mod tests {
         let instruction = ControlFlow::JRC(0x40, Condition::Zero);
         registers.PC = 0x0200;
 
-        let cycles = instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        let cycles = instruction
+            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .unwrap();
         assert_eq!(0x0200, registers.PC);
-        assert_eq!(2, cycles);
+        assert_eq!(2, cycles.value());
 
         registers.set_flags(MASK_FLAG_ZERO);
 
-        let cycles = instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        let cycles = instruction
+            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .unwrap();
         assert_eq!(0x0242, registers.PC + instruction.length());
-        assert_eq!(3, cycles);
+        assert_eq!(3, cycles.value());
     }
 
     #[test]
@@ -303,7 +326,9 @@ mod tests {
         registers.PC = 0x0200;
         registers.set_zero(true);
 
-        instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        instruction
+            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .unwrap();
         assert_eq!(0x0202, registers.PC + instruction.length());
     }
 
@@ -315,7 +340,9 @@ mod tests {
         registers.PC = 0x000F;
         registers.set_zero(true);
 
-        instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        instruction
+            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .unwrap();
         assert_eq!(0xFFBB, registers.PC + instruction.length());
     }
 
@@ -326,7 +353,9 @@ mod tests {
         let instruction = ControlFlow::JRC(0x03, Condition::Zero);
         registers.PC = 0x480;
         registers.set_zero(true);
-        instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        instruction
+            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .unwrap();
         assert_eq!(0x485, registers.PC + instruction.length());
     }
 
@@ -338,7 +367,9 @@ mod tests {
         registers.PC = 0x480;
         registers.set_zero(true);
 
-        instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        instruction
+            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .unwrap();
         assert_eq!(0x47C, registers.PC + instruction.length());
     }
 
@@ -348,7 +379,9 @@ mod tests {
 
         let instruction = ControlFlow::CALL(0xABCD);
         registers.PC = 0xAAAA;
-        instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        instruction
+            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .unwrap();
 
         assert_eq!(0xABCD, registers.PC);
         assert_eq!(0xFFFC, registers.SP);
@@ -363,7 +396,9 @@ mod tests {
         registers.SP = 0xFFFE;
         memory.set_u16(0x8001, 0x1234);
 
-        ControlFlow::CALL(0x1234).execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        ControlFlow::CALL(0x1234)
+            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .unwrap();
 
         assert_eq!(0x1234, registers.PC);
         assert_eq!(0xFFFC, registers.SP);
@@ -378,11 +413,13 @@ mod tests {
         let instruction = ControlFlow::CALLC(0xABCD, Condition::Carry);
         registers.PC = 0xAAAA;
 
-        let cycles = instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        let cycles = instruction
+            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .unwrap();
 
         assert_eq!(registers.PC, 0xAAAA);
         assert_eq!(registers.SP, 0xFFFE);
-        assert_eq!(3, cycles);
+        assert_eq!(3, cycles.value());
     }
 
     #[test]
@@ -393,11 +430,13 @@ mod tests {
         registers.PC = 0xAAAA;
         registers.set_flags(MASK_FLAG_CARRY);
 
-        let cycles = instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        let cycles = instruction
+            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .unwrap();
 
         assert_eq!(registers.PC, 0xABCD);
         assert_eq!(registers.SP, 0xFFFC);
-        assert_eq!(6, cycles);
+        assert_eq!(6, cycles.value());
     }
 
     #[test]
@@ -408,8 +447,12 @@ mod tests {
         let return_call = ControlFlow::RET();
 
         registers.PC = 0xAAAA;
-        function_call.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        return_call.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        function_call
+            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .unwrap();
+        return_call
+            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .unwrap();
 
         assert_eq!(0xAAAA, registers.PC);
         assert_eq!(0xFFFE, registers.SP);
@@ -422,21 +465,26 @@ mod tests {
         registers.PC = 0xAAAA;
 
         let call = ControlFlow::CALL(0xABCD);
-        call.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        call.execute(&mut registers, &mut memory, &mut cpu_flags)
+            .unwrap();
 
         let ret = ControlFlow::RETC(Condition::Carry);
-        let cycles = ret.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        let cycles = ret
+            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .unwrap();
 
         assert_eq!(0xABCD, registers.PC);
         assert_eq!(0xFFFC, registers.SP);
-        assert_eq!(2, cycles);
+        assert_eq!(2, cycles.value());
 
         registers.set_flags(MASK_FLAG_CARRY);
-        let cycles = ret.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        let cycles = ret
+            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .unwrap();
 
         assert_eq!(0xAAAA, registers.PC);
         assert_eq!(0xFFFE, registers.SP);
-        assert_eq!(5, cycles);
+        assert_eq!(5, cycles.value());
     }
 
     #[test]
@@ -447,8 +495,10 @@ mod tests {
         let reti = ControlFlow::RETI();
 
         registers.PC = 0xAAAA;
-        call.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
-        reti.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        call.execute(&mut registers, &mut memory, &mut cpu_flags)
+            .unwrap();
+        reti.execute(&mut registers, &mut memory, &mut cpu_flags)
+            .unwrap();
 
         assert_eq!(0xAAAA, registers.PC);
         assert_eq!(0xFFFE, registers.SP);
@@ -461,7 +511,9 @@ mod tests {
 
         let instruction = ControlFlow::RST(0b1101_0111);
 
-        instruction.execute(&mut registers, &mut memory, &mut cpu_flags).unwrap();
+        instruction
+            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .unwrap();
 
         assert_eq!(0x10, registers.PC);
     }

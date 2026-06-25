@@ -1,3 +1,4 @@
+use crate::cycles::MachineCycles;
 use crate::instruction_group;
 use crate::registers::{DoubleRegister, SingleRegister};
 
@@ -12,7 +13,7 @@ instruction_group! {
                 registers.set_single(r1, value);
             }
 
-            Ok(1)
+            Ok(MachineCycles::new(1))
         }
 
         /// Loads data pointed to by HL into `r`.
@@ -20,7 +21,7 @@ instruction_group! {
             let location = registers.get_double(&DoubleRegister::HL);
             let value = memory.get(location);
             registers.set_single(r, value);
-            Ok(2)
+            Ok(MachineCycles::new(2))
         }
 
         /// Loads data in `r` into location pointed to by HL.
@@ -28,26 +29,26 @@ instruction_group! {
             let value = registers.get_single(r);
             let location = registers.get_double(&DoubleRegister::HL);
             memory.set(location, value);
-            Ok(2)
+            Ok(MachineCycles::new(2))
         }
 
         /// Loads `operand` into register `r`.
         LD_N(r: SingleRegister, operand: u8) [2] => {
             registers.set_single(r, *operand);
-            Ok(2)
+            Ok(MachineCycles::new(2))
         }
 
         /// Load the value of `operand` into the location pointed to by `HL`
         LD_N_TO_HL(operand: u8) [2] => {
             memory.set(registers.get_double(&DoubleRegister::HL), *operand);
-            Ok(3)
+            Ok(MachineCycles::new(3))
         }
 
         /// Load data at address pointed to by BC into A
         LD_BC_TO_A() [1] => {
             let value = memory.get(registers.get_double(&DoubleRegister::BC));
             registers.set_single(&SingleRegister::A, value);
-            Ok(2)
+            Ok(MachineCycles::new(2))
         }
 
         /// Load data at address pointed to by DE into A
@@ -55,7 +56,7 @@ instruction_group! {
             let location = registers.get_double(&DoubleRegister::DE);
             let value = memory.get(location);
             registers.set_single(&SingleRegister::A, value);
-            Ok(2)
+            Ok(MachineCycles::new(2))
         }
 
         /// Load A into into address pointed to by BC
@@ -65,7 +66,7 @@ instruction_group! {
                 registers.get_double(&DoubleRegister::BC),
                 registers.get_single(&SingleRegister::A)
             );
-            Ok(2)
+            Ok(MachineCycles::new(2))
         }
 
         /// Load A into into address pointed to by DE
@@ -74,20 +75,20 @@ instruction_group! {
                 registers.get_double(&DoubleRegister::DE),
                 registers.get_single(&SingleRegister::A)
             );
-            Ok(2)
+            Ok(MachineCycles::new(2))
         }
 
         /// Load data at `address` into A
         LD_TO_A(address: u16) [3] => {
             let value = memory.get(*address );
             registers.set_single(&SingleRegister::A, value);
-            Ok(4)
+            Ok(MachineCycles::new(4))
         }
 
         /// Load data in A into address at `address`
         LD_FROM_A(address: u16) [3] => {
             memory.set(*address , registers.get_single(&SingleRegister::A));
-            Ok(4)
+            Ok(MachineCycles::new(4))
         }
 
         /// Load data to A from the address at `0xFF00` + register C
@@ -96,7 +97,7 @@ instruction_group! {
             let address = u16::from_le_bytes([lo, 0xFF]);
             let value = memory.get(address);
             registers.set_single(&SingleRegister::A, value);
-            Ok(2)
+            Ok(MachineCycles::new(2))
         }
 
         /// Load data from A into the address at `0xFF00` + register C
@@ -105,7 +106,7 @@ instruction_group! {
             let lo = registers.get_single(&SingleRegister::C);
             let address = u16::from_le_bytes([lo, 0xFF]);
             memory.set(address, value);
-            Ok(2)
+            Ok(MachineCycles::new(2))
         }
 
         /// Load data to A from the address at `0xFF00` + `operand`
@@ -113,7 +114,7 @@ instruction_group! {
             let address = 0xFF00 | u16::from(*operand);
             let value = memory.get(address);
             registers.set_single(&SingleRegister::A, value);
-            Ok(3)
+            Ok(MachineCycles::new(3))
         }
 
         /// Load data from A into the address at `0xFF00` + `operand`
@@ -121,7 +122,7 @@ instruction_group! {
             let address = u16::from_le_bytes([*operand, 0xFF]);
             let value = registers.get_single(&SingleRegister::A);
             memory.set(address, value);
-            Ok(3)
+            Ok(MachineCycles::new(3))
         }
 
         /// Load data to A from the address at HL, value at HL is decremented.
@@ -130,7 +131,7 @@ instruction_group! {
             let value = memory.get(address);
             registers.set_double(&DoubleRegister::HL, address - 1);
             registers.set_single(&SingleRegister::A, value);
-            Ok(2)
+            Ok(MachineCycles::new(2))
         }
 
         /// Load data to address at HL from A, HL is decremented after write.
@@ -139,7 +140,7 @@ instruction_group! {
             let value = registers.get_single(&SingleRegister::A);
             memory.set(address, value);
             registers.set_double(&DoubleRegister::HL, address - 1);
-            Ok(2)
+            Ok(MachineCycles::new(2))
         }
 
         /// Load data to A from the address at HL, value at HL is incremented.
@@ -149,7 +150,7 @@ instruction_group! {
             let (address, _) = u16::overflowing_add(address, 1);
             registers.set_double(&DoubleRegister::HL, address);
             registers.set_single(&SingleRegister::A, value);
-            Ok(2)
+            Ok(MachineCycles::new(2))
         }
 
         /// Load data to address at HL from A, HL is incremented after write.
@@ -158,13 +159,13 @@ instruction_group! {
             let value = registers.get_single(&SingleRegister::A);
             memory.set(address, value);
             registers.set_double(&DoubleRegister::HL, address + 1);
-            Ok(2)
+            Ok(MachineCycles::new(2))
         }
 
         /// Load immediate data into register
         LD_IMM(r: SingleRegister, operand: u8) [2] => {
             registers.set_single(r, *operand);
-            Ok(2)
+            Ok(MachineCycles::new(2))
         }
 
         /// Load immediate data into address pointed to by HL
@@ -172,7 +173,7 @@ instruction_group! {
         LD_HL_IMM(operand: u8) [2] => {
             let addr = registers.get_double(&DoubleRegister::HL);
             memory.set(addr, *operand);
-            Ok(3)
+            Ok(MachineCycles::new(3))
         }
     }
 }
@@ -198,7 +199,7 @@ mod tests {
             .unwrap();
 
         assert_eq!(42, registers.get_single(&SingleRegister::B));
-        assert_eq!(1, cycles);
+        assert_eq!(1, cycles.value());
     }
 
     #[test]
@@ -215,7 +216,7 @@ mod tests {
             .unwrap();
 
         assert_eq!(42, registers.get_single(&SingleRegister::B));
-        assert_eq!(1, cycles);
+        assert_eq!(1, cycles.value());
     }
 
     #[test]
@@ -232,7 +233,7 @@ mod tests {
             .unwrap();
 
         assert_eq!(42, registers.get_single(&SingleRegister::B));
-        assert_eq!(2, cycles);
+        assert_eq!(2, cycles.value());
     }
 
     #[test]
@@ -249,7 +250,7 @@ mod tests {
             .unwrap();
 
         assert_eq!(42, memory.get(0x9000));
-        assert_eq!(2, cycles);
+        assert_eq!(2, cycles.value());
     }
 
     #[test]
@@ -261,7 +262,7 @@ mod tests {
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(2, cycles);
+        assert_eq!(2, cycles.value());
         assert_eq!(0x42, registers.get_single(&SingleRegister::B));
     }
 
@@ -276,7 +277,7 @@ mod tests {
             .execute(&mut registers, &mut memory, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(3, cycles);
+        assert_eq!(3, cycles.value());
         assert_eq!(0x42, memory.get(0x9000));
     }
 }

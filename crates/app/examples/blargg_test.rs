@@ -44,7 +44,7 @@ fn main() {
 
         let prev_pc = registers.PC;
 
-        let (location, instruction) = cpu
+        let (instruction, _) = cpu
             .tick(&mut registers, &mut bus)
             .inspect_err(|e| {
                 eprintln!(
@@ -54,7 +54,7 @@ fn main() {
             })
             .unwrap();
 
-        trace!("Executed instruction [{instruction_count:08}] ({location:04X}) {instruction:?}");
+        trace!("Executed instruction [{instruction_count:08}] ({prev_pc:04X}) {instruction:?}");
 
         if let (c, 0x81) = (bus.get(SB), bus.get(SC)) {
             let c = c as char;
