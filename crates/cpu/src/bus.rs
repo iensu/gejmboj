@@ -61,13 +61,24 @@ impl From<u8> for Clock {
     }
 }
 
+impl From<Clock> for u8 {
+    fn from(value: Clock) -> Self {
+        match value {
+            Clock::T1024 => 0,
+            Clock::T16 => 1,
+            Clock::T64 => 2,
+            Clock::T256 => 3,
+        }
+    }
+}
+
 pub struct Bus {
     /// Internal counter.
     counter: u16,
     memory: Vec<u8>,
     clock: Clock,
     timer_enabled: bool,
-    timer_reset_t_cycles: u8,
+    timer_reset_t_cycles: Option<u8>,
 }
 
 impl Default for Bus {
@@ -85,7 +96,7 @@ impl Bus {
             memory: vec![0; 0xFFFF + 1],
             clock: Clock::default(),
             timer_enabled: false,
-            timer_reset_t_cycles: 0,
+            timer_reset_t_cycles: None,
         }
     }
 
@@ -133,13 +144,14 @@ impl Bus {
         let t_cycles = 4 * machine_cycles;
 
         for _ in 0..t_cycles {
-            if self.timer_reset_t_cycles > 0 {
-                self.timer_reset_t_cycles -= 1;
-
-                if self.timer_reset_t_cycles == 0 {
+            if let Some(cycles) = self.timer_reset_t_cycles {
+                if cycles > 1 {
+                    self.timer_reset_t_cycles = Some(cycles - 1);
+                } else {
                     let value = self.get(IF) | MASK_TIMER_INTERRUPT;
                     self.set(IF, value);
                     self.set(TIMA, self.get(TMA));
+                    self.timer_reset_t_cycles = None;
                 }
             }
 
@@ -154,7 +166,7 @@ impl Bus {
                     self.set(TIMA, value);
 
                     if overflow {
-                        self.timer_reset_t_cycles = 4;
+                        self.timer_reset_t_cycles = Some(4);
                     }
                 }
             }
@@ -417,21 +429,124 @@ mod tests {
 
     #[test]
     fn div_is_updated_every_64_machine_cycles() {
-        let div = DIV as u16;
         let mut b = Bus::new();
         assert_eq!(0, b.counter);
-        assert_eq!(0, b.get(div));
+        assert_eq!(0, b.get(DIV));
 
         for _ in 0..64 {
             b.tick(1);
         }
 
-        assert_eq!(1, b.get(div));
+        assert_eq!(1, b.get(DIV));
 
         for _ in 0..64 {
             b.tick(1);
         }
 
-        assert_eq!(2, b.get(div));
+        assert_eq!(2, b.get(DIV));
+    }
+
+    #[test]
+    fn timer_test_t16_cadence() {
+        let mut bus = Bus::new();
+        bus.set(TAC, MASK_TIMER_ENABLED | u8::from(Clock::T16));
+
+        assert_eq!(0, bus.get(TIMA));
+
+        bus.tick(4);
+
+        assert_eq!(1, bus.get(TIMA));
+
+        bus.tick(4);
+
+        assert_eq!(2, bus.get(TIMA));
+    }
+
+    #[test]
+    fn timer_test_t64_cadence() {
+        let mut bus = Bus::new();
+        bus.set(TAC, MASK_TIMER_ENABLED | u8::from(Clock::T64));
+
+        assert_eq!(0, bus.get(TIMA));
+
+        bus.tick(16);
+
+        assert_eq!(1, bus.get(TIMA));
+
+        bus.tick(16);
+
+        assert_eq!(2, bus.get(TIMA));
+    }
+
+    #[test]
+    fn timer_test_t256_cadence() {
+        let mut bus = Bus::new();
+        bus.set(TAC, MASK_TIMER_ENABLED | u8::from(Clock::T256));
+
+        assert_eq!(0, bus.get(TIMA));
+
+        bus.tick(64);
+
+        assert_eq!(1, bus.get(TIMA));
+
+        bus.tick(64);
+
+        assert_eq!(2, bus.get(TIMA));
+    }
+
+    #[test]
+    fn timer_test_t1024_cadence() {
+        let mut bus = Bus::new();
+        bus.set(TAC, MASK_TIMER_ENABLED | u8::from(Clock::T1024));
+
+        assert_eq!(0, bus.get(TIMA));
+
+        bus.tick(256);
+
+        assert_eq!(1, bus.get(TIMA));
+
+        bus.tick(256);
+
+        assert_eq!(2, bus.get(TIMA));
+    }
+
+    #[test]
+    fn timer_test_disabled_timer_works() {
+        let mut bus = Bus::new();
+        bus.set(TAC, u8::from(Clock::T16));
+
+        assert_eq!(0, bus.get(TIMA));
+
+        bus.tick(12);
+
+        assert_eq!(0, bus.get(TIMA));
+
+        bus.set(TAC, MASK_TIMER_ENABLED | u8::from(Clock::T16));
+
+        bus.tick(12);
+
+        assert_eq!(3, bus.get(TIMA));
+
+        bus.set(TAC, u8::from(Clock::T16));
+
+        bus.tick(12);
+
+        assert_eq!(3, bus.get(TIMA));
+    }
+
+    #[test]
+    fn timer_overflow_reloads_the_timer_after_1_m_cycle() {
+        let mut bus = Bus::new().with_memory(&[(TIMA, 0xFF), (TMA, 0xAB)]);
+        bus.set(TAC, MASK_TIMER_ENABLED | u8::from(Clock::T16));
+
+        bus.tick(4);
+
+        assert_eq!(0, bus.get(TIMA));
+        assert_eq!(0, bus.get(IF) & MASK_TIMER_INTERRUPT);
+
+        bus.tick(1);
+
+        assert_eq!(0xAB, bus.get(TIMA));
+        assert!(bus.get(IF) & MASK_TIMER_INTERRUPT > 0);
     }
 }
