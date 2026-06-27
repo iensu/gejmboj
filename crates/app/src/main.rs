@@ -42,12 +42,5 @@ fn main() -> AppResult<()> {
         })?;
 
         debug!("Executed instruction [{instruction_count:08}] ({prev_pc:04X}) {instruction:?}");
-
-        // Detect self-jump (jr $FE), PC remains unchanged across instruction ticks.
-        if registers.PC == prev_pc {
-            break;
-        }
     }
-
-    Ok(())
 }

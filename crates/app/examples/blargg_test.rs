@@ -3,7 +3,7 @@ use std::{env, fmt::Write, fs};
 use cpu::{
     bus::Bus,
     cpu::CPU,
-    instructions::{self, Instruction},
+    instructions::{self, Instruction, control_flow::ControlFlow},
     registers::Registers,
 };
 use log::trace;
@@ -39,6 +39,8 @@ fn main() {
 
     let mut test_result: Vec<char> = Vec::new();
 
+    let mut prev_instruction: Option<Instruction> = None;
+
     loop {
         instruction_count += 1;
 
@@ -64,10 +66,13 @@ fn main() {
             bus.set(SC, 0);
         }
 
-        // Detect self-jump (jr $FE), PC remains unchanged across instruction ticks.
-        if registers.PC == prev_pc {
+        if instruction == Instruction::ControlFlow(ControlFlow::JR(0xFE))
+            && prev_instruction.is_some_and(|i| i == instruction)
+        {
             break;
         }
+
+        prev_instruction = Some(instruction);
     }
 
     let test_result: String = test_result.into_iter().collect();

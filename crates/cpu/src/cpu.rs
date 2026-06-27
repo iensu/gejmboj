@@ -20,7 +20,7 @@ pub struct CpuFlags {
     /// If true at the start of a machine cycle IME should be enabled
     pub IME_scheduled: bool,
 
-    /// If true the CPU is in halted mode, the bus timer continues, but PC is not incremented
+    /// The CPU is in halted mode, the bus timer continues, but PC is not incremented.
     pub halted: bool,
 }
 
