@@ -81,6 +81,7 @@ pub fn decode(opcode: u8, pc: u16, bus: &Bus) -> Result<Instruction, CpuError> {
         //
         // misc
         (0, 0, 0, 0, 0, 0, 0, 0) => Instruction::Misc(Misc::NOP()),
+        (0, 1, 1, 1, 0, 1, 1, 0) => Instruction::Misc(Misc::HALT()),
         (1, 1, 1, 1, 0, 0, 1, 1) => Instruction::Misc(Misc::DI()),
         (1, 1, 1, 1, 1, 0, 1, 1) => Instruction::Misc(Misc::EI()),
         (0, 0, 1, 1, 1, 1, 1, 1) => Instruction::Misc(Misc::CCF()),
@@ -305,6 +306,7 @@ mod tests {
         for (code, instruction) in vec![
             // Misc instructions
             (0b0000_0000, I::Misc(Misc::NOP())),
+            (0b0111_0110, I::Misc(Misc::HALT())),
             (0b0011_1111, I::Misc(Misc::CCF())),
             (0b0011_0111, I::Misc(Misc::SCF())),
             (0b0010_0111, I::Misc(Misc::DAA())),

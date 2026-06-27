@@ -39,6 +39,9 @@ pub struct CpuFlags {
 
     /// If true at the start of a machine cycle IME should be enabled
     pub IME_scheduled: bool,
+
+    /// If true the CPU is in halted mode, the bus timer continues, but PC is not incremented
+    pub halted: bool,
 }
 
 impl Default for CpuFlags {
@@ -53,6 +56,7 @@ impl CpuFlags {
         Self {
             IME: false,
             IME_scheduled: false,
+            halted: false,
         }
     }
 }
@@ -238,7 +242,8 @@ mod test {
         assert_eq!(
             CpuFlags {
                 IME: false,
-                IME_scheduled: true
+                IME_scheduled: true,
+                ..Default::default()
             },
             cpu.flags
         );
@@ -250,6 +255,7 @@ mod test {
             CpuFlags {
                 IME: true,
                 IME_scheduled: false,
+                ..Default::default()
             },
             cpu.flags
         );

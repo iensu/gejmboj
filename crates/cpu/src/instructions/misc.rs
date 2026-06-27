@@ -19,10 +19,16 @@ instruction_group! {
     ///
     /// Where bit 0-3 are grounded to `0` and can't be overwritten and `C` is for carry, `H` for half-carry, `N`
     /// for negative and `Z` for zero.
-    Misc (registers, _memory, cpu_flags) {
+    Misc (registers, _bus, cpu_flags) {
 
         /// No operation
         NOP() [1] => {
+            Ok(MachineCycles::new(1))
+        }
+
+        /// Enter Halt mode
+        HALT() [1] => {
+            cpu_flags.halted = true;
             Ok(MachineCycles::new(1))
         }
 
@@ -173,11 +179,11 @@ mod tests {
 
     #[test]
     fn di_disables_interrupt_handling() {
-        let (mut registers, mut memory, mut cpu_flags) = setup();
+        let (mut registers, mut bus, mut cpu_flags) = setup();
 
         cpu_flags.IME = true;
         let cycles = Misc::DI()
-            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .execute(&mut registers, &mut bus, &mut cpu_flags)
             .unwrap();
 
         assert_eq!(1, cycles.value());
@@ -186,12 +192,12 @@ mod tests {
 
     #[test]
     fn ei_schedules_interrupt_handling() {
-        let (mut registers, mut memory, mut cpu_flags) = setup();
+        let (mut registers, mut bus, mut cpu_flags) = setup();
 
         assert!(!cpu_flags.IME_scheduled);
 
         let cycles = Misc::EI()
-            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .execute(&mut registers, &mut bus, &mut cpu_flags)
             .unwrap();
 
         assert_eq!(1, cycles.value());
@@ -200,10 +206,10 @@ mod tests {
 
     #[test]
     fn ccf_takes_one_machine_cycle() {
-        let (mut registers, mut memory, mut cpu_flags) = setup();
+        let (mut registers, mut bus, mut cpu_flags) = setup();
 
         let cycles = Misc::CCF()
-            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .execute(&mut registers, &mut bus, &mut cpu_flags)
             .unwrap();
 
         assert_eq!(1, cycles.value());
@@ -211,12 +217,12 @@ mod tests {
 
     #[test]
     fn ccf_clears_the_negative_and_half_carry_flags() {
-        let (mut registers, mut memory, mut cpu_flags) = setup();
+        let (mut registers, mut bus, mut cpu_flags) = setup();
 
         registers.set_flags(0b1111_0000);
 
         Misc::CCF()
-            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .execute(&mut registers, &mut bus, &mut cpu_flags)
             .unwrap();
 
         assert_eq!(0b1000_0000, registers.get_flags());
@@ -224,18 +230,18 @@ mod tests {
 
     #[test]
     fn ccf_flips_the_carry_flag() {
-        let (mut registers, mut memory, mut cpu_flags) = setup();
+        let (mut registers, mut bus, mut cpu_flags) = setup();
 
         registers.set_flags(MASK_FLAG_CARRY);
 
         Misc::CCF()
-            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .execute(&mut registers, &mut bus, &mut cpu_flags)
             .unwrap();
 
         assert_eq!(0b0000_0000, registers.get_flags());
 
         Misc::CCF()
-            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .execute(&mut registers, &mut bus, &mut cpu_flags)
             .unwrap();
 
         assert_eq!(0b0001_0000, registers.get_flags());
@@ -243,10 +249,10 @@ mod tests {
 
     #[test]
     fn scf_takes_one_machine_cycle() {
-        let (mut registers, mut memory, mut cpu_flags) = setup();
+        let (mut registers, mut bus, mut cpu_flags) = setup();
 
         let cycles = Misc::SCF()
-            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .execute(&mut registers, &mut bus, &mut cpu_flags)
             .unwrap();
 
         assert_eq!(1, cycles.value());
@@ -254,18 +260,18 @@ mod tests {
 
     #[test]
     fn scf_clears_the_negative_and_half_carry_flags() {
-        let (mut registers, mut memory, mut cpu_flags) = setup();
+        let (mut registers, mut bus, mut cpu_flags) = setup();
 
         registers.set_flags(0b1111_0000);
 
         Misc::SCF()
-            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .execute(&mut registers, &mut bus, &mut cpu_flags)
             .unwrap();
 
         assert_eq!(0b1001_0000, registers.get_flags());
 
         Misc::SCF()
-            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .execute(&mut registers, &mut bus, &mut cpu_flags)
             .unwrap();
 
         assert_eq!(0b1001_0000, registers.get_flags());
@@ -273,18 +279,18 @@ mod tests {
 
     #[test]
     fn scf_sets_the_carry_flag() {
-        let (mut registers, mut memory, mut cpu_flags) = setup();
+        let (mut registers, mut bus, mut cpu_flags) = setup();
 
         registers.set_flags(0b0000_0000);
 
         Misc::SCF()
-            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .execute(&mut registers, &mut bus, &mut cpu_flags)
             .unwrap();
 
         assert_eq!(0b0001_0000, registers.get_flags());
 
         Misc::SCF()
-            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .execute(&mut registers, &mut bus, &mut cpu_flags)
             .unwrap();
 
         assert_eq!(0b0001_0000, registers.get_flags());
@@ -292,10 +298,10 @@ mod tests {
 
     #[test]
     fn daa_takes_one_machine_cycle() {
-        let (mut registers, mut memory, mut cpu_flags) = setup();
+        let (mut registers, mut bus, mut cpu_flags) = setup();
 
         let cycles = Misc::DAA()
-            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .execute(&mut registers, &mut bus, &mut cpu_flags)
             .unwrap();
 
         assert_eq!(1, cycles.value());
@@ -303,19 +309,19 @@ mod tests {
 
     #[test]
     fn daa_clears_the_half_carry_flag() {
-        let (mut registers, mut memory, mut cpu_flags) = setup();
+        let (mut registers, mut bus, mut cpu_flags) = setup();
 
         registers.set_flags(MASK_FLAG_HALF_CARRY);
 
         Misc::DAA()
-            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .execute(&mut registers, &mut bus, &mut cpu_flags)
             .unwrap();
         let h_flag = registers.get_flags() & MASK_FLAG_HALF_CARRY;
 
         assert_eq!(0, h_flag);
 
         Misc::DAA()
-            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .execute(&mut registers, &mut bus, &mut cpu_flags)
             .unwrap();
         let h_flag = registers.get_flags() & MASK_FLAG_HALF_CARRY;
 
@@ -324,12 +330,12 @@ mod tests {
 
     #[test]
     fn daa_flips_sets_the_zero_flag() {
-        let (mut registers, mut memory, mut cpu_flags) = setup();
+        let (mut registers, mut bus, mut cpu_flags) = setup();
 
         registers.set_single(&SingleRegister::A, 0);
 
         Misc::DAA()
-            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .execute(&mut registers, &mut bus, &mut cpu_flags)
             .unwrap();
 
         assert!(registers.is_zero());
@@ -337,7 +343,7 @@ mod tests {
         registers.set_single(&SingleRegister::A, 6);
 
         Misc::DAA()
-            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .execute(&mut registers, &mut bus, &mut cpu_flags)
             .unwrap();
 
         assert_eq!(0b0000_0000, registers.get_flags());
@@ -347,31 +353,31 @@ mod tests {
     fn daa_example_test() {
         use crate::instructions::alu_8bit::ALU8Bit;
 
-        let (mut registers, mut memory, mut cpu_flags) = setup();
+        let (mut registers, mut bus, mut cpu_flags) = setup();
 
         registers.set_single(&SingleRegister::A, 0x45);
         registers.set_single(&SingleRegister::B, 0x38);
 
         ALU8Bit::ADD(SingleRegister::B)
-            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .execute(&mut registers, &mut bus, &mut cpu_flags)
             .unwrap();
         assert_eq!(0x7D, registers.get_single(&SingleRegister::A));
         assert!(!registers.is_negative());
 
         Misc::DAA()
-            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .execute(&mut registers, &mut bus, &mut cpu_flags)
             .unwrap();
         assert_eq!(0x7D + 0x06, registers.get_single(&SingleRegister::A));
         assert!(!registers.is_carry());
 
         ALU8Bit::SUB(SingleRegister::B)
-            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .execute(&mut registers, &mut bus, &mut cpu_flags)
             .unwrap();
         assert_eq!(0x83 - 0x38, registers.get_single(&SingleRegister::A));
         assert!(registers.is_negative());
 
         Misc::DAA()
-            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .execute(&mut registers, &mut bus, &mut cpu_flags)
             .unwrap();
         assert_eq!(
             0x4Bu8.wrapping_add(0xFA),
@@ -381,10 +387,10 @@ mod tests {
 
     #[test]
     fn cpl_takes_one_machine_cycle() {
-        let (mut registers, mut memory, mut cpu_flags) = setup();
+        let (mut registers, mut bus, mut cpu_flags) = setup();
 
         let cycles = Misc::CPL()
-            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .execute(&mut registers, &mut bus, &mut cpu_flags)
             .unwrap();
 
         assert_eq!(1, cycles.value());
@@ -392,18 +398,18 @@ mod tests {
 
     #[test]
     fn cpl_sets_the_negative_and_half_carry_flags() {
-        let (mut registers, mut memory, mut cpu_flags) = setup();
+        let (mut registers, mut bus, mut cpu_flags) = setup();
 
         registers.set_flags(0b0000_0000);
 
         Misc::CPL()
-            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .execute(&mut registers, &mut bus, &mut cpu_flags)
             .unwrap();
 
         assert_eq!(0b0110_0000, registers.get_flags());
 
         Misc::CPL()
-            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .execute(&mut registers, &mut bus, &mut cpu_flags)
             .unwrap();
 
         assert_eq!(0b0110_0000, registers.get_flags());
@@ -411,20 +417,33 @@ mod tests {
 
     #[test]
     fn cpl_flips_all_bits_in_the_a_register() {
-        let (mut registers, mut memory, mut cpu_flags) = setup();
+        let (mut registers, mut bus, mut cpu_flags) = setup();
 
         registers.set_single(&SingleRegister::A, 0b0000_0000);
 
         Misc::CPL()
-            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .execute(&mut registers, &mut bus, &mut cpu_flags)
             .unwrap();
 
         assert_eq!(0b1111_1111, registers.get_single(&SingleRegister::A));
 
         Misc::CPL()
-            .execute(&mut registers, &mut memory, &mut cpu_flags)
+            .execute(&mut registers, &mut bus, &mut cpu_flags)
             .unwrap();
 
         assert_eq!(0b0000_0000, registers.get_single(&SingleRegister::A));
+    }
+
+    #[test]
+    fn halt_sets_the_halted_flag() {
+        let (mut registers, mut bus, mut cpu_flags) = setup();
+
+        assert_eq!(false, cpu_flags.halted);
+
+        Misc::HALT()
+            .execute(&mut registers, &mut bus, &mut cpu_flags)
+            .unwrap();
+
+        assert_eq!(true, cpu_flags.halted);
     }
 }
