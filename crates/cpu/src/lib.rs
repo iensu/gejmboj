@@ -5,6 +5,7 @@ pub mod cpu;
 pub mod cycles;
 pub mod errors;
 pub mod instructions;
+pub mod interrupts;
 pub mod macros;
 pub mod registers;
 

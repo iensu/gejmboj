@@ -21,14 +21,13 @@
 
 use std::fmt::Display;
 
-use crate::{cycles::MachineCycles, errors::CpuError};
+use crate::{cycles::MachineCycles, errors::CpuError, interrupts::Interrupt};
 
-const MASK_TIMER_ENABLED: u8 = 0b0000_0100;
+pub const MASK_TIMER_ENABLED: u8 = 0b0000_0100;
 const MASK_TIMER_SELECT: u8 = 0b0000_0011;
-pub const MASK_TIMER_INTERRUPT: u8 = 0b0000_0100;
 
 #[derive(Debug, Default)]
-enum Clock {
+pub enum Clock {
     #[default]
     T1024,
     T16,
@@ -38,6 +37,7 @@ enum Clock {
 
 impl Clock {
     #[rustfmt::skip]
+    #[must_use]
     pub fn mask(&self) -> u16 {
         match self {
             Self::T16   => 0b0000_0000_0000_1000,
@@ -152,7 +152,7 @@ impl Bus {
             if cycles > 1 {
                 self.timer_reset_t_cycles = Some(cycles - 1);
             } else {
-                let value = self.get(ADDR_IF) | MASK_TIMER_INTERRUPT;
+                let value = self.get(ADDR_IF) | Interrupt::Timer.mask();
                 self.set(ADDR_IF, value);
                 self.set(ADDR_TIMA, self.get(ADDR_TMA));
                 self.timer_reset_t_cycles = None;
@@ -311,7 +311,7 @@ impl Bus {
     #[must_use]
     pub fn with_memory(mut self, values: &[(u16, u8)]) -> Self {
         for (addr, val) in values {
-            self.memory[*addr as usize] = *val;
+            self.set(*addr, *val);
         }
         self
     }
@@ -541,23 +541,26 @@ mod tests {
 
     #[test]
     fn timer_overflow_reloads_the_timer_after_1_m_cycle() {
-        let mut bus = Bus::new().with_memory(&[(ADDR_TIMA, 0xFF), (ADDR_TMA, 0xAB)]);
-        bus.set(ADDR_TAC, MASK_TIMER_ENABLED | u8::from(Clock::T16));
+        let mut bus = Bus::new().with_memory(&[
+            (ADDR_TIMA, 0xFF),
+            (ADDR_TMA, 0xAB),
+            (ADDR_TAC, MASK_TIMER_ENABLED | u8::from(Clock::T16)),
+        ]);
 
         bus.tick(MachineCycles::new(4));
 
         assert_eq!(0, bus.get(ADDR_TIMA));
-        assert_eq!(0, bus.get(ADDR_IF) & MASK_TIMER_INTERRUPT);
+        assert_eq!(0, bus.get(ADDR_IF) & Interrupt::Timer.mask());
 
         for _ in 0..3 {
             bus.t_cycle_tick();
             assert_eq!(0, bus.get(ADDR_TIMA));
-            assert_eq!(0, bus.get(ADDR_IF) & MASK_TIMER_INTERRUPT);
+            assert_eq!(0, bus.get(ADDR_IF) & Interrupt::Timer.mask());
         }
 
         bus.t_cycle_tick();
 
         assert_eq!(0xAB, bus.get(ADDR_TIMA));
-        assert!(bus.get(ADDR_IF) & MASK_TIMER_INTERRUPT > 0);
+        assert!(bus.get(ADDR_IF) & Interrupt::Timer.mask() > 0);
     }
 }

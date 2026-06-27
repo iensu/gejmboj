@@ -438,12 +438,12 @@ mod tests {
     fn halt_sets_the_halted_flag() {
         let (mut registers, mut bus, mut cpu_flags) = setup();
 
-        assert_eq!(false, cpu_flags.halted);
+        assert!(!cpu_flags.halted);
 
         Misc::HALT()
             .execute(&mut registers, &mut bus, &mut cpu_flags)
             .unwrap();
 
-        assert_eq!(true, cpu_flags.halted);
+        assert!(cpu_flags.halted);
     }
 }

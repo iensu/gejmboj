@@ -1,33 +1,13 @@
 //! Sharp SM83 CPU implementation
 
 use crate::{
-    bus::{ADDR_IE, ADDR_IF, Bus, MASK_TIMER_INTERRUPT},
+    bus::{ADDR_IE, ADDR_IF, Bus},
     cycles::MachineCycles,
     errors::CpuError,
-    instructions::{self, Instruction},
+    instructions::{self, Instruction, misc::Misc},
+    interrupts::Interrupt,
     registers::{Registers, SingleRegister},
 };
-
-const INT_TIMER: u16 = 0x50;
-
-#[derive(Debug, Clone, Copy)]
-enum Interrupt {
-    Timer,
-}
-
-impl Interrupt {
-    pub fn mask(self) -> u8 {
-        match self {
-            Self::Timer => MASK_TIMER_INTERRUPT,
-        }
-    }
-
-    pub fn address(self) -> u16 {
-        match self {
-            Self::Timer => INT_TIMER,
-        }
-    }
-}
 
 #[allow(non_snake_case)]
 #[derive(Debug, PartialEq, Eq)]
@@ -94,11 +74,20 @@ impl CPU {
         registers: &mut Registers,
         bus: &mut Bus,
     ) -> Result<(Instruction, MachineCycles), CpuError> {
-        let opcode = self.fetch(registers, bus);
-        let instruction = self.decode(opcode, registers, bus)?;
-        let mut cycles = self.execute(&instruction, registers, bus)?;
+        let (instruction, mut cycles) = if self.flags.halted {
+            (Instruction::Misc(Misc::HALT()), MachineCycles::new(1))
+        } else {
+            let opcode = self.fetch(registers, bus);
+            let instruction = self.decode(opcode, registers, bus)?;
+            let cycles = self.execute(&instruction, registers, bus)?;
+            (instruction, cycles)
+        };
 
         bus.tick(cycles);
+
+        if self.flags.halted && 0x1F & bus.get(ADDR_IE) & bus.get(ADDR_IF) != 0 {
+            self.flags.halted = false;
+        }
 
         cycles += self.maybe_handle_interrupt(Interrupt::Timer, registers, bus);
 
@@ -173,7 +162,7 @@ impl CPU {
         bus: &mut Bus,
     ) -> MachineCycles {
         let mask = interrupt.mask();
-        if self.flags.IME && bus.get(ADDR_IF) & bus.get(ADDR_IE) & mask != 0 {
+        if self.flags.IME && 0x1F & bus.get(ADDR_IF) & bus.get(ADDR_IE) & mask != 0 {
             // Reset
             self.flags.IME = false;
             bus.set(ADDR_IF, bus.get(ADDR_IF) & !mask);
@@ -182,7 +171,7 @@ impl CPU {
 
             let sp = registers.decrement_sp();
             bus.set_u16(sp, registers.PC);
-            registers.PC = interrupt.address();
+            registers.PC = interrupt.vector();
 
             bus.tick(MachineCycles::new(3));
 
@@ -196,7 +185,11 @@ impl CPU {
 #[allow(clippy::unusual_byte_groupings)]
 #[cfg(test)]
 mod test {
-
+    use crate::bus::ADDR_TAC;
+    use crate::bus::ADDR_TIMA;
+    use crate::bus::ADDR_TMA;
+    use crate::bus::Clock;
+    use crate::bus::MASK_TIMER_ENABLED;
     use crate::instructions::Condition;
 
     use super::*;
@@ -219,6 +212,79 @@ mod test {
 
         assert_eq!(Instruction::Misc(misc::Misc::NOP()), instruction);
         assert_eq!(instruction.length(), registers.PC);
+    }
+
+    #[test]
+    fn halt_ime_true_basic_scenario_works() {
+        let halt = 0b0111_0110;
+        let mut registers = Registers::new();
+        let mut bus = Bus::new().with_memory(&[
+            (0x0000, halt),
+            (ADDR_IE, Interrupt::Timer.mask()),
+            (ADDR_TIMA, 0xFF),
+            (ADDR_TMA, 0xAB),
+            (ADDR_TAC, MASK_TIMER_ENABLED | u8::from(Clock::T16)),
+        ]);
+        let mut cpu = CPU::new();
+        cpu.flags.IME = true;
+
+        assert_eq!(0, registers.PC);
+        assert!(!cpu.flags.halted);
+
+        let (instruction, _) = cpu.tick(&mut registers, &mut bus).unwrap();
+
+        assert_eq!(Instruction::Misc(Misc::HALT()), instruction);
+        assert_eq!(1, registers.PC);
+        assert!(cpu.flags.halted);
+
+        for _ in 0..3 {
+            let (instruction, _) = cpu.tick(&mut registers, &mut bus).unwrap();
+            assert_eq!(Instruction::Misc(Misc::HALT()), instruction);
+            assert_eq!(1, registers.PC);
+            assert!(cpu.flags.halted);
+        }
+
+        let _ = cpu.tick(&mut registers, &mut bus).unwrap();
+
+        assert_eq!(0x50, registers.PC);
+        assert!(!cpu.flags.halted);
+    }
+
+    #[test]
+    fn halt_ime_false_basic_scenario_works() {
+        let halt = 0b0111_0110;
+        let mut registers = Registers::new();
+        let mut bus = Bus::new().with_memory(&[
+            (0x0000, halt),
+            (ADDR_IE, Interrupt::Timer.mask()),
+            (ADDR_TIMA, 0xFF),
+            (ADDR_TMA, 0xAB),
+            (ADDR_TAC, MASK_TIMER_ENABLED | u8::from(Clock::T16)),
+        ]);
+        let mut cpu = CPU::new();
+        cpu.flags.IME_scheduled = false;
+        cpu.flags.IME = false;
+
+        assert_eq!(0, registers.PC);
+        assert!(!cpu.flags.halted);
+
+        let (instruction, _) = cpu.tick(&mut registers, &mut bus).unwrap();
+
+        assert_eq!(Instruction::Misc(Misc::HALT()), instruction);
+        assert_eq!(1, registers.PC);
+        assert!(cpu.flags.halted);
+
+        for _ in 0..3 {
+            let (instruction, _) = cpu.tick(&mut registers, &mut bus).unwrap();
+            assert_eq!(Instruction::Misc(Misc::HALT()), instruction);
+            assert_eq!(1, registers.PC);
+            assert!(cpu.flags.halted);
+        }
+
+        let _ = cpu.tick(&mut registers, &mut bus).unwrap();
+
+        assert_eq!(0x0001, registers.PC);
+        assert!(!cpu.flags.halted);
     }
 
     #[test]
