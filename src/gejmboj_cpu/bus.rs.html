@@ -21,23 +21,23 @@
 <a href=#21 id=21 data-nosnippet>21</a>
 <a href=#22 id=22 data-nosnippet>22</a></span><span class="kw">use </span>std::fmt::Display;
 <a href=#23 id=23 data-nosnippet>23</a>
-<a href=#24 id=24 data-nosnippet>24</a><span class="kw">use </span>crate::{cycles::MachineCycles, errors::CpuError};
+<a href=#24 id=24 data-nosnippet>24</a><span class="kw">use </span>crate::{cycles::MachineCycles, errors::CpuError, interrupts::Interrupt};
 <a href=#25 id=25 data-nosnippet>25</a>
-<a href=#26 id=26 data-nosnippet>26</a><span class="kw">const </span>MASK_TIMER_ENABLED: u8 = <span class="number">0b0000_0100</span>;
+<a href=#26 id=26 data-nosnippet>26</a><span class="kw">pub const </span>MASK_TIMER_ENABLED: u8 = <span class="number">0b0000_0100</span>;
 <a href=#27 id=27 data-nosnippet>27</a><span class="kw">const </span>MASK_TIMER_SELECT: u8 = <span class="number">0b0000_0011</span>;
-<a href=#28 id=28 data-nosnippet>28</a><span class="kw">pub const </span>MASK_TIMER_INTERRUPT: u8 = <span class="number">0b0000_0100</span>;
-<a href=#29 id=29 data-nosnippet>29</a>
-<a href=#30 id=30 data-nosnippet>30</a><span class="attr">#[derive(Debug, Default)]
-<a href=#31 id=31 data-nosnippet>31</a></span><span class="kw">enum </span>Clock {
-<a href=#32 id=32 data-nosnippet>32</a>    <span class="attr">#[default]
-<a href=#33 id=33 data-nosnippet>33</a>    </span>T1024,
-<a href=#34 id=34 data-nosnippet>34</a>    T16,
-<a href=#35 id=35 data-nosnippet>35</a>    T64,
-<a href=#36 id=36 data-nosnippet>36</a>    T256,
-<a href=#37 id=37 data-nosnippet>37</a>}
-<a href=#38 id=38 data-nosnippet>38</a>
-<a href=#39 id=39 data-nosnippet>39</a><span class="kw">impl </span>Clock {
-<a href=#40 id=40 data-nosnippet>40</a>    <span class="attr">#[rustfmt::skip]
+<a href=#28 id=28 data-nosnippet>28</a>
+<a href=#29 id=29 data-nosnippet>29</a><span class="attr">#[derive(Debug, Default)]
+<a href=#30 id=30 data-nosnippet>30</a></span><span class="kw">pub enum </span>Clock {
+<a href=#31 id=31 data-nosnippet>31</a>    <span class="attr">#[default]
+<a href=#32 id=32 data-nosnippet>32</a>    </span>T1024,
+<a href=#33 id=33 data-nosnippet>33</a>    T16,
+<a href=#34 id=34 data-nosnippet>34</a>    T64,
+<a href=#35 id=35 data-nosnippet>35</a>    T256,
+<a href=#36 id=36 data-nosnippet>36</a>}
+<a href=#37 id=37 data-nosnippet>37</a>
+<a href=#38 id=38 data-nosnippet>38</a><span class="kw">impl </span>Clock {
+<a href=#39 id=39 data-nosnippet>39</a>    <span class="attr">#[rustfmt::skip]
+<a href=#40 id=40 data-nosnippet>40</a>    #[must_use]
 <a href=#41 id=41 data-nosnippet>41</a>    </span><span class="kw">pub fn </span>mask(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u16 {
 <a href=#42 id=42 data-nosnippet>42</a>        <span class="kw">match </span><span class="self">self </span>{
 <a href=#43 id=43 data-nosnippet>43</a>            <span class="self">Self</span>::T16   =&gt; <span class="number">0b0000_0000_0000_1000</span>,
@@ -105,38 +105,38 @@
 <a href=#105 id=105 data-nosnippet>105</a>    /// References:
 <a href=#106 id=106 data-nosnippet>106</a>    /// - &lt;https://gbdev.io/pandocs/Power_Up_Sequence.html#hardware-registers&gt;
 <a href=#107 id=107 data-nosnippet>107</a>    </span><span class="kw">pub fn </span>reset(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-<a href=#108 id=108 data-nosnippet>108</a>        <span class="self">self</span>.set(TIMA, <span class="number">0x00</span>);
-<a href=#109 id=109 data-nosnippet>109</a>        <span class="self">self</span>.set(TMA, <span class="number">0x00</span>);
-<a href=#110 id=110 data-nosnippet>110</a>        <span class="self">self</span>.set(TAC, <span class="number">0x00</span>);
-<a href=#111 id=111 data-nosnippet>111</a>        <span class="self">self</span>.set(IF, <span class="number">0xE1</span>);
-<a href=#112 id=112 data-nosnippet>112</a>        <span class="self">self</span>.set(NR10, <span class="number">0x80</span>);
-<a href=#113 id=113 data-nosnippet>113</a>        <span class="self">self</span>.set(NR11, <span class="number">0xBF</span>);
-<a href=#114 id=114 data-nosnippet>114</a>        <span class="self">self</span>.set(NR12, <span class="number">0xF3</span>);
-<a href=#115 id=115 data-nosnippet>115</a>        <span class="self">self</span>.set(NR14, <span class="number">0xBF</span>);
-<a href=#116 id=116 data-nosnippet>116</a>        <span class="self">self</span>.set(NR21, <span class="number">0x3F</span>);
-<a href=#117 id=117 data-nosnippet>117</a>        <span class="self">self</span>.set(NR22, <span class="number">0x00</span>);
-<a href=#118 id=118 data-nosnippet>118</a>        <span class="self">self</span>.set(NR24, <span class="number">0xBF</span>);
-<a href=#119 id=119 data-nosnippet>119</a>        <span class="self">self</span>.set(NR30, <span class="number">0x7F</span>);
-<a href=#120 id=120 data-nosnippet>120</a>        <span class="self">self</span>.set(NR31, <span class="number">0xFF</span>);
-<a href=#121 id=121 data-nosnippet>121</a>        <span class="self">self</span>.set(NR32, <span class="number">0x9F</span>);
-<a href=#122 id=122 data-nosnippet>122</a>        <span class="self">self</span>.set(NR34, <span class="number">0xBF</span>);
-<a href=#123 id=123 data-nosnippet>123</a>        <span class="self">self</span>.set(NR41, <span class="number">0xFF</span>);
-<a href=#124 id=124 data-nosnippet>124</a>        <span class="self">self</span>.set(NR42, <span class="number">0x00</span>);
-<a href=#125 id=125 data-nosnippet>125</a>        <span class="self">self</span>.set(NR43, <span class="number">0x00</span>);
-<a href=#126 id=126 data-nosnippet>126</a>        <span class="self">self</span>.set(NR44, <span class="number">0xBF</span>);
-<a href=#127 id=127 data-nosnippet>127</a>        <span class="self">self</span>.set(NR50, <span class="number">0x77</span>);
-<a href=#128 id=128 data-nosnippet>128</a>        <span class="self">self</span>.set(NR51, <span class="number">0xF3</span>);
-<a href=#129 id=129 data-nosnippet>129</a>        <span class="self">self</span>.set(NR52, <span class="number">0xF1</span>);
-<a href=#130 id=130 data-nosnippet>130</a>        <span class="self">self</span>.set(LCDC, <span class="number">0x91</span>);
-<a href=#131 id=131 data-nosnippet>131</a>        <span class="self">self</span>.set(SCY, <span class="number">0x00</span>);
-<a href=#132 id=132 data-nosnippet>132</a>        <span class="self">self</span>.set(SCX, <span class="number">0x00</span>);
-<a href=#133 id=133 data-nosnippet>133</a>        <span class="self">self</span>.set(LYC, <span class="number">0x00</span>);
-<a href=#134 id=134 data-nosnippet>134</a>        <span class="self">self</span>.set(BGP, <span class="number">0xFC</span>);
-<a href=#135 id=135 data-nosnippet>135</a>        <span class="self">self</span>.set(OBP0, <span class="number">0xFF</span>);
-<a href=#136 id=136 data-nosnippet>136</a>        <span class="self">self</span>.set(OBP1, <span class="number">0xFF</span>);
-<a href=#137 id=137 data-nosnippet>137</a>        <span class="self">self</span>.set(WY, <span class="number">0x00</span>);
-<a href=#138 id=138 data-nosnippet>138</a>        <span class="self">self</span>.set(WX, <span class="number">0x00</span>);
-<a href=#139 id=139 data-nosnippet>139</a>        <span class="self">self</span>.set(IE, <span class="number">0x00</span>);
+<a href=#108 id=108 data-nosnippet>108</a>        <span class="self">self</span>.set(ADDR_TIMA, <span class="number">0x00</span>);
+<a href=#109 id=109 data-nosnippet>109</a>        <span class="self">self</span>.set(ADDR_TMA, <span class="number">0x00</span>);
+<a href=#110 id=110 data-nosnippet>110</a>        <span class="self">self</span>.set(ADDR_TAC, <span class="number">0x00</span>);
+<a href=#111 id=111 data-nosnippet>111</a>        <span class="self">self</span>.set(ADDR_IF, <span class="number">0xE1</span>);
+<a href=#112 id=112 data-nosnippet>112</a>        <span class="self">self</span>.set(ADDR_NR10, <span class="number">0x80</span>);
+<a href=#113 id=113 data-nosnippet>113</a>        <span class="self">self</span>.set(ADDR_NR11, <span class="number">0xBF</span>);
+<a href=#114 id=114 data-nosnippet>114</a>        <span class="self">self</span>.set(ADDR_NR12, <span class="number">0xF3</span>);
+<a href=#115 id=115 data-nosnippet>115</a>        <span class="self">self</span>.set(ADDR_NR14, <span class="number">0xBF</span>);
+<a href=#116 id=116 data-nosnippet>116</a>        <span class="self">self</span>.set(ADDR_NR21, <span class="number">0x3F</span>);
+<a href=#117 id=117 data-nosnippet>117</a>        <span class="self">self</span>.set(ADDR_NR22, <span class="number">0x00</span>);
+<a href=#118 id=118 data-nosnippet>118</a>        <span class="self">self</span>.set(ADDR_NR24, <span class="number">0xBF</span>);
+<a href=#119 id=119 data-nosnippet>119</a>        <span class="self">self</span>.set(ADDR_NR30, <span class="number">0x7F</span>);
+<a href=#120 id=120 data-nosnippet>120</a>        <span class="self">self</span>.set(ADDR_NR31, <span class="number">0xFF</span>);
+<a href=#121 id=121 data-nosnippet>121</a>        <span class="self">self</span>.set(ADDR_NR32, <span class="number">0x9F</span>);
+<a href=#122 id=122 data-nosnippet>122</a>        <span class="self">self</span>.set(ADDR_NR34, <span class="number">0xBF</span>);
+<a href=#123 id=123 data-nosnippet>123</a>        <span class="self">self</span>.set(ADDR_NR41, <span class="number">0xFF</span>);
+<a href=#124 id=124 data-nosnippet>124</a>        <span class="self">self</span>.set(ADDR_NR42, <span class="number">0x00</span>);
+<a href=#125 id=125 data-nosnippet>125</a>        <span class="self">self</span>.set(ADDR_NR43, <span class="number">0x00</span>);
+<a href=#126 id=126 data-nosnippet>126</a>        <span class="self">self</span>.set(ADDR_NR44, <span class="number">0xBF</span>);
+<a href=#127 id=127 data-nosnippet>127</a>        <span class="self">self</span>.set(ADDR_NR50, <span class="number">0x77</span>);
+<a href=#128 id=128 data-nosnippet>128</a>        <span class="self">self</span>.set(ADDR_NR51, <span class="number">0xF3</span>);
+<a href=#129 id=129 data-nosnippet>129</a>        <span class="self">self</span>.set(ADDR_NR52, <span class="number">0xF1</span>);
+<a href=#130 id=130 data-nosnippet>130</a>        <span class="self">self</span>.set(ADDR_LCDC, <span class="number">0x91</span>);
+<a href=#131 id=131 data-nosnippet>131</a>        <span class="self">self</span>.set(ADDR_SCY, <span class="number">0x00</span>);
+<a href=#132 id=132 data-nosnippet>132</a>        <span class="self">self</span>.set(ADDR_SCX, <span class="number">0x00</span>);
+<a href=#133 id=133 data-nosnippet>133</a>        <span class="self">self</span>.set(ADDR_LYC, <span class="number">0x00</span>);
+<a href=#134 id=134 data-nosnippet>134</a>        <span class="self">self</span>.set(ADDR_BGP, <span class="number">0xFC</span>);
+<a href=#135 id=135 data-nosnippet>135</a>        <span class="self">self</span>.set(ADDR_OBP0, <span class="number">0xFF</span>);
+<a href=#136 id=136 data-nosnippet>136</a>        <span class="self">self</span>.set(ADDR_OBP1, <span class="number">0xFF</span>);
+<a href=#137 id=137 data-nosnippet>137</a>        <span class="self">self</span>.set(ADDR_WY, <span class="number">0x00</span>);
+<a href=#138 id=138 data-nosnippet>138</a>        <span class="self">self</span>.set(ADDR_WX, <span class="number">0x00</span>);
+<a href=#139 id=139 data-nosnippet>139</a>        <span class="self">self</span>.set(ADDR_IE, <span class="number">0x00</span>);
 <a href=#140 id=140 data-nosnippet>140</a>    }
 <a href=#141 id=141 data-nosnippet>141</a>
 <a href=#142 id=142 data-nosnippet>142</a>    <span class="doccomment">/// Increase the internal counter by `machine_cycles`.
@@ -152,9 +152,9 @@
 <a href=#152 id=152 data-nosnippet>152</a>            <span class="kw">if </span>cycles &gt; <span class="number">1 </span>{
 <a href=#153 id=153 data-nosnippet>153</a>                <span class="self">self</span>.timer_reset_t_cycles = <span class="prelude-val">Some</span>(cycles - <span class="number">1</span>);
 <a href=#154 id=154 data-nosnippet>154</a>            } <span class="kw">else </span>{
-<a href=#155 id=155 data-nosnippet>155</a>                <span class="kw">let </span>value = <span class="self">self</span>.get(IF) | MASK_TIMER_INTERRUPT;
-<a href=#156 id=156 data-nosnippet>156</a>                <span class="self">self</span>.set(IF, value);
-<a href=#157 id=157 data-nosnippet>157</a>                <span class="self">self</span>.set(TIMA, <span class="self">self</span>.get(TMA));
+<a href=#155 id=155 data-nosnippet>155</a>                <span class="kw">let </span>value = <span class="self">self</span>.get(ADDR_IF) | Interrupt::Timer.mask();
+<a href=#156 id=156 data-nosnippet>156</a>                <span class="self">self</span>.set(ADDR_IF, value);
+<a href=#157 id=157 data-nosnippet>157</a>                <span class="self">self</span>.set(ADDR_TIMA, <span class="self">self</span>.get(ADDR_TMA));
 <a href=#158 id=158 data-nosnippet>158</a>                <span class="self">self</span>.timer_reset_t_cycles = <span class="prelude-val">None</span>;
 <a href=#159 id=159 data-nosnippet>159</a>            }
 <a href=#160 id=160 data-nosnippet>160</a>        }
@@ -165,9 +165,9 @@
 <a href=#165 id=165 data-nosnippet>165</a>        <span class="kw">if </span><span class="self">self</span>.timer_enabled {
 <a href=#166 id=166 data-nosnippet>166</a>            <span class="kw">let </span>clock_mask = <span class="self">self</span>.clock.mask();
 <a href=#167 id=167 data-nosnippet>167</a>            <span class="kw">if </span>previous_counter &amp; clock_mask &gt; <span class="number">0 </span>&amp;&amp; <span class="self">self</span>.counter &amp; clock_mask == <span class="number">0 </span>{
-<a href=#168 id=168 data-nosnippet>168</a>                <span class="kw">let </span>current = <span class="self">self</span>.get(TIMA);
+<a href=#168 id=168 data-nosnippet>168</a>                <span class="kw">let </span>current = <span class="self">self</span>.get(ADDR_TIMA);
 <a href=#169 id=169 data-nosnippet>169</a>                <span class="kw">let </span>(value, overflow) = current.overflowing_add(<span class="number">1</span>);
-<a href=#170 id=170 data-nosnippet>170</a>                <span class="self">self</span>.set(TIMA, value);
+<a href=#170 id=170 data-nosnippet>170</a>                <span class="self">self</span>.set(ADDR_TIMA, value);
 <a href=#171 id=171 data-nosnippet>171</a>
 <a href=#172 id=172 data-nosnippet>172</a>                <span class="kw">if </span>overflow {
 <a href=#173 id=173 data-nosnippet>173</a>                    <span class="self">self</span>.timer_reset_t_cycles = <span class="prelude-val">Some</span>(<span class="number">4</span>);
@@ -206,11 +206,11 @@
 <a href=#206 id=206 data-nosnippet>206</a>    /// ```
 <a href=#207 id=207 data-nosnippet>207</a>    </span><span class="kw">pub fn </span>set(<span class="kw-2">&amp;mut </span><span class="self">self</span>, location: u16, value: u8) {
 <a href=#208 id=208 data-nosnippet>208</a>        <span class="kw">match </span>location {
-<a href=#209 id=209 data-nosnippet>209</a>            DIV =&gt; {
+<a href=#209 id=209 data-nosnippet>209</a>            ADDR_DIV =&gt; {
 <a href=#210 id=210 data-nosnippet>210</a>                <span class="comment">// NOTE: Writing to DIV resets the counter
 <a href=#211 id=211 data-nosnippet>211</a>                </span><span class="self">self</span>.counter = <span class="number">0</span>;
 <a href=#212 id=212 data-nosnippet>212</a>            }
-<a href=#213 id=213 data-nosnippet>213</a>            TAC =&gt; {
+<a href=#213 id=213 data-nosnippet>213</a>            ADDR_TAC =&gt; {
 <a href=#214 id=214 data-nosnippet>214</a>                <span class="self">self</span>.timer_enabled = value &amp; MASK_TIMER_ENABLED &gt; <span class="number">0</span>;
 <a href=#215 id=215 data-nosnippet>215</a>                <span class="self">self</span>.clock = Clock::from(value);
 <a href=#216 id=216 data-nosnippet>216</a>                <span class="self">self</span>.memory[location <span class="kw">as </span>usize] = value;
@@ -237,8 +237,8 @@
 <a href=#237 id=237 data-nosnippet>237</a>        <span class="kw">let </span>data = <span class="self">self</span>.memory[location <span class="kw">as </span>usize];
 <a href=#238 id=238 data-nosnippet>238</a>
 <a href=#239 id=239 data-nosnippet>239</a>        <span class="kw">match </span>location {
-<a href=#240 id=240 data-nosnippet>240</a>            IF =&gt; data | <span class="number">0b1110_0000</span>,
-<a href=#241 id=241 data-nosnippet>241</a>            DIV =&gt; (<span class="self">self</span>.counter &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>u8,
+<a href=#240 id=240 data-nosnippet>240</a>            ADDR_IF =&gt; data | <span class="number">0b1110_0000</span>,
+<a href=#241 id=241 data-nosnippet>241</a>            ADDR_DIV =&gt; (<span class="self">self</span>.counter &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>u8,
 <a href=#242 id=242 data-nosnippet>242</a>            <span class="kw">_ </span>=&gt; data,
 <a href=#243 id=243 data-nosnippet>243</a>        }
 <a href=#244 id=244 data-nosnippet>244</a>    }
@@ -311,7 +311,7 @@
 <a href=#311 id=311 data-nosnippet>311</a>    <span class="attr">#[must_use]
 <a href=#312 id=312 data-nosnippet>312</a>    </span><span class="kw">pub fn </span>with_memory(<span class="kw-2">mut </span><span class="self">self</span>, values: <span class="kw-2">&amp;</span>[(u16, u8)]) -&gt; <span class="self">Self </span>{
 <a href=#313 id=313 data-nosnippet>313</a>        <span class="kw">for </span>(addr, val) <span class="kw">in </span>values {
-<a href=#314 id=314 data-nosnippet>314</a>            <span class="self">self</span>.memory[<span class="kw-2">*</span>addr <span class="kw">as </span>usize] = <span class="kw-2">*</span>val;
+<a href=#314 id=314 data-nosnippet>314</a>            <span class="self">self</span>.set(<span class="kw-2">*</span>addr, <span class="kw-2">*</span>val);
 <a href=#315 id=315 data-nosnippet>315</a>        }
 <a href=#316 id=316 data-nosnippet>316</a>        <span class="self">self
 <a href=#317 id=317 data-nosnippet>317</a>    </span>}
@@ -324,39 +324,39 @@
 <a href=#324 id=324 data-nosnippet>324</a>}
 <a href=#325 id=325 data-nosnippet>325</a>
 <a href=#326 id=326 data-nosnippet>326</a><span class="comment">// Semantically significant memory addresses
-<a href=#327 id=327 data-nosnippet>327</a></span><span class="kw">const </span>DIV: u16 = <span class="number">0xFF04</span>;
-<a href=#328 id=328 data-nosnippet>328</a><span class="kw">const </span>TIMA: u16 = <span class="number">0xFF05</span>;
-<a href=#329 id=329 data-nosnippet>329</a><span class="kw">const </span>TMA: u16 = <span class="number">0xFF06</span>;
-<a href=#330 id=330 data-nosnippet>330</a><span class="kw">const </span>TAC: u16 = <span class="number">0xFF07</span>;
-<a href=#331 id=331 data-nosnippet>331</a><span class="kw">pub const </span>IF: u16 = <span class="number">0xFF0F</span>;
-<a href=#332 id=332 data-nosnippet>332</a><span class="kw">const </span>NR10: u16 = <span class="number">0xFF10</span>;
-<a href=#333 id=333 data-nosnippet>333</a><span class="kw">const </span>NR11: u16 = <span class="number">0xFF11</span>;
-<a href=#334 id=334 data-nosnippet>334</a><span class="kw">const </span>NR12: u16 = <span class="number">0xFF12</span>;
-<a href=#335 id=335 data-nosnippet>335</a><span class="kw">const </span>NR14: u16 = <span class="number">0xFF14</span>;
-<a href=#336 id=336 data-nosnippet>336</a><span class="kw">const </span>NR21: u16 = <span class="number">0xFF16</span>;
-<a href=#337 id=337 data-nosnippet>337</a><span class="kw">const </span>NR22: u16 = <span class="number">0xFF17</span>;
-<a href=#338 id=338 data-nosnippet>338</a><span class="kw">const </span>NR24: u16 = <span class="number">0xFF19</span>;
-<a href=#339 id=339 data-nosnippet>339</a><span class="kw">const </span>NR30: u16 = <span class="number">0xFF1A</span>;
-<a href=#340 id=340 data-nosnippet>340</a><span class="kw">const </span>NR31: u16 = <span class="number">0xFF1B</span>;
-<a href=#341 id=341 data-nosnippet>341</a><span class="kw">const </span>NR32: u16 = <span class="number">0xFF1C</span>;
-<a href=#342 id=342 data-nosnippet>342</a><span class="kw">const </span>NR34: u16 = <span class="number">0xFF1E</span>;
-<a href=#343 id=343 data-nosnippet>343</a><span class="kw">const </span>NR41: u16 = <span class="number">0xFF20</span>;
-<a href=#344 id=344 data-nosnippet>344</a><span class="kw">const </span>NR42: u16 = <span class="number">0xFF21</span>;
-<a href=#345 id=345 data-nosnippet>345</a><span class="kw">const </span>NR43: u16 = <span class="number">0xFF22</span>;
-<a href=#346 id=346 data-nosnippet>346</a><span class="kw">const </span>NR44: u16 = <span class="number">0xFF23</span>;
-<a href=#347 id=347 data-nosnippet>347</a><span class="kw">const </span>NR50: u16 = <span class="number">0xFF24</span>;
-<a href=#348 id=348 data-nosnippet>348</a><span class="kw">const </span>NR51: u16 = <span class="number">0xFF25</span>;
-<a href=#349 id=349 data-nosnippet>349</a><span class="kw">const </span>NR52: u16 = <span class="number">0xFF26</span>;
-<a href=#350 id=350 data-nosnippet>350</a><span class="kw">const </span>LCDC: u16 = <span class="number">0xFF40</span>;
-<a href=#351 id=351 data-nosnippet>351</a><span class="kw">const </span>SCY: u16 = <span class="number">0xFF42</span>;
-<a href=#352 id=352 data-nosnippet>352</a><span class="kw">const </span>SCX: u16 = <span class="number">0xFF43</span>;
-<a href=#353 id=353 data-nosnippet>353</a><span class="kw">const </span>LYC: u16 = <span class="number">0xFF45</span>;
-<a href=#354 id=354 data-nosnippet>354</a><span class="kw">const </span>BGP: u16 = <span class="number">0xFF47</span>;
-<a href=#355 id=355 data-nosnippet>355</a><span class="kw">const </span>OBP0: u16 = <span class="number">0xFF48</span>;
-<a href=#356 id=356 data-nosnippet>356</a><span class="kw">const </span>OBP1: u16 = <span class="number">0xFF49</span>;
-<a href=#357 id=357 data-nosnippet>357</a><span class="kw">const </span>WY: u16 = <span class="number">0xFF4A</span>;
-<a href=#358 id=358 data-nosnippet>358</a><span class="kw">const </span>WX: u16 = <span class="number">0xFF4B</span>;
-<a href=#359 id=359 data-nosnippet>359</a><span class="kw">pub const </span>IE: u16 = <span class="number">0xFFFF</span>;
+<a href=#327 id=327 data-nosnippet>327</a></span><span class="kw">pub const </span>ADDR_DIV: u16 = <span class="number">0xFF04</span>;
+<a href=#328 id=328 data-nosnippet>328</a><span class="kw">pub const </span>ADDR_TIMA: u16 = <span class="number">0xFF05</span>;
+<a href=#329 id=329 data-nosnippet>329</a><span class="kw">pub const </span>ADDR_TMA: u16 = <span class="number">0xFF06</span>;
+<a href=#330 id=330 data-nosnippet>330</a><span class="kw">pub const </span>ADDR_TAC: u16 = <span class="number">0xFF07</span>;
+<a href=#331 id=331 data-nosnippet>331</a><span class="kw">pub const </span>ADDR_IF: u16 = <span class="number">0xFF0F</span>;
+<a href=#332 id=332 data-nosnippet>332</a><span class="kw">pub const </span>ADDR_NR10: u16 = <span class="number">0xFF10</span>;
+<a href=#333 id=333 data-nosnippet>333</a><span class="kw">pub const </span>ADDR_NR11: u16 = <span class="number">0xFF11</span>;
+<a href=#334 id=334 data-nosnippet>334</a><span class="kw">pub const </span>ADDR_NR12: u16 = <span class="number">0xFF12</span>;
+<a href=#335 id=335 data-nosnippet>335</a><span class="kw">pub const </span>ADDR_NR14: u16 = <span class="number">0xFF14</span>;
+<a href=#336 id=336 data-nosnippet>336</a><span class="kw">pub const </span>ADDR_NR21: u16 = <span class="number">0xFF16</span>;
+<a href=#337 id=337 data-nosnippet>337</a><span class="kw">pub const </span>ADDR_NR22: u16 = <span class="number">0xFF17</span>;
+<a href=#338 id=338 data-nosnippet>338</a><span class="kw">pub const </span>ADDR_NR24: u16 = <span class="number">0xFF19</span>;
+<a href=#339 id=339 data-nosnippet>339</a><span class="kw">pub const </span>ADDR_NR30: u16 = <span class="number">0xFF1A</span>;
+<a href=#340 id=340 data-nosnippet>340</a><span class="kw">pub const </span>ADDR_NR31: u16 = <span class="number">0xFF1B</span>;
+<a href=#341 id=341 data-nosnippet>341</a><span class="kw">pub const </span>ADDR_NR32: u16 = <span class="number">0xFF1C</span>;
+<a href=#342 id=342 data-nosnippet>342</a><span class="kw">pub const </span>ADDR_NR34: u16 = <span class="number">0xFF1E</span>;
+<a href=#343 id=343 data-nosnippet>343</a><span class="kw">pub const </span>ADDR_NR41: u16 = <span class="number">0xFF20</span>;
+<a href=#344 id=344 data-nosnippet>344</a><span class="kw">pub const </span>ADDR_NR42: u16 = <span class="number">0xFF21</span>;
+<a href=#345 id=345 data-nosnippet>345</a><span class="kw">pub const </span>ADDR_NR43: u16 = <span class="number">0xFF22</span>;
+<a href=#346 id=346 data-nosnippet>346</a><span class="kw">pub const </span>ADDR_NR44: u16 = <span class="number">0xFF23</span>;
+<a href=#347 id=347 data-nosnippet>347</a><span class="kw">pub const </span>ADDR_NR50: u16 = <span class="number">0xFF24</span>;
+<a href=#348 id=348 data-nosnippet>348</a><span class="kw">pub const </span>ADDR_NR51: u16 = <span class="number">0xFF25</span>;
+<a href=#349 id=349 data-nosnippet>349</a><span class="kw">pub const </span>ADDR_NR52: u16 = <span class="number">0xFF26</span>;
+<a href=#350 id=350 data-nosnippet>350</a><span class="kw">pub const </span>ADDR_LCDC: u16 = <span class="number">0xFF40</span>;
+<a href=#351 id=351 data-nosnippet>351</a><span class="kw">pub const </span>ADDR_SCY: u16 = <span class="number">0xFF42</span>;
+<a href=#352 id=352 data-nosnippet>352</a><span class="kw">pub const </span>ADDR_SCX: u16 = <span class="number">0xFF43</span>;
+<a href=#353 id=353 data-nosnippet>353</a><span class="kw">pub const </span>ADDR_LYC: u16 = <span class="number">0xFF45</span>;
+<a href=#354 id=354 data-nosnippet>354</a><span class="kw">pub const </span>ADDR_BGP: u16 = <span class="number">0xFF47</span>;
+<a href=#355 id=355 data-nosnippet>355</a><span class="kw">pub const </span>ADDR_OBP0: u16 = <span class="number">0xFF48</span>;
+<a href=#356 id=356 data-nosnippet>356</a><span class="kw">pub const </span>ADDR_OBP1: u16 = <span class="number">0xFF49</span>;
+<a href=#357 id=357 data-nosnippet>357</a><span class="kw">pub const </span>ADDR_WY: u16 = <span class="number">0xFF4A</span>;
+<a href=#358 id=358 data-nosnippet>358</a><span class="kw">pub const </span>ADDR_WX: u16 = <span class="number">0xFF4B</span>;
+<a href=#359 id=359 data-nosnippet>359</a><span class="kw">pub const </span>ADDR_IE: u16 = <span class="number">0xFFFF</span>;
 <a href=#360 id=360 data-nosnippet>360</a>
 <a href=#361 id=361 data-nosnippet>361</a><span class="attr">#[allow(non_snake_case, clippy::cast_possible_truncation)]
 <a href=#362 id=362 data-nosnippet>362</a>#[cfg(test)]
@@ -366,18 +366,18 @@
 <a href=#366 id=366 data-nosnippet>366</a>    <span class="attr">#[test]
 <a href=#367 id=367 data-nosnippet>367</a>    </span><span class="kw">fn </span>addr_IF_bits_5_to_7_always_return_1() {
 <a href=#368 id=368 data-nosnippet>368</a>        <span class="kw">let </span><span class="kw-2">mut </span>b = Bus::new();
-<a href=#369 id=369 data-nosnippet>369</a>        b.set(IF, <span class="number">0b0001_1111</span>);
-<a href=#370 id=370 data-nosnippet>370</a>        <span class="kw">let </span>value = b.get(IF);
+<a href=#369 id=369 data-nosnippet>369</a>        b.set(ADDR_IF, <span class="number">0b0001_1111</span>);
+<a href=#370 id=370 data-nosnippet>370</a>        <span class="kw">let </span>value = b.get(ADDR_IF);
 <a href=#371 id=371 data-nosnippet>371</a>
 <a href=#372 id=372 data-nosnippet>372</a>        <span class="macro">assert_eq!</span>(<span class="number">0b1111_1111</span>, value, <span class="string">"Got {value:08b}"</span>);
 <a href=#373 id=373 data-nosnippet>373</a>
-<a href=#374 id=374 data-nosnippet>374</a>        b.set(IF + <span class="number">1</span>, <span class="number">0b1010_1010</span>);
+<a href=#374 id=374 data-nosnippet>374</a>        b.set(ADDR_IF + <span class="number">1</span>, <span class="number">0b1010_1010</span>);
 <a href=#375 id=375 data-nosnippet>375</a>
-<a href=#376 id=376 data-nosnippet>376</a>        <span class="kw">let </span>value = b.get_u16(IF);
+<a href=#376 id=376 data-nosnippet>376</a>        <span class="kw">let </span>value = b.get_u16(ADDR_IF);
 <a href=#377 id=377 data-nosnippet>377</a>
 <a href=#378 id=378 data-nosnippet>378</a>        <span class="macro">assert_eq!</span>(<span class="number">0b1010_1010_1111_1111</span>, value, <span class="string">"Got {value:08b}"</span>);
 <a href=#379 id=379 data-nosnippet>379</a>
-<a href=#380 id=380 data-nosnippet>380</a>        <span class="kw">let </span>addr = IF - <span class="number">1</span>;
+<a href=#380 id=380 data-nosnippet>380</a>        <span class="kw">let </span>addr = ADDR_IF - <span class="number">1</span>;
 <a href=#381 id=381 data-nosnippet>381</a>
 <a href=#382 id=382 data-nosnippet>382</a>        b.set(addr, <span class="number">0b0101_0101</span>);
 <a href=#383 id=383 data-nosnippet>383</a>
@@ -388,7 +388,7 @@
 <a href=#388 id=388 data-nosnippet>388</a>
 <a href=#389 id=389 data-nosnippet>389</a>    <span class="attr">#[test]
 <a href=#390 id=390 data-nosnippet>390</a>    </span><span class="kw">fn </span>writes_to_addr_DIV_resets_the_16bit_counter() {
-<a href=#391 id=391 data-nosnippet>391</a>        <span class="kw">let </span>div = DIV;
+<a href=#391 id=391 data-nosnippet>391</a>        <span class="kw">let </span>div = ADDR_DIV;
 <a href=#392 id=392 data-nosnippet>392</a>        <span class="kw">let </span><span class="kw-2">mut </span>b = Bus::new().with_counter(<span class="number">0xABCD</span>);
 <a href=#393 id=393 data-nosnippet>393</a>
 <a href=#394 id=394 data-nosnippet>394</a>        <span class="macro">assert_eq!</span>(<span class="number">0xAB</span>, b.get(div));
@@ -436,129 +436,132 @@
 <a href=#436 id=436 data-nosnippet>436</a>    </span><span class="kw">fn </span>div_is_updated_every_64_machine_cycles() {
 <a href=#437 id=437 data-nosnippet>437</a>        <span class="kw">let </span><span class="kw-2">mut </span>b = Bus::new();
 <a href=#438 id=438 data-nosnippet>438</a>        <span class="macro">assert_eq!</span>(<span class="number">0</span>, b.counter);
-<a href=#439 id=439 data-nosnippet>439</a>        <span class="macro">assert_eq!</span>(<span class="number">0</span>, b.get(DIV));
+<a href=#439 id=439 data-nosnippet>439</a>        <span class="macro">assert_eq!</span>(<span class="number">0</span>, b.get(ADDR_DIV));
 <a href=#440 id=440 data-nosnippet>440</a>
 <a href=#441 id=441 data-nosnippet>441</a>        <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">64 </span>{
 <a href=#442 id=442 data-nosnippet>442</a>            b.tick(MachineCycles::new(<span class="number">1</span>));
 <a href=#443 id=443 data-nosnippet>443</a>        }
 <a href=#444 id=444 data-nosnippet>444</a>
-<a href=#445 id=445 data-nosnippet>445</a>        <span class="macro">assert_eq!</span>(<span class="number">1</span>, b.get(DIV));
+<a href=#445 id=445 data-nosnippet>445</a>        <span class="macro">assert_eq!</span>(<span class="number">1</span>, b.get(ADDR_DIV));
 <a href=#446 id=446 data-nosnippet>446</a>
 <a href=#447 id=447 data-nosnippet>447</a>        <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">64 </span>{
 <a href=#448 id=448 data-nosnippet>448</a>            b.tick(MachineCycles::new(<span class="number">1</span>));
 <a href=#449 id=449 data-nosnippet>449</a>        }
 <a href=#450 id=450 data-nosnippet>450</a>
-<a href=#451 id=451 data-nosnippet>451</a>        <span class="macro">assert_eq!</span>(<span class="number">2</span>, b.get(DIV));
+<a href=#451 id=451 data-nosnippet>451</a>        <span class="macro">assert_eq!</span>(<span class="number">2</span>, b.get(ADDR_DIV));
 <a href=#452 id=452 data-nosnippet>452</a>    }
 <a href=#453 id=453 data-nosnippet>453</a>
 <a href=#454 id=454 data-nosnippet>454</a>    <span class="attr">#[test]
 <a href=#455 id=455 data-nosnippet>455</a>    </span><span class="kw">fn </span>timer_test_t16_cadence() {
 <a href=#456 id=456 data-nosnippet>456</a>        <span class="kw">let </span><span class="kw-2">mut </span>bus = Bus::new();
-<a href=#457 id=457 data-nosnippet>457</a>        bus.set(TAC, MASK_TIMER_ENABLED | u8::from(Clock::T16));
+<a href=#457 id=457 data-nosnippet>457</a>        bus.set(ADDR_TAC, MASK_TIMER_ENABLED | u8::from(Clock::T16));
 <a href=#458 id=458 data-nosnippet>458</a>
-<a href=#459 id=459 data-nosnippet>459</a>        <span class="macro">assert_eq!</span>(<span class="number">0</span>, bus.get(TIMA));
+<a href=#459 id=459 data-nosnippet>459</a>        <span class="macro">assert_eq!</span>(<span class="number">0</span>, bus.get(ADDR_TIMA));
 <a href=#460 id=460 data-nosnippet>460</a>
 <a href=#461 id=461 data-nosnippet>461</a>        bus.tick(MachineCycles::new(<span class="number">4</span>));
 <a href=#462 id=462 data-nosnippet>462</a>
-<a href=#463 id=463 data-nosnippet>463</a>        <span class="macro">assert_eq!</span>(<span class="number">1</span>, bus.get(TIMA));
+<a href=#463 id=463 data-nosnippet>463</a>        <span class="macro">assert_eq!</span>(<span class="number">1</span>, bus.get(ADDR_TIMA));
 <a href=#464 id=464 data-nosnippet>464</a>
 <a href=#465 id=465 data-nosnippet>465</a>        bus.tick(MachineCycles::new(<span class="number">4</span>));
 <a href=#466 id=466 data-nosnippet>466</a>
-<a href=#467 id=467 data-nosnippet>467</a>        <span class="macro">assert_eq!</span>(<span class="number">2</span>, bus.get(TIMA));
+<a href=#467 id=467 data-nosnippet>467</a>        <span class="macro">assert_eq!</span>(<span class="number">2</span>, bus.get(ADDR_TIMA));
 <a href=#468 id=468 data-nosnippet>468</a>    }
 <a href=#469 id=469 data-nosnippet>469</a>
 <a href=#470 id=470 data-nosnippet>470</a>    <span class="attr">#[test]
 <a href=#471 id=471 data-nosnippet>471</a>    </span><span class="kw">fn </span>timer_test_t64_cadence() {
 <a href=#472 id=472 data-nosnippet>472</a>        <span class="kw">let </span><span class="kw-2">mut </span>bus = Bus::new();
-<a href=#473 id=473 data-nosnippet>473</a>        bus.set(TAC, MASK_TIMER_ENABLED | u8::from(Clock::T64));
+<a href=#473 id=473 data-nosnippet>473</a>        bus.set(ADDR_TAC, MASK_TIMER_ENABLED | u8::from(Clock::T64));
 <a href=#474 id=474 data-nosnippet>474</a>
-<a href=#475 id=475 data-nosnippet>475</a>        <span class="macro">assert_eq!</span>(<span class="number">0</span>, bus.get(TIMA));
+<a href=#475 id=475 data-nosnippet>475</a>        <span class="macro">assert_eq!</span>(<span class="number">0</span>, bus.get(ADDR_TIMA));
 <a href=#476 id=476 data-nosnippet>476</a>
 <a href=#477 id=477 data-nosnippet>477</a>        bus.tick(MachineCycles::new(<span class="number">16</span>));
 <a href=#478 id=478 data-nosnippet>478</a>
-<a href=#479 id=479 data-nosnippet>479</a>        <span class="macro">assert_eq!</span>(<span class="number">1</span>, bus.get(TIMA));
+<a href=#479 id=479 data-nosnippet>479</a>        <span class="macro">assert_eq!</span>(<span class="number">1</span>, bus.get(ADDR_TIMA));
 <a href=#480 id=480 data-nosnippet>480</a>
 <a href=#481 id=481 data-nosnippet>481</a>        bus.tick(MachineCycles::new(<span class="number">16</span>));
 <a href=#482 id=482 data-nosnippet>482</a>
-<a href=#483 id=483 data-nosnippet>483</a>        <span class="macro">assert_eq!</span>(<span class="number">2</span>, bus.get(TIMA));
+<a href=#483 id=483 data-nosnippet>483</a>        <span class="macro">assert_eq!</span>(<span class="number">2</span>, bus.get(ADDR_TIMA));
 <a href=#484 id=484 data-nosnippet>484</a>    }
 <a href=#485 id=485 data-nosnippet>485</a>
 <a href=#486 id=486 data-nosnippet>486</a>    <span class="attr">#[test]
 <a href=#487 id=487 data-nosnippet>487</a>    </span><span class="kw">fn </span>timer_test_t256_cadence() {
 <a href=#488 id=488 data-nosnippet>488</a>        <span class="kw">let </span><span class="kw-2">mut </span>bus = Bus::new();
-<a href=#489 id=489 data-nosnippet>489</a>        bus.set(TAC, MASK_TIMER_ENABLED | u8::from(Clock::T256));
+<a href=#489 id=489 data-nosnippet>489</a>        bus.set(ADDR_TAC, MASK_TIMER_ENABLED | u8::from(Clock::T256));
 <a href=#490 id=490 data-nosnippet>490</a>
-<a href=#491 id=491 data-nosnippet>491</a>        <span class="macro">assert_eq!</span>(<span class="number">0</span>, bus.get(TIMA));
+<a href=#491 id=491 data-nosnippet>491</a>        <span class="macro">assert_eq!</span>(<span class="number">0</span>, bus.get(ADDR_TIMA));
 <a href=#492 id=492 data-nosnippet>492</a>
 <a href=#493 id=493 data-nosnippet>493</a>        bus.tick(MachineCycles::new(<span class="number">64</span>));
 <a href=#494 id=494 data-nosnippet>494</a>
-<a href=#495 id=495 data-nosnippet>495</a>        <span class="macro">assert_eq!</span>(<span class="number">1</span>, bus.get(TIMA));
+<a href=#495 id=495 data-nosnippet>495</a>        <span class="macro">assert_eq!</span>(<span class="number">1</span>, bus.get(ADDR_TIMA));
 <a href=#496 id=496 data-nosnippet>496</a>
 <a href=#497 id=497 data-nosnippet>497</a>        bus.tick(MachineCycles::new(<span class="number">64</span>));
 <a href=#498 id=498 data-nosnippet>498</a>
-<a href=#499 id=499 data-nosnippet>499</a>        <span class="macro">assert_eq!</span>(<span class="number">2</span>, bus.get(TIMA));
+<a href=#499 id=499 data-nosnippet>499</a>        <span class="macro">assert_eq!</span>(<span class="number">2</span>, bus.get(ADDR_TIMA));
 <a href=#500 id=500 data-nosnippet>500</a>    }
 <a href=#501 id=501 data-nosnippet>501</a>
 <a href=#502 id=502 data-nosnippet>502</a>    <span class="attr">#[test]
 <a href=#503 id=503 data-nosnippet>503</a>    </span><span class="kw">fn </span>timer_test_t1024_cadence() {
 <a href=#504 id=504 data-nosnippet>504</a>        <span class="kw">let </span><span class="kw-2">mut </span>bus = Bus::new();
-<a href=#505 id=505 data-nosnippet>505</a>        bus.set(TAC, MASK_TIMER_ENABLED | u8::from(Clock::T1024));
+<a href=#505 id=505 data-nosnippet>505</a>        bus.set(ADDR_TAC, MASK_TIMER_ENABLED | u8::from(Clock::T1024));
 <a href=#506 id=506 data-nosnippet>506</a>
-<a href=#507 id=507 data-nosnippet>507</a>        <span class="macro">assert_eq!</span>(<span class="number">0</span>, bus.get(TIMA));
+<a href=#507 id=507 data-nosnippet>507</a>        <span class="macro">assert_eq!</span>(<span class="number">0</span>, bus.get(ADDR_TIMA));
 <a href=#508 id=508 data-nosnippet>508</a>
 <a href=#509 id=509 data-nosnippet>509</a>        bus.tick(MachineCycles::new(<span class="number">256</span>));
 <a href=#510 id=510 data-nosnippet>510</a>
-<a href=#511 id=511 data-nosnippet>511</a>        <span class="macro">assert_eq!</span>(<span class="number">1</span>, bus.get(TIMA));
+<a href=#511 id=511 data-nosnippet>511</a>        <span class="macro">assert_eq!</span>(<span class="number">1</span>, bus.get(ADDR_TIMA));
 <a href=#512 id=512 data-nosnippet>512</a>
 <a href=#513 id=513 data-nosnippet>513</a>        bus.tick(MachineCycles::new(<span class="number">256</span>));
 <a href=#514 id=514 data-nosnippet>514</a>
-<a href=#515 id=515 data-nosnippet>515</a>        <span class="macro">assert_eq!</span>(<span class="number">2</span>, bus.get(TIMA));
+<a href=#515 id=515 data-nosnippet>515</a>        <span class="macro">assert_eq!</span>(<span class="number">2</span>, bus.get(ADDR_TIMA));
 <a href=#516 id=516 data-nosnippet>516</a>    }
 <a href=#517 id=517 data-nosnippet>517</a>
 <a href=#518 id=518 data-nosnippet>518</a>    <span class="attr">#[test]
 <a href=#519 id=519 data-nosnippet>519</a>    </span><span class="kw">fn </span>timer_test_disabled_timer_works() {
 <a href=#520 id=520 data-nosnippet>520</a>        <span class="kw">let </span><span class="kw-2">mut </span>bus = Bus::new();
-<a href=#521 id=521 data-nosnippet>521</a>        bus.set(TAC, u8::from(Clock::T16));
+<a href=#521 id=521 data-nosnippet>521</a>        bus.set(ADDR_TAC, u8::from(Clock::T16));
 <a href=#522 id=522 data-nosnippet>522</a>
-<a href=#523 id=523 data-nosnippet>523</a>        <span class="macro">assert_eq!</span>(<span class="number">0</span>, bus.get(TIMA));
+<a href=#523 id=523 data-nosnippet>523</a>        <span class="macro">assert_eq!</span>(<span class="number">0</span>, bus.get(ADDR_TIMA));
 <a href=#524 id=524 data-nosnippet>524</a>
 <a href=#525 id=525 data-nosnippet>525</a>        bus.tick(MachineCycles::new(<span class="number">12</span>));
 <a href=#526 id=526 data-nosnippet>526</a>
-<a href=#527 id=527 data-nosnippet>527</a>        <span class="macro">assert_eq!</span>(<span class="number">0</span>, bus.get(TIMA));
+<a href=#527 id=527 data-nosnippet>527</a>        <span class="macro">assert_eq!</span>(<span class="number">0</span>, bus.get(ADDR_TIMA));
 <a href=#528 id=528 data-nosnippet>528</a>
-<a href=#529 id=529 data-nosnippet>529</a>        bus.set(TAC, MASK_TIMER_ENABLED | u8::from(Clock::T16));
+<a href=#529 id=529 data-nosnippet>529</a>        bus.set(ADDR_TAC, MASK_TIMER_ENABLED | u8::from(Clock::T16));
 <a href=#530 id=530 data-nosnippet>530</a>
 <a href=#531 id=531 data-nosnippet>531</a>        bus.tick(MachineCycles::new(<span class="number">12</span>));
 <a href=#532 id=532 data-nosnippet>532</a>
-<a href=#533 id=533 data-nosnippet>533</a>        <span class="macro">assert_eq!</span>(<span class="number">3</span>, bus.get(TIMA));
+<a href=#533 id=533 data-nosnippet>533</a>        <span class="macro">assert_eq!</span>(<span class="number">3</span>, bus.get(ADDR_TIMA));
 <a href=#534 id=534 data-nosnippet>534</a>
-<a href=#535 id=535 data-nosnippet>535</a>        bus.set(TAC, u8::from(Clock::T16));
+<a href=#535 id=535 data-nosnippet>535</a>        bus.set(ADDR_TAC, u8::from(Clock::T16));
 <a href=#536 id=536 data-nosnippet>536</a>
 <a href=#537 id=537 data-nosnippet>537</a>        bus.tick(MachineCycles::new(<span class="number">12</span>));
 <a href=#538 id=538 data-nosnippet>538</a>
-<a href=#539 id=539 data-nosnippet>539</a>        <span class="macro">assert_eq!</span>(<span class="number">3</span>, bus.get(TIMA));
+<a href=#539 id=539 data-nosnippet>539</a>        <span class="macro">assert_eq!</span>(<span class="number">3</span>, bus.get(ADDR_TIMA));
 <a href=#540 id=540 data-nosnippet>540</a>    }
 <a href=#541 id=541 data-nosnippet>541</a>
 <a href=#542 id=542 data-nosnippet>542</a>    <span class="attr">#[test]
 <a href=#543 id=543 data-nosnippet>543</a>    </span><span class="kw">fn </span>timer_overflow_reloads_the_timer_after_1_m_cycle() {
-<a href=#544 id=544 data-nosnippet>544</a>        <span class="kw">let </span><span class="kw-2">mut </span>bus = Bus::new().with_memory(<span class="kw-2">&amp;</span>[(TIMA, <span class="number">0xFF</span>), (TMA, <span class="number">0xAB</span>)]);
-<a href=#545 id=545 data-nosnippet>545</a>        bus.set(TAC, MASK_TIMER_ENABLED | u8::from(Clock::T16));
-<a href=#546 id=546 data-nosnippet>546</a>
-<a href=#547 id=547 data-nosnippet>547</a>        bus.tick(MachineCycles::new(<span class="number">4</span>));
-<a href=#548 id=548 data-nosnippet>548</a>
-<a href=#549 id=549 data-nosnippet>549</a>        <span class="macro">assert_eq!</span>(<span class="number">0</span>, bus.get(TIMA));
-<a href=#550 id=550 data-nosnippet>550</a>        <span class="macro">assert_eq!</span>(<span class="number">0</span>, bus.get(IF) &amp; MASK_TIMER_INTERRUPT);
+<a href=#544 id=544 data-nosnippet>544</a>        <span class="kw">let </span><span class="kw-2">mut </span>bus = Bus::new().with_memory(<span class="kw-2">&amp;</span>[
+<a href=#545 id=545 data-nosnippet>545</a>            (ADDR_TIMA, <span class="number">0xFF</span>),
+<a href=#546 id=546 data-nosnippet>546</a>            (ADDR_TMA, <span class="number">0xAB</span>),
+<a href=#547 id=547 data-nosnippet>547</a>            (ADDR_TAC, MASK_TIMER_ENABLED | u8::from(Clock::T16)),
+<a href=#548 id=548 data-nosnippet>548</a>        ]);
+<a href=#549 id=549 data-nosnippet>549</a>
+<a href=#550 id=550 data-nosnippet>550</a>        bus.tick(MachineCycles::new(<span class="number">4</span>));
 <a href=#551 id=551 data-nosnippet>551</a>
-<a href=#552 id=552 data-nosnippet>552</a>        <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">3 </span>{
-<a href=#553 id=553 data-nosnippet>553</a>            bus.t_cycle_tick();
-<a href=#554 id=554 data-nosnippet>554</a>            <span class="macro">assert_eq!</span>(<span class="number">0</span>, bus.get(TIMA));
-<a href=#555 id=555 data-nosnippet>555</a>            <span class="macro">assert_eq!</span>(<span class="number">0</span>, bus.get(IF) &amp; MASK_TIMER_INTERRUPT);
-<a href=#556 id=556 data-nosnippet>556</a>        }
-<a href=#557 id=557 data-nosnippet>557</a>
-<a href=#558 id=558 data-nosnippet>558</a>        bus.t_cycle_tick();
-<a href=#559 id=559 data-nosnippet>559</a>
-<a href=#560 id=560 data-nosnippet>560</a>        <span class="macro">assert_eq!</span>(<span class="number">0xAB</span>, bus.get(TIMA));
-<a href=#561 id=561 data-nosnippet>561</a>        <span class="macro">assert!</span>(bus.get(IF) &amp; MASK_TIMER_INTERRUPT &gt; <span class="number">0</span>);
-<a href=#562 id=562 data-nosnippet>562</a>    }
-<a href=#563 id=563 data-nosnippet>563</a>}
+<a href=#552 id=552 data-nosnippet>552</a>        <span class="macro">assert_eq!</span>(<span class="number">0</span>, bus.get(ADDR_TIMA));
+<a href=#553 id=553 data-nosnippet>553</a>        <span class="macro">assert_eq!</span>(<span class="number">0</span>, bus.get(ADDR_IF) &amp; Interrupt::Timer.mask());
+<a href=#554 id=554 data-nosnippet>554</a>
+<a href=#555 id=555 data-nosnippet>555</a>        <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">3 </span>{
+<a href=#556 id=556 data-nosnippet>556</a>            bus.t_cycle_tick();
+<a href=#557 id=557 data-nosnippet>557</a>            <span class="macro">assert_eq!</span>(<span class="number">0</span>, bus.get(ADDR_TIMA));
+<a href=#558 id=558 data-nosnippet>558</a>            <span class="macro">assert_eq!</span>(<span class="number">0</span>, bus.get(ADDR_IF) &amp; Interrupt::Timer.mask());
+<a href=#559 id=559 data-nosnippet>559</a>        }
+<a href=#560 id=560 data-nosnippet>560</a>
+<a href=#561 id=561 data-nosnippet>561</a>        bus.t_cycle_tick();
+<a href=#562 id=562 data-nosnippet>562</a>
+<a href=#563 id=563 data-nosnippet>563</a>        <span class="macro">assert_eq!</span>(<span class="number">0xAB</span>, bus.get(ADDR_TIMA));
+<a href=#564 id=564 data-nosnippet>564</a>        <span class="macro">assert!</span>(bus.get(ADDR_IF) &amp; Interrupt::Timer.mask() &gt; <span class="number">0</span>);
+<a href=#565 id=565 data-nosnippet>565</a>    }
+<a href=#566 id=566 data-nosnippet>566</a>}
 </code></pre></div></section></main></body></html>
