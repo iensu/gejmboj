@@ -1,7 +1,7 @@
 //! Sharp SM83 CPU implementation
 
 use crate::{
-    bus::{Bus, IE, IF, MASK_TIMER_INTERRUPT},
+    bus::{ADDR_IE, ADDR_IF, Bus, MASK_TIMER_INTERRUPT},
     cycles::MachineCycles,
     errors::CpuError,
     instructions::{self, Instruction},
@@ -173,10 +173,10 @@ impl CPU {
         bus: &mut Bus,
     ) -> MachineCycles {
         let mask = interrupt.mask();
-        if self.flags.IME && bus.get(IF) & bus.get(IE) & mask != 0 {
+        if self.flags.IME && bus.get(ADDR_IF) & bus.get(ADDR_IE) & mask != 0 {
             // Reset
             self.flags.IME = false;
-            bus.set(IF, bus.get(IF) & !mask);
+            bus.set(ADDR_IF, bus.get(ADDR_IF) & !mask);
 
             bus.tick(MachineCycles::new(2)); // Wait two M-cycles
 
