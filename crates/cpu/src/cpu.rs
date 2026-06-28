@@ -5,7 +5,7 @@ use crate::{
     cycles::MachineCycles,
     errors::CpuError,
     instructions::{self, Instruction, misc::Misc},
-    interrupts::Interrupt,
+    interrupts::next_pending_interrupt,
     registers::{Registers, SingleRegister},
 };
 
@@ -89,7 +89,7 @@ impl CPU {
             self.flags.halted = false;
         }
 
-        cycles += self.maybe_handle_interrupt(Interrupt::Timer, registers, bus);
+        cycles += self.maybe_handle_interrupt(registers, bus);
 
         Ok((instruction, cycles))
     }
@@ -157,15 +157,15 @@ impl CPU {
 
     fn maybe_handle_interrupt(
         &mut self,
-        interrupt: Interrupt,
         registers: &mut Registers,
         bus: &mut Bus,
     ) -> MachineCycles {
-        let mask = interrupt.mask();
-        if self.flags.IME && 0x1F & bus.get(ADDR_IF) & bus.get(ADDR_IE) & mask != 0 {
+        if self.flags.IME
+            && let Some(interrupt) = next_pending_interrupt(bus)
+        {
             // Reset
             self.flags.IME = false;
-            bus.set(ADDR_IF, bus.get(ADDR_IF) & !mask);
+            bus.set(ADDR_IF, bus.get(ADDR_IF) & !interrupt.mask());
 
             bus.tick(MachineCycles::new(2)); // Wait two M-cycles
 
@@ -191,6 +191,7 @@ mod test {
     use crate::bus::Clock;
     use crate::bus::MASK_TIMER_ENABLED;
     use crate::instructions::Condition;
+    use crate::interrupts::Interrupt;
 
     use super::*;
     use instructions::Instruction;
