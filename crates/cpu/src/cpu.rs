@@ -1,7 +1,7 @@
 //! Sharp SM83 CPU implementation
 
 use crate::{
-    bus::{ADDR_IE, ADDR_IF, Bus},
+    bus::Bus,
     cycles::MachineCycles,
     errors::CpuError,
     instructions::{self, Instruction, misc::Misc},
@@ -9,7 +9,7 @@ use crate::{
     registers::{Registers, SingleRegister},
 };
 
-#[allow(non_snake_case)]
+#[allow(non_snake_case, clippy::struct_excessive_bools)]
 #[derive(Debug, PartialEq, Eq)]
 pub struct CpuFlags {
     /// Interrupt Master Enable
@@ -22,6 +22,10 @@ pub struct CpuFlags {
 
     /// The CPU is in halted mode, the bus timer continues, but PC is not incremented.
     pub halted: bool,
+
+    /// Used to handle the HALT bug where PC is not incremented correctly when IME=0 and there
+    /// is a pending interrupt.
+    pub skip_pc_increment: bool,
 }
 
 impl Default for CpuFlags {
@@ -37,6 +41,7 @@ impl CpuFlags {
             IME: false,
             IME_scheduled: false,
             halted: false,
+            skip_pc_increment: false,
         }
     }
 }
@@ -77,15 +82,22 @@ impl CPU {
         let (instruction, mut cycles) = if self.flags.halted {
             (Instruction::Misc(Misc::HALT()), MachineCycles::new(1))
         } else {
+            let pending_interrupt = bus.has_pending_interrupt();
             let opcode = self.fetch(registers, bus);
             let instruction = self.decode(opcode, registers, bus)?;
             let cycles = self.execute(&instruction, registers, bus)?;
+
+            // HALT PC increment bug
+            self.flags.skip_pc_increment = instruction == Instruction::Misc(Misc::HALT())
+                && !self.flags.IME
+                && pending_interrupt;
+
             (instruction, cycles)
         };
 
         bus.tick(cycles);
 
-        if self.flags.halted && 0x1F & bus.get(ADDR_IE) & bus.get(ADDR_IF) != 0 {
+        if self.flags.halted && bus.has_pending_interrupt() {
             self.flags.halted = false;
         }
 
@@ -96,7 +108,9 @@ impl CPU {
 
     pub fn fetch(&mut self, registers: &mut Registers, bus: &mut Bus) -> u8 {
         let opcode = bus.get(registers.PC);
-        registers.PC += 1;
+        if !self.flags.skip_pc_increment {
+            registers.PC += 1;
+        }
         opcode
     }
 
@@ -165,7 +179,7 @@ impl CPU {
         {
             // Reset
             self.flags.IME = false;
-            bus.set(ADDR_IF, bus.get(ADDR_IF) & !interrupt.mask());
+            bus.clear_interrupt(interrupt);
 
             bus.tick(MachineCycles::new(2)); // Wait two M-cycles
 
@@ -185,13 +199,10 @@ impl CPU {
 #[allow(clippy::unusual_byte_groupings)]
 #[cfg(test)]
 mod test {
-    use crate::bus::ADDR_TAC;
-    use crate::bus::ADDR_TIMA;
-    use crate::bus::ADDR_TMA;
-    use crate::bus::Clock;
-    use crate::bus::MASK_TIMER_ENABLED;
+    use crate::bus::{ADDR_IE, ADDR_IF, ADDR_TAC, ADDR_TIMA, ADDR_TMA, Clock, MASK_TIMER_ENABLED};
     use crate::instructions::Condition;
     use crate::interrupts::Interrupt;
+    use crate::registers::DoubleRegister;
 
     use super::*;
     use instructions::Instruction;
@@ -286,6 +297,76 @@ mod test {
 
         assert_eq!(0x0001, registers.PC);
         assert!(!cpu.flags.halted);
+    }
+
+    #[test]
+    fn halt_bug_fails_to_increment_pc_on_next_fetch() {
+        let halt = 0b0111_0110;
+        let inc_hl = 0b0011_0100;
+        let hl_addr = 0xABCD;
+        let mut registers = Registers::new();
+        registers.set_double(&DoubleRegister::HL, hl_addr);
+        let mut bus = Bus::new().with_memory(&[
+            (0x0000, halt),
+            (0x0001, inc_hl),
+            (hl_addr, 10),
+            (ADDR_IE, Interrupt::VBlank.mask()),
+            (ADDR_IF, Interrupt::VBlank.mask()),
+        ]);
+        let mut cpu = CPU::new();
+        cpu.flags.IME = false;
+        cpu.flags.IME_scheduled = false;
+        cpu.flags.skip_pc_increment = false;
+
+        let _ = cpu.tick(&mut registers, &mut bus).unwrap();
+        assert_eq!(0x0001, registers.PC);
+        assert_eq!(10, bus.get(hl_addr));
+        assert!(cpu.flags.skip_pc_increment);
+
+        let _ = cpu.tick(&mut registers, &mut bus).unwrap();
+        assert_eq!(0x0001, registers.PC);
+        assert_eq!(11, bus.get(hl_addr));
+        assert!(!cpu.flags.skip_pc_increment);
+
+        let _ = cpu.tick(&mut registers, &mut bus).unwrap();
+        assert_eq!(0x0002, registers.PC);
+        assert_eq!(12, bus.get(hl_addr));
+        assert!(!cpu.flags.skip_pc_increment);
+    }
+
+    #[test]
+    fn halt_bug_fails_to_increment_pc_on_next_fetch_2() {
+        let halt = 0b0111_0110;
+        let add_n = 0b1100_0110;
+        let operand = 1;
+        let mut registers = Registers::new();
+        registers.set_single(&SingleRegister::A, 10);
+        let mut bus = Bus::new().with_memory(&[
+            (0x0000, halt),
+            (0x0001, add_n),
+            (0x0002, operand),
+            (ADDR_IE, Interrupt::VBlank.mask()),
+            (ADDR_IF, Interrupt::VBlank.mask()),
+        ]);
+        let mut cpu = CPU::new();
+        cpu.flags.IME = false;
+        cpu.flags.IME_scheduled = false;
+        cpu.flags.skip_pc_increment = false;
+
+        let _ = cpu.tick(&mut registers, &mut bus).unwrap();
+        assert_eq!(0x0001, registers.PC);
+        assert_eq!(10, registers.get_single(&SingleRegister::A));
+        assert!(cpu.flags.skip_pc_increment);
+
+        let _ = cpu.tick(&mut registers, &mut bus).unwrap();
+        assert_eq!(0x0002, registers.PC);
+        assert_eq!(10 + add_n, registers.get_single(&SingleRegister::A));
+        assert!(!cpu.flags.skip_pc_increment);
+
+        let _ = cpu.tick(&mut registers, &mut bus).unwrap();
+        assert_eq!(0x0005, registers.PC);
+        assert_eq!(10 + add_n, registers.get_single(&SingleRegister::A));
+        assert!(!cpu.flags.skip_pc_increment);
     }
 
     #[test]

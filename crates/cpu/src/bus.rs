@@ -193,6 +193,17 @@ impl Bus {
         Ok(())
     }
 
+    /// Returns true if there is a pending interrupt.
+    #[must_use]
+    pub fn has_pending_interrupt(&self) -> bool {
+        0x1F & self.get(ADDR_IE) & self.get(ADDR_IF) != 0
+    }
+
+    /// Clears the interrupt by removing it from IF.
+    pub fn clear_interrupt(&mut self, interrupt: Interrupt) {
+        self.set(ADDR_IF, self.get(ADDR_IF) & !interrupt.mask());
+    }
+
     /// Sets a `u8` value in memory.
     ///
     /// ```
@@ -562,5 +573,28 @@ mod tests {
 
         assert_eq!(0xAB, bus.get(ADDR_TIMA));
         assert!(bus.get(ADDR_IF) & Interrupt::Timer.mask() > 0);
+    }
+
+    #[test]
+    fn has_pending_interrupt_works() {
+        let bus = Bus::new().with_memory(&[(ADDR_IE, 0), (ADDR_IF, 0)]);
+
+        assert!(!bus.has_pending_interrupt(), "correctly handles 0 bytes");
+
+        let bus = Bus::new().with_memory(&[(ADDR_IE, 0b0000_0100), (ADDR_IF, 0b0000_0010)]);
+
+        assert!(!bus.has_pending_interrupt(), "bits must match");
+
+        let bus = Bus::new().with_memory(&[(ADDR_IE, 0b0000_0100), (ADDR_IF, 0b0000_0100)]);
+
+        assert!(bus.has_pending_interrupt(), "identifies pending interrupt");
+
+        let bus = Bus::new().with_memory(&[(ADDR_IE, 0b0001_0000), (ADDR_IF, 0b0001_0100)]);
+
+        assert!(bus.has_pending_interrupt(), "bit 4 works");
+
+        let bus = Bus::new().with_memory(&[(ADDR_IE, 0b1110_0000), (ADDR_IF, 0b1110_0000)]);
+
+        assert!(!bus.has_pending_interrupt(), "bits 5-7 are ignored");
     }
 }

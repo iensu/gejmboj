@@ -260,7 +260,7 @@ instruction_group! {
             Ok(MachineCycles::new(1))
         }
 
-        /// Increment `HL` by 1
+        /// Increment the address pointed to by `HL` by 1
         ///
         /// The Carry flag is unaffected by this instruction.
         INC_HL() [1] => {
