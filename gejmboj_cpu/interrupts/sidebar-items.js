@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["Interrupt"]};
+window.SIDEBAR_ITEMS = {"enum":["Interrupt"],"fn":["next_pending_interrupt"]};
