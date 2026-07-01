@@ -488,6 +488,22 @@ mod test {
     }
 
     #[test]
+    fn instruction_priority_works() {
+        let pending_interrupts = Interrupt::VBlank.mask() | Interrupt::Timer.mask();
+        let mut registers = Registers::new();
+        let mut bus =
+            Bus::new().with_memory(&[(ADDR_IE, pending_interrupts), (ADDR_IF, pending_interrupts)]);
+        let mut cpu = CPU::new();
+        cpu.flags.IME = true;
+
+        let _ = cpu.tick(&mut registers, &mut bus).unwrap();
+
+        assert_eq!(Interrupt::VBlank.vector(), registers.PC);
+        assert_eq!(0, bus.get(ADDR_IF) & Interrupt::VBlank.mask());
+        assert!(bus.get(ADDR_IF) & Interrupt::Timer.mask() != 0);
+    }
+
+    #[test]
     fn jrc_instruction_works() {
         fn test_jrc_instruction(instruction_byte: u8, cond: Condition) {
             let operand = 20;

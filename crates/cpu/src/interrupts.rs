@@ -8,7 +8,7 @@ const INTERRUPT_PRIORITY: [Interrupt; 5] = [
     Interrupt::Joypad,
 ];
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Interrupt {
     VBlank,
     LCD,
@@ -49,4 +49,37 @@ impl Interrupt {
 #[must_use]
 pub fn next_pending_interrupt(bus: &Bus) -> Option<Interrupt> {
     INTERRUPT_PRIORITY.into_iter().find(|i| i.is_pending(bus))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Interrupt as I;
+    use super::*;
+
+    #[test]
+    fn next_pending_interrupt_works() {
+        let pending = 0;
+        let bus = Bus::new().with_memory(&[(ADDR_IF, pending), (ADDR_IE, pending)]);
+        assert_eq!(None, next_pending_interrupt(&bus));
+
+        let pending = 0b1110_0000;
+        let bus = Bus::new().with_memory(&[(ADDR_IF, pending), (ADDR_IE, pending)]);
+        assert_eq!(None, next_pending_interrupt(&bus));
+
+        let pending = I::VBlank.mask() | I::Timer.mask() | I::Joypad.mask();
+        let bus = Bus::new().with_memory(&[(ADDR_IF, pending), (ADDR_IE, pending)]);
+        assert_eq!(Some(I::VBlank), next_pending_interrupt(&bus));
+
+        let pending = I::Timer.mask() | I::Joypad.mask();
+        let bus = Bus::new().with_memory(&[(ADDR_IF, pending), (ADDR_IE, pending)]);
+        assert_eq!(Some(I::Timer), next_pending_interrupt(&bus));
+
+        let pending = I::Serial.mask() | I::Joypad.mask();
+        let bus = Bus::new().with_memory(&[(ADDR_IF, pending), (ADDR_IE, pending)]);
+        assert_eq!(Some(I::Serial), next_pending_interrupt(&bus));
+
+        let pending = I::Joypad.mask();
+        let bus = Bus::new().with_memory(&[(ADDR_IF, pending), (ADDR_IE, pending)]);
+        assert_eq!(Some(I::Joypad), next_pending_interrupt(&bus));
+    }
 }
